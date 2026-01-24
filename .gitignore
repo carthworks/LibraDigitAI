@@ -1,0 +1,50 @@
+node_modules/
+dist/
+build/
+*.log
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Uploads and Archives
+uploads/*
+!uploads/.gitkeep
+Archive/*
+!Archive/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.md 
+!README.md
+
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Electron
+out/
+dist_electron/

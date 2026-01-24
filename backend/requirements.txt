@@ -1,0 +1,7 @@
+flask==3.0.0
+flask-cors==4.0.0
+pytesseract==0.3.10
+Pillow==10.1.0
+PyPDF2==3.0.1
+reportlab==4.0.7
+
