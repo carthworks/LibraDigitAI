@@ -13,6 +13,7 @@ const Sidebar = ({ onLogout }) => {
         { path: '/', icon: Home, label: 'Dashboard' },
         { path: '/upload', icon: Upload, label: 'Upload & OCR' },
         { path: '/batch', icon: Layers, label: 'Batch Processing' },
+        { path: '/help', icon: FileText, label: 'Help & Guide' },
     ]
 
     const isActive = (path) => location.pathname === path

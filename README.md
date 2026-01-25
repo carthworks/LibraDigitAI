@@ -25,20 +25,21 @@ LibraDigit AI is an offline-first desktop application designed for librarians, a
 
 1. **Upload & OCR** - Upload scanned documents and run OCR processing
 2. **Text Cleanup** - Review and correct OCR errors
-3. **Metadata Entry** - Add searchable metadata
-4. **Archive Generation** - Create structured digital archives
+3. **Metadata Entry** - Add searchable metadata (Title, Author, Subject)
+4. **Archive Generation** - Create standard-compliant digital archives
 5. **Progress Tracking** - Visual workflow tracker
 
 ### Key Capabilities
 
-- 🔍 **OCR Processing** - Tesseract-powered text extraction
+- 🔍 **OCR Processing** - Tesseract-powered text extraction with multi-language support (Eng, Spa, Fra, Deu, etc.)
 - 📄 **Searchable PDFs** - Generates high-fidelity "Image-over-Text" PDFs that preserve original layout while being fully searchable
+- 📦 **Standard Archiving** - Implements **BagIt** style folder structure for long-term preservation
+- 🏷️ **Embedded Metadata** - Injects XMP metadata directly into the final PDF files (Title, Author, Keywords) for universal searchability
 - 📝 **Text Editor** - Side-by-side cleanup interface
-- 📊 **Metadata Management** - Comprehensive metadata forms
-- 📁 **Archive Structure** - Automatic folder organization: `/Archive/Subject/Year/Author_Year_Title.pdf`
 - 💾 **Persistent Storage** - SQLite database for project management
 - 🎨 **Modern UI** - Premium dark theme with smooth animations
 - 🔒 **Offline-First** - No cloud dependency, complete data privacy
+- 👁️ **Draft Preview** - Instant preview of converted searchable PDFs before archiving
 
 ## 📋 Prerequisites
 
@@ -150,24 +151,20 @@ npx electron .
    - Click "Generate Archive File"
    - Your document is now archived!
 
-### Archive Structure
-
-Documents are organized as:
+### Archive Structure (BagIt Standard)
+Documents are organized using a standard preservation hierarchy:
 
 ```
 Archive/
   └── Subject/
       └── Year/
-          └── Author_Year_Title.pdf
+          └── Author_Year_Title/
+              ├── data/
+              │   └── Author_Year_Title.pdf   (Final PDF with embedded metadata)
+              ├── bag-info.txt                (Archive package metadata)
+              └── manifest-md5.txt            (Checksums for file integrity)
 ```
-
-Example:
-```
-Archive/
-  └── History/
-      └── 2023/
-          └── Smith_2023_Ancient_Civilizations.pdf
-```
+This ensures your archives are professional, verifiable, and future-proof.
 
 ## 🗄️ Database Schema
 

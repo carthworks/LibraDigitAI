@@ -716,13 +716,22 @@ def generate_archive(project_id):
             filename_parts.append(year)
         filename_parts.append(title)
         
-        filename = '_'.join(filename_parts) + '.pdf'
+        project_name = '_'.join(filename_parts)
+        filename_pdf = project_name + '.pdf'
         
-        # Create directory structure (also sanitize folder names)
-        archive_path = os.path.join(ARCHIVE_FOLDER, subject, year)
-        os.makedirs(archive_path, exist_ok=True)
+        # Create BagIt-style directory structure
+        # /Archive/Subject/Year/ProjectName/
+        #   ├── data/
+        #   │   └── ProjectName.pdf
+        #   ├── bag-info.txt
+        #   └── manifest-md5.txt
         
-        final_path = os.path.join(archive_path, filename)
+        archive_base = os.path.join(ARCHIVE_FOLDER, subject, year, project_name)
+        data_dir = os.path.join(archive_base, 'data')
+        
+        os.makedirs(data_dir, exist_ok=True)
+        
+        final_path = os.path.join(data_dir, filename_pdf)
         
         # Copy the actual processed PDF to the archive location
         # Get the cleaned PDF path from the database
@@ -844,6 +853,43 @@ def generate_archive(project_id):
         except Exception as e:
             print(f"⚠️ Failed to embed metadata into PDF: {e}")
             # Non-critical error, continue with archiving flow
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        # Create BagIt Metadata Files
+        # -------------------------------------------------------------
+        try:
+            # 1. bag-info.txt
+            bag_info_path = os.path.join(archive_base, 'bag-info.txt')
+            with open(bag_info_path, 'w') as f:
+                f.write(f"Source-Organization: LibraDigit AI\n")
+                f.write(f"Organization-Address: 123 Digital Way, Archive City\n")
+                f.write(f"Contact-Name: {author}\n")
+                f.write(f"External-Description: {title}\n")
+                f.write(f"Bagging-Date: {datetime.now().strftime('%Y-%m-%d')}\n")
+                f.write(f"Bag-Software-Agent: LibraDigit AI v1.0\n")
+                f.write(f"Payload-Oxum: {os.path.getsize(final_path)}.1\n")
+            
+            # 2. manifest-md5.txt
+            import hashlib
+            
+            def get_md5(file_path):
+                hash_md5 = hashlib.md5()
+                with open(file_path, "rb") as f:
+                    for chunk in iter(lambda: f.read(4096), b""):
+                        hash_md5.update(chunk)
+                return hash_md5.hexdigest()
+            
+            if os.path.exists(final_path):
+                md5_hash = get_md5(final_path)
+                manifest_path = os.path.join(archive_base, 'manifest-md5.txt')
+                with open(manifest_path, 'w') as f:
+                    f.write(f"{md5_hash} data/{filename_pdf}\n")
+                    
+            print(f"✅ BagIt structure created at {archive_base}")
+            
+        except Exception as e:
+            print(f"⚠️ Failed to create BagIt metadata: {e}")
         # -------------------------------------------------------------
         
         # Update database

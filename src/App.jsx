@@ -7,6 +7,7 @@ import UploadOCR from './pages/UploadOCR'
 import Cleanup from './pages/Cleanup'
 import Metadata from './pages/Metadata'
 import Archive from './pages/Archive'
+import Help from './pages/Help'
 import BatchProcessing from './pages/BatchProcessing'
 import WelcomeScreen from './components/WelcomeScreen'
 import LoginScreen from './components/LoginScreen'
@@ -47,6 +48,7 @@ function App() {
                                 <Route path="/cleanup/:projectId" element={<Cleanup />} />
                                 <Route path="/metadata/:projectId" element={<Metadata />} />
                                 <Route path="/archive/:projectId" element={<Archive />} />
+                                <Route path="/help" element={<Help />} />
                                 <Route path="*" element={<Navigate to="/" replace />} />
                             </Routes>
                         </div>
