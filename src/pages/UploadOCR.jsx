@@ -14,6 +14,7 @@ const UploadOCR = () => {
     const [processing, setProcessing] = useState(false)
     const [currentProject, setCurrentProject] = useState(null)
     const [ocrResult, setOcrResult] = useState(null)
+    const [language, setLanguage] = useState('eng')
 
     const handleDrag = (e) => {
         e.preventDefault()
@@ -72,10 +73,10 @@ const UploadOCR = () => {
             setUploading(false)
 
             // Show success message
-            setTimeout(() => {
-                // Auto-run OCR after upload
-                handleRunOCR(project.id)
-            }, 500)
+            // Show success message
+            // Auto-advance to OCR setup screen
+            // The user will then select language and click "Run OCR" manually
+            setUploading(false)
 
         } catch (err) {
             setUploading(false)
@@ -88,7 +89,7 @@ const UploadOCR = () => {
             setProcessing(true)
             setError(null)
 
-            const result = await runOCR(projectId || currentProject.id)
+            const result = await runOCR(projectId || currentProject.id, language)
             setOcrResult(result)
             setProcessing(false)
 
@@ -256,12 +257,34 @@ const UploadOCR = () => {
                                 </button>
                             </div>
                         ) : (
-                            <button
-                                className="btn btn-primary btn-lg w-full"
-                                onClick={() => handleRunOCR(currentProject.id)}
-                            >
-                                Run OCR
-                            </button>
+                            <>
+                                <div className="language-selector mb-lg">
+                                    <label className="form-label">OCR Language</label>
+                                    <select
+                                        className="form-select"
+                                        value={language}
+                                        onChange={(e) => setLanguage(e.target.value)}
+                                    >
+                                        <option value="eng">English (Default)</option>
+                                        <option value="spa">Spanish (Español)</option>
+                                        <option value="fra">French (Français)</option>
+                                        <option value="deu">German (Deutsch)</option>
+                                        <option value="ita">Italian (Italiano)</option>
+                                        <option value="por">Portuguese (Português)</option>
+                                        <option value="hin">Hindi (हिन्दी)</option>
+                                        <option value="chi_sim">Chinese - Simplified (简体中文)</option>
+                                        <option value="jpn">Japanese (日本語)</option>
+                                        <option value="rus">Russian (Русский)</option>
+                                    </select>
+                                    <p className="form-hint">Note: Ensure corresponding language pack is installed in Tesseract.</p>
+                                </div>
+                                <button
+                                    className="btn btn-primary btn-lg w-full"
+                                    onClick={() => handleRunOCR(currentProject.id)}
+                                >
+                                    Run OCR
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>

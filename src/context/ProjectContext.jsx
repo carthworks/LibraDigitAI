@@ -92,10 +92,10 @@ export const ProjectProvider = ({ children }) => {
     }
 
     // Run OCR on project
-    const runOCR = async (projectId) => {
+    const runOCR = async (projectId, language = 'eng') => {
         try {
             setLoading(true)
-            const response = await axios.post(`${API_BASE}/ocr/${projectId}`)
+            const response = await axios.post(`${API_BASE}/ocr/${projectId}`, { language })
             await getProject(projectId)
             setError(null)
             return response.data

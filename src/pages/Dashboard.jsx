@@ -1,12 +1,33 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
-import { Plus, FileText, Clock, CheckCircle, AlertCircle, Trash2 } from 'lucide-react'
+import { Plus, FileText, Clock, CheckCircle, AlertCircle, Trash2, LayoutGrid, List, Search, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react'
 import './Dashboard.css'
 
 const Dashboard = () => {
     const navigate = useNavigate()
-    const { projects, loading, error, deleteProject } = useProject()
+    const { projects, loading, error, deleteProject, fetchProjects } = useProject()
+    const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
+
+    // Refresh projects on mount to ensure data is up to date when navigating from sidebar
+    React.useEffect(() => {
+        fetchProjects()
+    }, [])
+
+    // Search & Pagination State
+    const [searchQuery, setSearchQuery] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 8
+
+    // Preview Modal State
+    const [previewProject, setPreviewProject] = useState(null)
+
+    const handlePreview = (e, project) => {
+        e.stopPropagation()
+        setPreviewProject(project)
+    }
+
+    const closePreview = () => setPreviewProject(null)
 
     const getStatusInfo = (status) => {
         const statusMap = {
@@ -61,6 +82,23 @@ const Dashboard = () => {
         }
     }
 
+    // Filter and Pagination Logic
+    const filteredProjects = projects.filter(project =>
+        project.filename.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+    const totalPages = Math.ceil(filteredProjects.length / itemsPerPage)
+    const currentProjects = filteredProjects.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    )
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage)
+        }
+    }
+
     if (loading && projects.length === 0) {
         return (
             <div className="dashboard-loading">
@@ -87,10 +125,40 @@ const Dashboard = () => {
                     <h2>Your Projects</h2>
                     <p className="text-secondary">Manage your digitization workflow</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => navigate('/upload')}>
-                    <Plus size={20} />
-                    Start New Project
-                </button>
+                <div className="dashboard-actions">
+                    <div className="search-box">
+                        <Search size={18} className="search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Search files..."
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value)
+                                setCurrentPage(1) // Reset to page 1 on search
+                            }}
+                        />
+                    </div>
+                    <div className="view-toggle">
+                        <button
+                            className={`btn-icon ${viewMode === 'grid' ? 'active' : ''}`}
+                            onClick={() => setViewMode('grid')}
+                            title="Grid View"
+                        >
+                            <LayoutGrid size={20} />
+                        </button>
+                        <button
+                            className={`btn-icon ${viewMode === 'list' ? 'active' : ''}`}
+                            onClick={() => setViewMode('list')}
+                            title="List View"
+                        >
+                            <List size={20} />
+                        </button>
+                    </div>
+                    <button className="btn btn-primary" onClick={() => navigate('/upload')}>
+                        <Plus size={20} />
+                        New Project
+                    </button>
+                </div>
             </div>
 
             {projects.length === 0 ? (
@@ -108,57 +176,204 @@ const Dashboard = () => {
                     </button>
                 </div>
             ) : (
-                <div className="projects-grid">
-                    {projects.map((project) => {
-                        const statusInfo = getStatusInfo(project.status)
-                        const StatusIcon = statusInfo.icon
-                        const progress = getProgressPercentage(project.status)
+                <>
+                    {viewMode === 'grid' ? (
+                        <div className="projects-grid">
+                            {currentProjects.map((project) => {
+                                const statusInfo = getStatusInfo(project.status)
+                                const StatusIcon = statusInfo.icon
+                                const progress = getProgressPercentage(project.status)
 
-                        return (
-                            <div
-                                key={project.id}
-                                className="project-card"
-                                onClick={() => handleProjectClick(project)}
-                            >
-                                <div className="project-card-header">
-                                    <div className="project-icon">
-                                        <FileText size={24} />
-                                    </div>
-                                    <button
-                                        className="project-delete"
-                                        onClick={(e) => handleDelete(e, project.id)}
-                                        title="Delete project"
+                                return (
+                                    <div
+                                        key={project.id}
+                                        className="project-card"
+                                        onClick={() => handleProjectClick(project)}
                                     >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
+                                        <div className="project-card-header">
+                                            <div className="project-icon">
+                                                <FileText size={24} />
+                                            </div>
+                                            <div className="flex gap-sm">
+                                                <button
+                                                    className={`project-delete ${['upload', 'ocr'].includes(project.status) ? 'btn-disabled-opacity' : ''}`}
+                                                    onClick={(e) => !['upload', 'ocr'].includes(project.status) ? handlePreview(e, project) : alert('PDF preview is available after OCR processing is complete.')}
+                                                    title={project.status === 'archived' ? "View Archived Document" : "View Searchable PDF (Draft)"}
+                                                >
+                                                    <Eye size={16} />
+                                                </button>
+                                                <button
+                                                    className="project-delete"
+                                                    onClick={(e) => handleDelete(e, project.id)}
+                                                    title="Delete project"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
 
-                                <div className="project-info">
-                                    <h3 className="project-name">{project.filename}</h3>
-                                    <div className="project-meta">
-                                        <span className={`badge badge-${statusInfo.color}`}>
-                                            <StatusIcon size={14} />
-                                            {statusInfo.label}
-                                        </span>
+                                        <div className="project-info">
+                                            <h3 className="project-name">{project.filename}</h3>
+                                            <div className="project-meta">
+                                                <span className={`badge badge-${statusInfo.color}`}>
+                                                    <StatusIcon size={14} />
+                                                    {statusInfo.label}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="project-progress">
+                                            <div className="progress-bar">
+                                                <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                                            </div>
+                                            <span className="progress-text">{progress}% Complete</span>
+                                        </div>
+
+                                        <div className="project-footer">
+                                            <span className="project-date">
+                                                <Clock size={14} />
+                                                {new Date(project.created_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
+                                )
+                            })}
+                        </div>
+                    ) : (
+                        <div className="projects-list-container">
+                            <table className="projects-table">
+                                <thead>
+                                    <tr>
+                                        <th>File Name</th>
+                                        <th>Status</th>
+                                        <th>Progress</th>
+                                        <th>Date Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {currentProjects.map((project) => {
+                                        const statusInfo = getStatusInfo(project.status)
+                                        const StatusIcon = statusInfo.icon
+                                        const progress = getProgressPercentage(project.status)
 
-                                <div className="project-progress">
-                                    <div className="progress-bar">
-                                        <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-                                    </div>
-                                    <span className="progress-text">{progress}% Complete</span>
-                                </div>
+                                        return (
+                                            <tr key={project.id} onClick={() => handleProjectClick(project)} className="clickable-row">
+                                                <td className="col-name">
+                                                    <div className="flex items-center gap-md">
+                                                        <div className="list-icon">
+                                                            <FileText size={18} />
+                                                        </div>
+                                                        <span className="font-medium">{project.filename}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span className={`badge badge-${statusInfo.color}`}>
+                                                        <StatusIcon size={14} />
+                                                        {statusInfo.label}
+                                                    </span>
+                                                </td>
+                                                <td className="col-progress">
+                                                    <div className="flex flex-col gap-sm">
+                                                        <div className="progress-bar">
+                                                            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                                                        </div>
+                                                        <span className="text-secondary text-sm">{progress}%</span>
+                                                    </div>
+                                                </td>
+                                                <td className="text-secondary">
+                                                    {new Date(project.created_at).toLocaleDateString()}
+                                                </td>
+                                                <td>
+                                                    <div className="flex gap-sm">
+                                                        <button
+                                                            className={`btn-icon ${['upload', 'ocr'].includes(project.status) ? 'btn-disabled-opacity' : ''}`}
+                                                            onClick={(e) => !['upload', 'ocr'].includes(project.status) ? handlePreview(e, project) : alert('PDF preview is available after OCR processing is complete.')}
+                                                            title={project.status === 'archived' ? "View Archived Document" : "View Searchable PDF (Draft)"}
+                                                        >
+                                                            <Eye size={18} />
+                                                        </button>
+                                                        <button
+                                                            className="btn-icon delete-btn"
+                                                            onClick={(e) => handleDelete(e, project.id)}
+                                                            title="Delete"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
 
-                                <div className="project-footer">
-                                    <span className="project-date">
-                                        <Clock size={14} />
-                                        {new Date(project.created_at).toLocaleDateString()}
-                                    </span>
-                                </div>
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="pagination-controls">
+                            <button
+                                className="btn-icon"
+                                disabled={currentPage === 1}
+                                onClick={() => handlePageChange(currentPage - 1)}
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <span className="page-info">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                className="btn-icon"
+                                disabled={currentPage === totalPages}
+                                onClick={() => handlePageChange(currentPage + 1)}
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                        </div>
+                    )}
+                </>
+            )}
+
+            {/* Document Preview Modal */}
+            {previewProject && (
+                <div className="modal-overlay" onClick={closePreview}>
+                    <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <div>
+                                <h3>{previewProject.filename}</h3>
+                                {previewProject.status === 'archived' ? (
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 'bold' }}>FINAL ARCHIVE</span>
+                                ) : (
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--color-warning)', fontWeight: 'bold' }}>DRAFT PREVIEW (SEARCHABLE PDF)</span>
+                                )}
                             </div>
-                        )
-                    })}
+                            <button className="modal-close" onClick={closePreview}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="modal-body p-0">
+                            {/* Assuming the PDF or Image is served from the backend */}
+                            <iframe
+                                src={`http://localhost:5000/api/projects/${previewProject.id}/file`}
+                                className="pdf-preview-frame"
+                                title="Document Preview"
+                            />
+                        </div>
+                        <div className="modal-footer">
+                            <div className="flex items-center gap-md">
+                                <span className={`badge badge-${getStatusInfo(previewProject.status).color}`}>
+                                    {getStatusInfo(previewProject.status).label}
+                                </span>
+                                <span className="text-sm text-muted">
+                                    {new Date(previewProject.created_at).toLocaleString()}
+                                </span>
+                            </div>
+                            <button className="btn btn-primary" onClick={() => handleProjectClick(previewProject)}>
+                                Open Project Workflow
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

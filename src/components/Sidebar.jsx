@@ -1,11 +1,13 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useProject } from '../context/ProjectContext'
 import { Home, Upload, Edit3, FileText, Archive, Settings, Layers, LogOut } from 'lucide-react'
 import './Sidebar.css'
 
 const Sidebar = ({ onLogout }) => {
     const location = useLocation()
     const navigate = useNavigate()
+    const { fetchProjects } = useProject()
 
     const menuItems = [
         { path: '/', icon: Home, label: 'Dashboard' },
@@ -14,6 +16,13 @@ const Sidebar = ({ onLogout }) => {
     ]
 
     const isActive = (path) => location.pathname === path
+
+    const handleNavigation = (path) => {
+        if (path === '/') {
+            fetchProjects()
+        }
+        navigate(path)
+    }
 
     return (
         <div className="sidebar">
@@ -31,7 +40,7 @@ const Sidebar = ({ onLogout }) => {
                 {menuItems.map((item) => (
                     <button
                         key={item.path}
-                        onClick={() => navigate(item.path)}
+                        onClick={() => handleNavigation(item.path)}
                         className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
                     >
                         <item.icon size={20} />

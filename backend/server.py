@@ -307,6 +307,34 @@ def get_project(project_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/projects/<int:project_id>/file', methods=['GET'])
+def get_project_file(project_id):
+    """Serve the project file (original or processed)"""
+    try:
+        from flask import send_file
+        
+        project = get_project_data(project_id)
+        if not project:
+            return jsonify({'error': 'Project not found'}), 404
+        
+        files = project.get('files', {})
+        
+        # Determine best file to serve
+        file_path = None
+        if files.get('final_path') and os.path.exists(files['final_path']):
+            file_path = files['final_path']
+        elif files.get('ocr_path') and os.path.exists(files['ocr_path']):
+            file_path = files['ocr_path']
+        elif files.get('original_path') and os.path.exists(files['original_path']):
+            file_path = files['original_path']
+            
+        if not file_path:
+            return jsonify({'error': 'File not found'}), 404
+            
+        return send_file(file_path)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/projects/<int:project_id>/status', methods=['PUT'])
 def update_project_status(project_id):
     """Update project status"""
@@ -401,10 +429,20 @@ Note: To extract real text, please upload a PDF or image file."""
                 'message': 'Sample OCR text generated (file not found)'
             })
         
+        # Get language preference (default to 'eng')
+        # Check both JSON body and query args to be safe
+        req_data = request.get_json(silent=True) or {}
+        lang = req_data.get('language', 'eng')
+        
         # Extract text based on file type
         extracted_text = ""
         ocr_pdf_path = None
         file_ext = os.path.splitext(filepath)[1].lower()
+        
+        # ... (keep text file and PDF logic same for now, Tesseract is for images mainly) ... 
+        # (Actually, 'pdf_reader' doesn't use Tesseract directly in the PDF block above, it uses PyPDF2. 
+        #  If we want OCR on PDFs we'd need 'ocr_my_pdf' or convert to images. 
+        #  The user context implies we are focusing on IMAGE OCR mainly or where Tesseract is used).
         
         # First, check if it's actually a text file masquerading as a PDF
         if file_ext == '.pdf' and is_text_file(filepath):
@@ -466,7 +504,7 @@ Note: To extract real text, please upload a PDF or image file."""
                     image = Image.open(filepath)
                     
                     # 1. Get plain text for UI editing
-                    extracted_text = pytesseract.image_to_string(image)
+                    extracted_text = pytesseract.image_to_string(image, lang=lang)
                     
                     if not extracted_text.strip():
                         extracted_text = "No text detected in image. Please ensure the image contains readable text."
@@ -474,7 +512,7 @@ Note: To extract real text, please upload a PDF or image file."""
                     # 2. Generate Searchable PDF (HOCR/Image-over-Text)
                     # This preserves layout, images, and makes it searchable/traceable
                     try:
-                        pdf_bytes = pytesseract.image_to_pdf_or_hocr(image, extension='pdf')
+                        pdf_bytes = pytesseract.image_to_pdf_or_hocr(image, extension='pdf', lang=lang)
                         
                         # Save OCR PDF
                         filename_base = os.path.splitext(os.path.basename(filepath))[0]
@@ -501,6 +539,8 @@ Note: To extract real text, please upload a PDF or image file."""
                 file_type_msg = "image"
             except Exception as e:
                 extracted_text = f"Error extracting text from image: {str(e)}"
+                if "tessdata" in str(e) or "traineddata" in str(e):
+                     extracted_text += f"\n\nError: The '{lang}' language pack might be missing. Please install it for Tesseract."
                 file_type_msg = "image (error)"
         
         else:

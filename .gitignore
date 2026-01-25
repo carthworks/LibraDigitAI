@@ -28,6 +28,9 @@ backend/Archive/*
 !Archive/.gitkeep
 backend/venv/
 backend/node_modules/
+backend/uploads/* 
+!backend/uploads/.gitkeep
+
 
 # IDE
 .vscode/
