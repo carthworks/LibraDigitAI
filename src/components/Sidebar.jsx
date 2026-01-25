@@ -1,9 +1,9 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Home, Upload, Edit3, FileText, Archive, Settings, Layers } from 'lucide-react'
+import { Home, Upload, Edit3, FileText, Archive, Settings, Layers, LogOut } from 'lucide-react'
 import './Sidebar.css'
 
-const Sidebar = () => {
+const Sidebar = ({ onLogout }) => {
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -41,6 +41,10 @@ const Sidebar = () => {
             </nav>
 
             <div className="sidebar-footer">
+                <button className="nav-item logout-btn" onClick={onLogout}>
+                    <LogOut size={20} />
+                    <span>Logout</span>
+                </button>
                 <div className="sidebar-info">
                     <p className="info-label">Version</p>
                     <p className="info-value">1.0.0</p>

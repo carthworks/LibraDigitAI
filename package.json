@@ -8,7 +8,9 @@
     "dev:backend": "cd backend && python server.py",
     "dev:electron": "electron .",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dist": "npm run build && electron-builder",
+    "pack": "npm run build && electron-builder --dir"
   },
   "keywords": [
     "ocr",
@@ -31,8 +33,32 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
     "concurrently": "^8.2.2",
+    "cross-env": "^10.1.0",
     "electron": "^28.0.0",
+    "electron-builder": "^26.4.0",
     "vite": "^5.0.8",
     "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.libradigit.ai",
+    "productName": "LibraDigit AI",
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/dist/server",
+        "to": "backend"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

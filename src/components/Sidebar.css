@@ -101,3 +101,13 @@
     margin: 0;
     font-family: var(--font-mono);
 }
+
+.logout-btn {
+    margin-bottom: var(--space-md);
+    color: var(--color-error);
+}
+
+.logout-btn:hover {
+    background: var(--color-error-light);
+    color: var(--color-error);
+}

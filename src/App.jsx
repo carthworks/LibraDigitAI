@@ -9,13 +9,25 @@ import Metadata from './pages/Metadata'
 import Archive from './pages/Archive'
 import BatchProcessing from './pages/BatchProcessing'
 import WelcomeScreen from './components/WelcomeScreen'
+import LoginScreen from './components/LoginScreen'
 import { ProjectProvider } from './context/ProjectContext'
 
 function App() {
-    const [showWelcome, setShowWelcome] = useState(true)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [showWelcome, setShowWelcome] = useState(false)
 
-    // Optional: Check if we've shown the welcome screen in this session recently
-    // For now, we show it on every refresh for impact, or you could use sessionStorage
+    const handleLogin = () => {
+        setIsLoggedIn(true)
+        setShowWelcome(true)
+    }
+
+    if (!isLoggedIn) {
+        return <LoginScreen onLogin={handleLogin} />
+    }
+
+    const handleLogout = () => {
+        setIsLoggedIn(false)
+    }
 
     return (
         <ProjectProvider>
@@ -24,7 +36,7 @@ function App() {
             )}
             <Router>
                 <div className="app-container">
-                    <Sidebar />
+                    <Sidebar onLogout={handleLogout} />
                     <div className="main-content">
                         <Header />
                         <div className="content-area">

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraDigit AI - Installation Guide</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --accent: #10b981;
+            --dark: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .step-card {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            transition: transform 0.2s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            margin: 0 0 10px 0;
+            color: var(--text);
+        }
+
+        .step-content p {
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: var(--accent);
+        }
+
+        .credentials-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .troubleshooting {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LibraDigit AI</h1>
+            <p>Installation & Setup Guide for Librarians</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Locate the Installer</h3>
+                <p>Find the file named <strong>LibraDigitAI_Setup_1.0.0.exe</strong> in the folder provided to you. This
+                    is the complete application package.</p>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Run Installation</h3>
+                <p>Double-click the .exe file. Windows might ask for permission or show a "SmartScreen" warning since
+                    this is an internal tool. Click "Run Anyway" or "Yes" to proceed.</p>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Launch Application</h3>
+                <p>Once installed, you will find a <strong>LibraDigit AI</strong> icon on your desktop. Double-click to
+                    launch.</p>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>Login</h3>
+                <p>The application is password protected to ensure secure access to the archive system.</p>
+
+                <div class="credentials-box">
+                    <strong>🔐 Default Access Credentials:</strong><br><br>
+                    Password: <code>libradigit</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="troubleshooting">
+            <h3>🐛 Common Issues & Solutions</h3>
+            <p><strong>"Backend Not Connected" Error:</strong><br>
+                Close the application completely and restart it. The background scanning service needs a moment to
+                initialize on the first run.</p>
+            <br>
+            <p><strong>Files not saving:</strong><br>
+                Ensure you run the application with appropriate permissions if saving to a protected folder.</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px; color: var(--text-muted);">
+            <p>Need additional help? Contact your IT administrator.</p>
+            <p>LibraDigit AI v1.0.0</p>
+        </div>
+    </div>
+</body>
+
+</html>
