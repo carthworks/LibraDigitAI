@@ -743,10 +743,37 @@ def generate_archive(project_id):
                 source_path = file_data['original_path']
 
             if source_path and os.path.exists(source_path):
-                # Copy the actual PDF file
-                import shutil
-                shutil.copy2(source_path, final_path)
-                print(f"✅ Copied PDF from {source_path} to {final_path}")
+                # Check if source is really a PDF or needs conversion
+                src_ext = os.path.splitext(source_path)[1].lower()
+                
+                if src_ext == '.pdf':
+                    # It's a PDF (either original, cleaned, or OCR result)
+                    import shutil
+                    shutil.copy2(source_path, final_path)
+                    print(f"✅ Copied PDF from {source_path} to {final_path}")
+                elif src_ext in ['.png', '.jpg', '.jpeg', '.tiff', '.bmp']:
+                    # It's an image, convert to PDF
+                    try:
+                        image = Image.open(source_path)
+                        # Identify if it's RGBA (transparent), convert to RGB for PDF
+                        if image.mode == 'RGBA':
+                            image = image.convert('RGB')
+                        image.save(final_path, 'PDF', resolution=100.0)
+                        print(f"✅ Converted image {source_path} to PDF at {final_path}")
+                    except Exception as e:
+                        print(f"❌ Failed to convert image to PDF: {e}")
+                        # Fallback to placeholder
+                        from reportlab.pdfgen import canvas
+                        from reportlab.lib.pagesizes import letter
+                        c = canvas.Canvas(final_path, pagesize=letter)
+                        c.drawString(100, 750, f"Error archiving file: {title}")
+                        c.drawString(100, 730, f"Could not convert original image to PDF.")
+                        c.save()
+                else:
+                     # Unknown format, try copy but might fail
+                    import shutil
+                    shutil.copy2(source_path, final_path)
+                    print(f"⚠️ Copied unknown file type from {source_path} to {final_path}")
             else:
                 print(f"⚠️ Source file not found: {source_path}")
                 # Create a minimal valid PDF as fallback
@@ -761,19 +788,63 @@ def generate_archive(project_id):
                 c.drawString(100, 650, "Note: Original file not found")
                 c.save()
                 print(f"⚠️ Created placeholder PDF at {final_path}")
+
         else:
-            print(f"❌ No file data found for project {project_id}")
-            # Create a minimal valid PDF as fallback
-            from reportlab.pdfgen import canvas
-            from reportlab.lib.pagesizes import letter
-            
-            c = canvas.Canvas(final_path, pagesize=letter)
-            c.drawString(100, 750, f"Archive file for: {title}")
-            c.drawString(100, 730, f"Author: {author}")
-            c.drawString(100, 710, f"Year: {year}")
-            c.drawString(100, 690, f"Subject: {subject}")
-            c.save()
-            print(f"⚠️ Created placeholder PDF at {final_path}")
+             print(f"❌ No file data found for project {project_id}")
+             # Create a minimal valid PDF as fallback
+             from reportlab.pdfgen import canvas
+             from reportlab.lib.pagesizes import letter
+             
+             c = canvas.Canvas(final_path, pagesize=letter)
+             c.drawString(100, 750, f"Archive file for: {title}")
+             c.drawString(100, 730, f"Author: {author}")
+             c.drawString(100, 710, f"Year: {year}")
+             c.drawString(100, 690, f"Subject: {subject}")
+             c.save()
+             print(f"⚠️ Created placeholder PDF at {final_path}")
+        
+        # -------------------------------------------------------------
+        # Embed Metadata into PDF
+        # -------------------------------------------------------------
+        try:
+            if os.path.exists(final_path) and final_path.lower().endswith('.pdf'):
+                print(f"ℹ️ Embeding metadata into {final_path}")
+                # Create metadata dict
+                pdf_metadata = {
+                    '/Title': metadata.get('title', ''),
+                    '/Author': metadata.get('author', ''),
+                    '/Subject': metadata.get('subject', ''),
+                    '/Keywords': metadata.get('keywords', ''),
+                    '/Producer': 'LibraDigit AI',
+                    '/Creator': 'LibraDigit AI'
+                }
+
+                # We have to read, add metadata, and write back
+                # Using a temporary file to avoid read/write conflicts
+                temp_output_path = final_path + ".temp.pdf"
+                
+                reader = PyPDF2.PdfReader(final_path)
+                writer = PyPDF2.PdfWriter()
+
+                # Add all pages
+                for page in reader.pages:
+                    writer.add_page(page)
+
+                # Add metadata
+                writer.add_metadata(pdf_metadata)
+
+                with open(temp_output_path, "wb") as f_out:
+                    writer.write(f_out)
+                
+                # Replace original with metadata enriched version
+                import shutil
+                shutil.move(temp_output_path, final_path)
+                print(f"✅ Metadata successfully embedded into PDF")
+
+        except Exception as e:
+            print(f"⚠️ Failed to embed metadata into PDF: {e}")
+            # Non-critical error, continue with archiving flow
+        # -------------------------------------------------------------
         
         # Update database
         cursor.execute('''
