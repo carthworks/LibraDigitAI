@@ -28,7 +28,7 @@ const WelcomeScreen = ({ onComplete }) => {
                 setIsFading(true)
                 setTimeout(() => {
                     onComplete()
-                }, 800) // Wait for fade out animation
+                }, 1800) // Wait for fade out animation
             }
         }, 1800)
 
