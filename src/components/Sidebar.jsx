@@ -1,6 +1,6 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Home, Upload, Edit3, FileText, Archive, Settings } from 'lucide-react'
+import { Home, Upload, Edit3, FileText, Archive, Settings, Layers } from 'lucide-react'
 import './Sidebar.css'
 
 const Sidebar = () => {
@@ -10,6 +10,7 @@ const Sidebar = () => {
     const menuItems = [
         { path: '/', icon: Home, label: 'Dashboard' },
         { path: '/upload', icon: Upload, label: 'Upload & OCR' },
+        { path: '/batch', icon: Layers, label: 'Batch Processing' },
     ]
 
     const isActive = (path) => location.pathname === path

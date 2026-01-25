@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { Save, AlertCircle, ArrowRight, X } from 'lucide-react'
 import WorkflowTracker from '../components/WorkflowTracker'
+import MetadataSuggestions from '../components/MetadataSuggestions'
 import './Metadata.css'
 
 const Metadata = () => {
@@ -69,6 +70,14 @@ const Metadata = () => {
         }
     }
 
+    const handleAcceptSuggestion = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }))
+        // Clear error for this field
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: '' }))
+        }
+    }
+
     const handleSave = async () => {
         if (!validateForm()) {
             return
@@ -85,6 +94,20 @@ const Metadata = () => {
         } finally {
             setSaving(false)
         }
+    }
+
+    // Sanitize filename - remove special characters and spaces
+    const sanitizeFilename = (text) => {
+        if (!text) return ''
+        // Replace spaces with underscores
+        let sanitized = text.replace(/\s+/g, '_')
+        // Remove special characters, keep only alphanumeric, underscore, and hyphen
+        sanitized = sanitized.replace(/[^a-zA-Z0-9_-]/g, '')
+        // Remove multiple consecutive underscores
+        sanitized = sanitized.replace(/_+/g, '_')
+        // Remove leading/trailing underscores
+        sanitized = sanitized.replace(/^_+|_+$/g, '')
+        return sanitized
     }
 
     const handleContinue = async () => {
@@ -171,6 +194,12 @@ const Metadata = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* AI Metadata Suggestions */}
+                <MetadataSuggestions
+                    projectId={projectId}
+                    onAccept={handleAcceptSuggestion}
+                />
 
                 <div className="metadata-form">
                     <div className="form-group">
@@ -263,12 +292,15 @@ const Metadata = () => {
                         <h3>Archive Preview</h3>
                         <div className="preview-path">
                             <code>
-                                /Archive/{formData.subject || 'Subject'}/{formData.year || 'Year'}/
-                                {formData.author ? `${formData.author}_` : ''}
-                                {formData.year ? `${formData.year}_` : ''}
-                                {formData.title || 'Title'}.pdf
+                                /Archive/{sanitizeFilename(formData.subject) || 'Subject'}/{sanitizeFilename(formData.year) || 'Year'}/
+                                {formData.author ? `${sanitizeFilename(formData.author)}_` : ''}
+                                {formData.year ? `${sanitizeFilename(formData.year)}_` : ''}
+                                {sanitizeFilename(formData.title) || 'Title'}.pdf
                             </code>
                         </div>
+                        <span className="form-hint">
+                            Spaces and special characters will be replaced with underscores
+                        </span>
                     </div>
                 </div>
             </div>

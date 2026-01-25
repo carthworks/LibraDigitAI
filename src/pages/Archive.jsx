@@ -39,6 +39,16 @@ const Archive = () => {
         }
     }
 
+    // Sanitize filename - remove special characters and spaces
+    const sanitizeFilename = (text) => {
+        if (!text) return ''
+        let sanitized = text.replace(/\s+/g, '_')
+        sanitized = sanitized.replace(/[^a-zA-Z0-9_-]/g, '')
+        sanitized = sanitized.replace(/_+/g, '_')
+        sanitized = sanitized.replace(/^_+|_+$/g, '')
+        return sanitized
+    }
+
     if (loading && !currentProject) {
         return (
             <div className="archive-loading">
@@ -87,18 +97,18 @@ const Archive = () => {
                                 </div>
                                 <div className="folder-item indent-1">
                                     <span className="folder-icon">📁</span>
-                                    <span>{metadata.subject || 'Subject'}/</span>
+                                    <span>{sanitizeFilename(metadata.subject) || 'Subject'}/</span>
                                 </div>
                                 <div className="folder-item indent-2">
                                     <span className="folder-icon">📁</span>
-                                    <span>{metadata.year || 'Year'}/</span>
+                                    <span>{sanitizeFilename(metadata.year) || 'Year'}/</span>
                                 </div>
                                 <div className="folder-item indent-3">
                                     <span className="file-icon">📄</span>
                                     <span>
-                                        {metadata.author ? `${metadata.author}_` : ''}
-                                        {metadata.year ? `${metadata.year}_` : ''}
-                                        {metadata.title || 'Title'}.pdf
+                                        {metadata.author ? `${sanitizeFilename(metadata.author)}_` : ''}
+                                        {metadata.year ? `${sanitizeFilename(metadata.year)}_` : ''}
+                                        {sanitizeFilename(metadata.title) || 'Title'}.pdf
                                     </span>
                                 </div>
                             </div>

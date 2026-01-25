@@ -7,6 +7,7 @@ import UploadOCR from './pages/UploadOCR'
 import Cleanup from './pages/Cleanup'
 import Metadata from './pages/Metadata'
 import Archive from './pages/Archive'
+import BatchProcessing from './pages/BatchProcessing'
 import { ProjectProvider } from './context/ProjectContext'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
                             <Routes>
                                 <Route path="/" element={<Dashboard />} />
                                 <Route path="/upload" element={<UploadOCR />} />
+                                <Route path="/batch" element={<BatchProcessing />} />
                                 <Route path="/cleanup/:projectId" element={<Cleanup />} />
                                 <Route path="/metadata/:projectId" element={<Metadata />} />
                                 <Route path="/archive/:projectId" element={<Archive />} />
