@@ -30,6 +30,7 @@ LibraDigit AI is an offline-first desktop application designed for librarians, a
 ### Key Capabilities
 
 - 🔍 **OCR Processing** - Tesseract-powered text extraction
+- 📄 **Searchable PDFs** - Generates high-fidelity "Image-over-Text" PDFs that preserve original layout while being fully searchable
 - 📝 **Text Editor** - Side-by-side cleanup interface
 - 📊 **Metadata Management** - Comprehensive metadata forms
 - 📁 **Archive Structure** - Automatic folder organization: `/Archive/Subject/Year/Author_Year_Title.pdf`

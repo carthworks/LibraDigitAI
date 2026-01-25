@@ -45,7 +45,7 @@ const HelpModal = ({ isOpen, onClose }) => {
                         <div className="feature-list">
                             <div className="feature-item">
                                 <span className="feature-icon">🔍</span>
-                                <span>OCR text extraction from scanned documents</span>
+                                <span>OCR extraction & Searchable PDF generation</span>
                             </div>
                             <div className="feature-item">
                                 <span className="feature-icon">✏️</span>
@@ -118,7 +118,7 @@ const HelpModal = ({ isOpen, onClose }) => {
                             <h3>Tips & Best Practices</h3>
                         </div>
                         <ul className="tips-list">
-                            <li>Use high-quality scans (300 DPI or higher) for better OCR accuracy</li>
+                            <li>Use high-quality scans (300 DPI+) for best OCR and layout preservation</li>
                             <li>Supported formats: PDF, PNG, JPEG, TIFF (max 50MB)</li>
                             <li>Always review OCR text for common errors like "rn" vs "m"</li>
                             <li>Use consistent subject categories for better organization</li>

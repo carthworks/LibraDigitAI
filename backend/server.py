@@ -359,7 +359,7 @@ def run_ocr(project_id):
         
         filepath = project.get('filepath', '')
         if not filepath or not os.path.exists(filepath):
-            # Fallback to sample text if file doesn't exist
+            # Fallback for missing file provided in original code...
             sample_text = """This is a sample OCR extracted text.
 
 In a production environment, this would be the actual text extracted from the uploaded document using Tesseract OCR.
@@ -403,14 +403,12 @@ Note: To extract real text, please upload a PDF or image file."""
         
         # Extract text based on file type
         extracted_text = ""
+        ocr_pdf_path = None
         file_ext = os.path.splitext(filepath)[1].lower()
         
         # First, check if it's actually a text file masquerading as a PDF
         if file_ext == '.pdf' and is_text_file(filepath):
-            # Automatically convert text file to proper PDF
-            print(f"📄 Detected text file with .pdf extension: {filepath}")
-            print(f"🔄 Auto-converting to proper PDF format...")
-            
+            # ... (keep existing text file logic) ...
             try:
                 converted = convert_text_file_to_pdf(filepath)
                 if converted:
@@ -425,7 +423,7 @@ Note: To extract real text, please upload a PDF or image file."""
                             
                             for page_num in range(num_pages):
                                 page = pdf_reader.pages[page_num]
-                                extracted_text += page.extract_text() + "\n\n"
+                                extracted_text += page.extract_text() + "\\n\\n"
                             
                             if not extracted_text.strip():
                                 extracted_text = "Converted PDF but no text could be extracted."
@@ -450,7 +448,7 @@ Note: To extract real text, please upload a PDF or image file."""
                     
                     for page_num in range(num_pages):
                         page = pdf_reader.pages[page_num]
-                        extracted_text += page.extract_text() + "\n\n"
+                        extracted_text += page.extract_text() + "\\n\\n"
                     
                     if not extracted_text.strip():
                         extracted_text = "No text found in PDF. The PDF might be scanned images. Please use Tesseract OCR for image-based PDFs."
@@ -458,7 +456,7 @@ Note: To extract real text, please upload a PDF or image file."""
                 file_type_msg = "PDF"
                         
             except Exception as e:
-                extracted_text = f"Error extracting text from PDF: {str(e)}\n\nPlease ensure the PDF is not corrupted."
+                extracted_text = f"Error extracting text from PDF: {str(e)}\\n\\nPlease ensure the PDF is not corrupted."
                 file_type_msg = "PDF (error)"
         
         elif file_ext in ['.png', '.jpg', '.jpeg', '.tiff', '.bmp']:
@@ -466,19 +464,39 @@ Note: To extract real text, please upload a PDF or image file."""
             try:
                 if check_tesseract():
                     image = Image.open(filepath)
+                    
+                    # 1. Get plain text for UI editing
                     extracted_text = pytesseract.image_to_string(image)
                     
                     if not extracted_text.strip():
                         extracted_text = "No text detected in image. Please ensure the image contains readable text."
+                    
+                    # 2. Generate Searchable PDF (HOCR/Image-over-Text)
+                    # This preserves layout, images, and makes it searchable/traceable
+                    try:
+                        pdf_bytes = pytesseract.image_to_pdf_or_hocr(image, extension='pdf')
+                        
+                        # Save OCR PDF
+                        filename_base = os.path.splitext(os.path.basename(filepath))[0]
+                        ocr_filename = f"ocr_{filename_base}.pdf"
+                        ocr_pdf_path = os.path.join(UPLOAD_FOLDER, ocr_filename)
+                        
+                        with open(ocr_pdf_path, 'wb') as f:
+                            f.write(pdf_bytes)
+                            print(f"✅ Generated searchable PDF: {ocr_pdf_path}")
+                            
+                    except Exception as e:
+                        print(f"⚠️ Failed to generate searchable PDF: {e}")
+                        
                 else:
                     extracted_text = """Tesseract OCR is not installed.
-
-To extract text from images, please install Tesseract OCR:
-- Windows: https://github.com/UB-Mannheim/tesseract/wiki
-- macOS: brew install tesseract
-- Linux: sudo apt-get install tesseract-ocr
-
-For now, here's sample text to demonstrate the workflow."""
+                    
+                    To extract text from images, please install Tesseract OCR:
+                    - Windows: https://github.com/UB-Mannheim/tesseract/wiki
+                    - macOS: brew install tesseract
+                    - Linux: sudo apt-get install tesseract-ocr
+                    
+                    For now, here's sample text to demonstrate the workflow."""
                 
                 file_type_msg = "image"
             except Exception as e:
@@ -486,7 +504,7 @@ For now, here's sample text to demonstrate the workflow."""
                 file_type_msg = "image (error)"
         
         else:
-            extracted_text = f"Unsupported file type: {file_ext}\n\nSupported formats: PDF, PNG, JPG, JPEG, TIFF, BMP"
+            extracted_text = f"Unsupported file type: {file_ext}\\n\\nSupported formats: PDF, PNG, JPG, JPEG, TIFF, BMP"
             file_type_msg = f"unsupported ({file_ext})"
         
         # Save extracted text to database
@@ -498,6 +516,14 @@ For now, here's sample text to demonstrate the workflow."""
             SET original_text = ?
             WHERE project_id = ?
         ''', (extracted_text, project_id))
+        
+        # Update ocr_path if we generated one
+        if ocr_pdf_path:
+            cursor.execute('''
+                UPDATE files 
+                SET ocr_path = ?
+                WHERE project_id = ?
+            ''', (ocr_pdf_path, project_id))
         
         cursor.execute('''
             UPDATE projects 
@@ -517,6 +543,8 @@ For now, here's sample text to demonstrate the workflow."""
         })
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/cleanup/<int:project_id>', methods=['POST'])
@@ -660,13 +688,20 @@ def generate_archive(project_id):
         # Get the cleaned PDF path from the database
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('SELECT cleaned_path, original_path FROM files WHERE project_id = ?', (project_id,))
+        cursor.execute('SELECT cleaned_path, original_path, ocr_path FROM files WHERE project_id = ?', (project_id,))
         file_data = cursor.fetchone()
         
         if file_data:
-            # Use cleaned path if available, otherwise use original
-            source_path = file_data['cleaned_path'] or file_data['original_path']
-            
+            # Priority: Searchable OCR PDF > Cleaned PDF (if existed) > Original
+            source_path = None
+            if file_data['ocr_path'] and os.path.exists(file_data['ocr_path']):
+                source_path = file_data['ocr_path']
+                print(f"📄 Using searchable OCR PDF: {source_path}")
+            elif file_data['cleaned_path'] and os.path.exists(file_data['cleaned_path']):
+                source_path = file_data['cleaned_path']
+            else:
+                source_path = file_data['original_path']
+
             if source_path and os.path.exists(source_path):
                 # Copy the actual PDF file
                 import shutil
