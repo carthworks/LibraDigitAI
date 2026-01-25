@@ -7,6 +7,8 @@ A production-grade desktop application that converts scanned documents into sear
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+![LibraDigit AI Poster](ad_librDigitIT_2026.png)
+
 ## 🎯 Overview
 
 LibraDigit AI is an offline-first desktop application designed for librarians, archivists, and digitization teams to:
