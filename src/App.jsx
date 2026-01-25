@@ -8,11 +8,20 @@ import Cleanup from './pages/Cleanup'
 import Metadata from './pages/Metadata'
 import Archive from './pages/Archive'
 import BatchProcessing from './pages/BatchProcessing'
+import WelcomeScreen from './components/WelcomeScreen'
 import { ProjectProvider } from './context/ProjectContext'
 
 function App() {
+    const [showWelcome, setShowWelcome] = useState(true)
+
+    // Optional: Check if we've shown the welcome screen in this session recently
+    // For now, we show it on every refresh for impact, or you could use sessionStorage
+
     return (
         <ProjectProvider>
+            {showWelcome && (
+                <WelcomeScreen onComplete={() => setShowWelcome(false)} />
+            )}
             <Router>
                 <div className="app-container">
                     <Sidebar />

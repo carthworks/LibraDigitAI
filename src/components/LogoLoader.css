@@ -1,0 +1,119 @@
+.logo-loader {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: var(--color-primary);
+}
+
+.logo-icon-wrapper {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-main {
+    color: var(--color-primary);
+    filter: drop-shadow(0 0 10px var(--color-primary-light));
+}
+
+.logo-scan-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--color-accent);
+    opacity: 0.8;
+    animation: scanMove 3s ease-in-out infinite;
+    mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 40%,
+            black 60%,
+            transparent 100%);
+}
+
+.logo-brain-float {
+    position: absolute;
+    top: -20%;
+    right: -20%;
+    color: var(--color-warning);
+    background: var(--color-bg-secondary);
+    border-radius: 50%;
+    padding: 4px;
+    border: 1px solid var(--color-border);
+    animation: float 4s ease-in-out infinite;
+    box-shadow: var(--shadow-sm);
+}
+
+.logo-rings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140%;
+    height: 140%;
+    border-radius: 50%;
+    border: 2px solid var(--color-primary);
+    opacity: 0;
+    animation: ripple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    z-index: 1;
+}
+
+.logo-rings::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--color-accent);
+    opacity: 0;
+    animation: ripple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite 0.5s;
+}
+
+@keyframes scanMove {
+
+    0%,
+    100% {
+        clip-path: inset(0 0 100% 0);
+        opacity: 0;
+    }
+
+    50% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes ripple {
+    0% {
+        width: 100%;
+        height: 100%;
+        opacity: 0.5;
+        border-width: 2px;
+    }
+
+    100% {
+        width: 200%;
+        height: 200%;
+        opacity: 0;
+        border-width: 0;
+    }
+}
