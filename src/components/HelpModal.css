@@ -160,13 +160,13 @@
     flex-shrink: 0;
 }
 
-.workflow-steps {
+.modal-workflow-steps {
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
 }
 
-.workflow-step-item {
+.modal-workflow-step-item {
     display: flex;
     gap: var(--space-lg);
     padding: var(--space-lg);

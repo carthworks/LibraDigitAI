@@ -72,36 +72,36 @@ const HelpModal = ({ isOpen, onClose }) => {
                             <Zap size={20} />
                             <h3>How to Use</h3>
                         </div>
-                        <div className="workflow-steps">
-                            <div className="workflow-step-item">
+                        <div className="modal-workflow-steps">
+                            <div className="modal-workflow-step-item">
                                 <div className="step-number">1</div>
                                 <div className="step-content">
                                     <h4>Upload & OCR</h4>
                                     <p>Click "Start New Project" and upload your scanned PDF or image file. The system will automatically run OCR to extract text.</p>
                                 </div>
                             </div>
-                            <div className="workflow-step-item">
+                            <div className="modal-workflow-step-item">
                                 <div className="step-number">2</div>
                                 <div className="step-content">
                                     <h4>Clean Text</h4>
                                     <p>Review the extracted text and correct any OCR errors. Common issues include misread characters and spacing problems.</p>
                                 </div>
                             </div>
-                            <div className="workflow-step-item">
+                            <div className="modal-workflow-step-item">
                                 <div className="step-number">3</div>
                                 <div className="step-content">
                                     <h4>Add Metadata</h4>
                                     <p>Enter document information: title (required), author, year, subject, and keywords for better searchability.</p>
                                 </div>
                             </div>
-                            <div className="workflow-step-item">
+                            <div className="modal-workflow-step-item">
                                 <div className="step-number">4</div>
                                 <div className="step-content">
                                     <h4>Generate Archive</h4>
                                     <p>Create a structured digital archive with organized folders and standardized file naming.</p>
                                 </div>
                             </div>
-                            <div className="workflow-step-item">
+                            <div className="modal-workflow-step-item">
                                 <div className="step-number">5</div>
                                 <div className="step-content">
                                     <h4>Complete!</h4>

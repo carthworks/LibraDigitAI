@@ -24,7 +24,10 @@ ENV/
 uploads/*
 !uploads/.gitkeep
 Archive/*
+backend/Archive/*
 !Archive/.gitkeep
+backend/venv/
+backend/node_modules/
 
 # IDE
 .vscode/
