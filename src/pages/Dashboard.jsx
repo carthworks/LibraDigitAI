@@ -7,7 +7,7 @@ import './Dashboard.css'
 const Dashboard = () => {
     const navigate = useNavigate()
     const { projects, loading, error, deleteProject, fetchProjects } = useProject()
-    const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
+    const [viewMode, setViewMode] = useState('list') // 'grid' or 'list'
 
     // Refresh projects on mount to ensure data is up to date when navigating from sidebar
     React.useEffect(() => {
