@@ -191,7 +191,10 @@ def home():
             'cleanup': '/api/cleanup/<project_id>',
             'metadata': '/api/metadata/<project_id>',
             'archive': '/api/archive/<project_id>'
-        }
+        },
+        'current_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'current_time': datetime.now().strftime('%H:%M:%S')
+
     })
 
 @app.route('/api/projects', methods=['GET'])
@@ -1498,72 +1501,115 @@ def delete_batch_endpoint(batch_id):
 
 @app.route('/api/batch/bulk-metadata', methods=['POST'])
 def apply_bulk_metadata():
-    """
-    Apply same metadata to multiple projects
-    """
+    """Update metadata for multiple projects at once with support for prefix/suffix"""
     try:
         data = request.json
         project_ids = data.get('project_ids', [])
         metadata = data.get('metadata', {})
+        title_mods = data.get('title_modifications', {})
         
         if not project_ids:
-            return jsonify({'error': 'No projects specified'}), 400
-        
-        title = metadata.get('title', '')
-        author = metadata.get('author', '')
-        year = metadata.get('year', '')
-        subject = metadata.get('subject', '')
-        keywords = metadata.get('keywords', '')
-        
-        if not title:
-            return jsonify({'error': 'Title is required'}), 400
-        
+            return jsonify({'error': 'No projects selected'}), 400
+            
         conn = get_db()
         cursor = conn.cursor()
         
-        success_count = 0
+        updated_count = 0
         
-        for project_id in project_ids:
-            try:
-                # Check if metadata exists
-                cursor.execute('SELECT id FROM metadata WHERE project_id = ?', (project_id,))
-                existing = cursor.fetchone()
+        for pid in project_ids:
+            # Check existing
+            cursor.execute("SELECT * FROM metadata WHERE project_id = ?", (pid,))
+            existing = cursor.fetchone()
+            
+            # Construct update values
+            # If a field is provided in 'metadata' dict, use it. Otherwise keep existing.
+            
+            # Get current title to apply modifications
+            cursor.execute("SELECT title, filename FROM projects LEFT JOIN metadata ON projects.id = metadata.project_id WHERE projects.id = ?", (pid,))
+            proj = cursor.fetchone()
+            current_title = proj[0] if proj and proj[0] else (proj[1] if proj else "")
+            
+            # Apply title mods
+            new_title = current_title
+            # If a direct title is provided in metadata, it overrides modifications unless modifications are explicit
+            if metadata.get('title'):
+                new_title = metadata.get('title')
                 
-                if existing:
-                    cursor.execute('''
-                        UPDATE metadata 
-                        SET title = ?, author = ?, year = ?, subject = ?, keywords = ?
-                        WHERE project_id = ?
-                    ''', (title, author, year, subject, keywords, project_id))
-                else:
-                    cursor.execute('''
-                        INSERT INTO metadata (project_id, title, author, year, subject, keywords)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (project_id, title, author, year, subject, keywords))
+            if title_mods.get('prefix') or title_mods.get('suffix'):
+                prefix = title_mods.get('prefix', '')
+                suffix = title_mods.get('suffix', '')
+                new_title = f"{prefix}{new_title}{suffix}"
+            
+            # Prepare fields
+            author = metadata.get('author') # None if not set
+            year = metadata.get('year')
+            subject = metadata.get('subject')
+            keywords = metadata.get('keywords')
+            
+            if existing:
+                # Update
+                update_query = "UPDATE metadata SET "
+                params = []
                 
-                # Update project status
+                # Always update title if it changed due to prefix/suffix or direct set
+                if new_title != current_title or metadata.get('title'):
+                    update_query += "title = ?, "
+                    params.append(new_title)
+                
+                if author is not None:
+                    update_query += "author = ?, "
+                    params.append(author)
+                    
+                if year is not None:
+                    update_query += "year = ?, "
+                    params.append(year)
+                    
+                if subject is not None:
+                    update_query += "subject = ?, "
+                    params.append(subject)
+                    
+                if keywords is not None:
+                    update_query += "keywords = ?, "
+                    params.append(keywords)
+                    
+                # Remove trailing comma
+                if params:
+                    update_query = update_query.rstrip(', ')
+                    update_query += " WHERE project_id = ?"
+                    params.append(pid)
+                    cursor.execute(update_query, params)
+                    updated_count += 1
+                    
+            else:
+                # Insert
+                # Use provided values or defaults/existing fallback
+                final_title = new_title
+                final_author = author if author is not None else ""
+                final_year = year if year is not None else ""
+                final_subject = subject if subject is not None else "General"
+                final_keywords = keywords if keywords is not None else ""
+                
                 cursor.execute('''
-                    UPDATE projects 
-                    SET status = 'archived', updated_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                ''', (project_id,))
+                    INSERT INTO metadata (project_id, title, author, year, subject, keywords)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', (pid, final_title, final_author, final_year, final_subject, final_keywords))
+                updated_count += 1
+            
+            # Update status to 'archived' as this is the final step
+            cursor.execute("UPDATE projects SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?", (pid,))
                 
-                success_count += 1
-                
-            except Exception as e:
-                print(f"Error updating project {project_id}: {e}")
-                continue
-        
         conn.commit()
         conn.close()
         
         return jsonify({
             'success': True,
-            'updated_count': success_count,
-            'total_count': len(project_ids)
+            'updated_count': updated_count,
+            'message': f"Updated metadata for {updated_count} projects"
         })
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 

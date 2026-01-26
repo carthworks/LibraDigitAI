@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { Upload, Play, Pause, X, CheckCircle, AlertCircle, Loader, FileText, Image as ImageIcon, Trash2, Clock, Calendar } from 'lucide-react'
+import { Upload, Play, Pause, X, CheckCircle, AlertCircle, Loader, FileText, Image as ImageIcon, Trash2, Clock, Calendar, Edit3 } from 'lucide-react'
 import './BatchProcessing.css'
+import BulkMetadataEditor from '../components/BulkMetadataEditor'
 
 const API_URL = 'http://localhost:5000/api'
 
@@ -13,8 +14,10 @@ function BatchProcessing() {
     const [uploading, setUploading] = useState(false)
     const [currentBatch, setCurrentBatch] = useState(null)
     const [batchStatus, setBatchStatus] = useState(null)
+    const [batchProjects, setBatchProjects] = useState([]) // Stores project details for the active batch
     const [recentBatches, setRecentBatches] = useState([])
     const [dragActive, setDragActive] = useState(false)
+    const [showBulkEditor, setShowBulkEditor] = useState(false)
 
     useEffect(() => {
         loadRecentBatches()
@@ -29,12 +32,57 @@ function BatchProcessing() {
         }
     }, [currentBatch, batchStatus])
 
+    // Load project details when looking at a completed batch
+    useEffect(() => {
+        if (batchStatus && params_has_completed_successfully(batchStatus.status)) {
+            fetchBatchProjects(batchStatus.items)
+        }
+    }, [batchStatus])
+
+    const params_has_completed_successfully = (status) => {
+        return status === 'completed' || status === 'completed_with_errors'
+    }
+
     const loadRecentBatches = async () => {
         try {
             const response = await axios.get(`${API_URL}/batch/list?limit=10`)
             setRecentBatches(response.data.batches || [])
         } catch (error) {
             console.error('Error loading batches:', error)
+        }
+    }
+
+    const fetchBatchProjects = async (items) => {
+        if (!items) return
+        // In a real app we might want a dedicated endpoint to get all projects for a batch
+        // For now, we will construct project objects from the items or fetch them if needed. 
+        // Our Batch Item has project_id.
+        // Let's assume we want to pass full project objects to the Bulk Editor.
+        // We can fetch them individually or create a new endpoint. 
+        // For efficiency, let's just create minimal objects if we can, or fetch them all.
+
+        // Let's just pass the items knowing they have project_id and filename for now, 
+        // or actually fetch them to show current metadata.
+
+        try {
+            const projectIds = items.map(i => i.project_id)
+            if (projectIds.length === 0) return
+
+            // We don't have a bulk-get-projects endpoint yet, so we'll just map the items
+            // to a structure the editor accepts. The editor needs id, filename, created_at
+            // and maybe current metadata (title, author etc) for preview. 
+            // Since we didn't add a bulk-get endpoint, the preview might show "Loading..." or we skip deep preview.
+
+            // To make it fully functional, let's fetch basic details. 
+            // Actually, let's iterate and fetch - it's okay for < 50 items.
+
+            const promises = projectIds.map(id => axios.get(`${API_URL}/projects/${id}`))
+            const results = await Promise.all(promises)
+            const projects = results.map(r => r.data.project)
+            setBatchProjects(projects)
+
+        } catch (err) {
+            console.error("Failed to load project details for editor", err)
         }
     }
 
@@ -88,6 +136,7 @@ function BatchProcessing() {
         }
 
         setUploading(true)
+        setBatchProjects([]) // Reset previous batch projects
 
         try {
             const formData = new FormData()
@@ -145,6 +194,7 @@ function BatchProcessing() {
             if (currentBatch === batchId) {
                 setCurrentBatch(null)
                 setBatchStatus(null)
+                setBatchProjects([])
             }
         } catch (error) {
             console.error('Error deleting batch:', error)
@@ -169,6 +219,17 @@ function BatchProcessing() {
 
     return (
         <div className="batch-processing-container">
+            {showBulkEditor && (
+                <BulkMetadataEditor
+                    projects={batchProjects}
+                    onClose={() => setShowBulkEditor(false)}
+                    onSaveComplete={() => {
+                        // Refresh projects to show new metadata if we were displaying it
+                        fetchBatchProjects(batchStatus.items)
+                    }}
+                />
+            )}
+
             <div className="batch-header">
                 <div className="header-content">
                     <h1>📦 Batch Manager</h1>
@@ -268,11 +329,24 @@ function BatchProcessing() {
                                 {batchStatus.status.replace('_', ' ')}
                             </span>
                         </div>
-                        {batchStatus.status === 'processing' && (
-                            <button className="cancel-pill" onClick={() => cancelBatch(currentBatch)}>
-                                <X size={14} /> Cancel
-                            </button>
-                        )}
+                        <div className="header-actions" style={{ display: 'flex', gap: '10px' }}>
+                            {/* Bulk Edit Button (Visible only when completed) */}
+                            {params_has_completed_successfully(batchStatus.status) && (
+                                <button
+                                    className="btn btn-primary btn-sm"
+                                    onClick={() => setShowBulkEditor(true)}
+                                    title="Edit metadata for all files in this batch"
+                                >
+                                    <Edit3 size={16} /> Bulk Edit Metadata
+                                </button>
+                            )}
+
+                            {batchStatus.status === 'processing' && (
+                                <button className="cancel-pill" onClick={() => cancelBatch(currentBatch)}>
+                                    <X size={14} /> Cancel
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <div className="premium-progress-bar">
