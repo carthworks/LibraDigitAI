@@ -8,6 +8,7 @@ const Help = () => {
             <div className="help-header">
                 <h1>LibraDigit AI Help & Guide</h1>
                 <p>Welcome to your personal digital archive assistant. Here is how to get the most out of it.</p>
+                <img src="/libradigit_ai_poster2.png" className="help-image" alt="Help" />
             </div>
 
             <div className="help-section">

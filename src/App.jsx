@@ -12,6 +12,7 @@ import BatchProcessing from './pages/BatchProcessing'
 import WelcomeScreen from './components/WelcomeScreen'
 import LoginScreen from './components/LoginScreen'
 import { ProjectProvider } from './context/ProjectContext'
+import ArchiveSearch from './pages/ArchiveSearch'
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -48,6 +49,7 @@ function App() {
                                 <Route path="/cleanup/:projectId" element={<Cleanup />} />
                                 <Route path="/metadata/:projectId" element={<Metadata />} />
                                 <Route path="/archive/:projectId" element={<Archive />} />
+                                <Route path="/search" element={<ArchiveSearch />} />
                                 <Route path="/help" element={<Help />} />
                                 <Route path="*" element={<Navigate to="/" replace />} />
                             </Routes>

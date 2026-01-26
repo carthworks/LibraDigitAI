@@ -827,8 +827,10 @@ def generate_archive(project_id):
                     '/Author': metadata.get('author', ''),
                     '/Subject': metadata.get('subject', ''),
                     '/Keywords': metadata.get('keywords', ''),
-                    '/Producer': 'LibraDigit AI',
-                    '/Creator': 'LibraDigit AI'
+                    '/Producer': 'LibraDigit AI - github.com/carthworks',
+                    '/Creator': 'LibraDigit AI',
+                    '/CreationDate': datetime.now().strftime("D:%Y%m%d%H%M%S"),
+                    '/ModDate': datetime.now().strftime("D:%Y%m%d%H%M%S")
                 }
 
                 # We have to read, add metadata, and write back
@@ -1404,6 +1406,9 @@ def start_batch_processing(batch_id):
                     WHERE id = ?
                 ''', (project_id,))
                 
+                # Update search index
+                update_search_index(project_id, conn)
+
                 conn.commit()
                 conn.close()
                 
@@ -1598,6 +1603,8 @@ def apply_bulk_metadata():
             # Update status to 'archived' as this is the final step
             cursor.execute("UPDATE projects SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?", (pid,))
                 
+            update_search_index(pid, conn)
+            
         conn.commit()
         conn.close()
         
@@ -1613,10 +1620,185 @@ def apply_bulk_metadata():
         return jsonify({'error': str(e)}), 500
 
 
+
+def init_search_index():
+    """Initialize Full-Text Search (FTS5) table"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Check if FTS5 is supported
+        cursor.execute('pragma compile_options')
+        options = [row[0] for row in cursor.fetchall()]
+        if 'ENABLE_FTS5' not in options:
+            print("⚠️ SQLite FTS5 not enabled. Search capabilities will be limited.")
+            return
+
+        # Create virtual table for search
+        # We index title, content (OCR text), author, and keywords
+        cursor.execute('''
+            CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5(
+                project_id UNINDEXED,
+                title,
+                author,
+                content,
+                keywords,
+                tokenize = 'porter'
+            )
+        ''')
+        
+        # Check if index is empty
+        cursor.execute('SELECT count(*) FROM search_index')
+        if cursor.fetchone()[0] == 0:
+            print("building search index...")
+            rebuild_search_index(conn)
+            
+        print("🔍 Search Index initialized")
+        
+    except Exception as e:
+        print(f"❌ Error initializing search index: {e}")
+    finally:
+        conn.commit()
+        conn.close()
+
+def rebuild_search_index(conn=None):
+    """Rebuild the entire search index from existing data"""
+    close_conn = False
+    if not conn:
+        conn = get_db()
+        close_conn = True
+        
+    cursor = conn.cursor()
+    
+    # Clear existing index
+    cursor.execute('DELETE FROM search_index')
+    
+    # Fetch all searchable data
+    # Join projects, ocr_text, and metadata
+    cursor.execute('''
+        SELECT 
+            p.id, 
+            COALESCE(m.title, p.filename) as title,
+            COALESCE(m.author, '') as author,
+            COALESCE(o.original_text, '') as content,
+            COALESCE(m.keywords, '') as keywords
+        FROM projects p
+        LEFT JOIN ocr_text o ON p.id = o.project_id
+        LEFT JOIN metadata m ON p.id = m.project_id
+        WHERE p.status != 'upload' 
+    ''')
+    
+    rows = cursor.fetchall()
+    
+    # Batch insert
+    for row in rows:
+        cursor.execute('''
+            INSERT INTO search_index (project_id, title, author, content, keywords)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (row[0], row[1], row[2], row[3], row[4]))
+        
+    conn.commit()
+    if close_conn:
+        conn.close()
+
+def update_search_index(project_id, conn=None):
+    """Update search index for a single project"""
+    close_conn = False
+    if not conn:
+        conn = get_db()
+        close_conn = True
+    
+    try:
+        cursor = conn.cursor()
+        
+        # Remove existing entry
+        cursor.execute('DELETE FROM search_index WHERE project_id = ?', (project_id,))
+        
+        # Fetch fresh data
+        cursor.execute('''
+            SELECT 
+                p.id, 
+                COALESCE(m.title, p.filename) as title,
+                COALESCE(m.author, '') as author,
+                COALESCE(o.original_text, '') as content,
+                COALESCE(m.keywords, '') as keywords
+            FROM projects p
+            LEFT JOIN ocr_text o ON p.id = o.project_id
+            LEFT JOIN metadata m ON p.id = m.project_id
+            WHERE p.id = ?
+        ''', (project_id,))
+        
+        row = cursor.fetchone()
+        if row:
+            cursor.execute('''
+                INSERT INTO search_index (project_id, title, author, content, keywords)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (row['id'], row['title'], row['author'], row['content'], row['keywords']))
+            
+        conn.commit()
+    except Exception as e:
+        print(f"Error updating search index for {project_id}: {e}")
+    finally:
+        if close_conn:
+            conn.close()
+
+@app.route('/api/search', methods=['GET'])
+def search_archives():
+    """
+    Full-text search across all archives
+    Query params: q (query string), limit (default 20)
+    """
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify({'results': []})
+        
+    limit = request.args.get('limit', 20)
+    
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # FTS5 Match query
+        # We use snippet() function to get highlighted text context
+        # snippet(table_name, column_index, start_match, end_match, ellipses, max_tokens)
+        cursor.execute(f'''
+            SELECT 
+                project_id, 
+                title, 
+                author,
+                snippet(search_index, 3, '<b>', '</b>', '...', 30) as context,
+                rank
+            FROM search_index 
+            WHERE search_index MATCH ? 
+            ORDER BY rank 
+            LIMIT ?
+        ''', (query, limit))
+        
+        results = []
+        rows = cursor.fetchall()
+        
+        for row in rows:
+            results.append({
+                'id': row['project_id'],
+                'title': row['title'],
+                'author': row['author'],
+                'snippet': row['context'],
+                'score': row['rank']
+            })
+            
+        conn.close()
+        
+        return jsonify({'results': results, 'count': len(results)})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     init_db()
+    init_search_index()
     print("🚀 LibraDigit AI Backend Server")
     print("📊 Database initialized")
     print("🔍 Tesseract OCR:", "✓ Available" if check_tesseract() else "✗ Not found")
     print("🌐 Server running on http://localhost:5000")
     app.run(debug=True, port=5000)
+

@@ -5,7 +5,6 @@ import { FileText, Type, CheckCircle } from 'lucide-react'
 import './TextEditor.css'
 
 const TextEditor = ({ value, onChange, placeholder = "Text will appear here..." }) => {
-    const quillRef = useRef(null)
     const [stats, setStats] = useState({ chars: 0, words: 0, lines: 0 })
 
     // Custom Toolbar Configuration
@@ -54,7 +53,6 @@ const TextEditor = ({ value, onChange, placeholder = "Text will appear here..." 
     return (
         <div className="text-editor rich-editor">
             <ReactQuill
-                ref={quillRef}
                 theme="snow"
                 value={value}
                 onChange={handleChange}
