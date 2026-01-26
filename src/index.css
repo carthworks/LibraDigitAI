@@ -26,6 +26,18 @@
 
   --color-error: #ef4444;
   --color-error-light: rgba(239, 68, 68, 0.1);
+  --color-error-bg: rgba(239, 68, 68, 0.1);
+
+  --color-success: #10b981;
+  --color-success-light: rgba(16, 185, 129, 0.1);
+  --color-success-bg: rgba(16, 185, 129, 0.1);
+
+  /* RGB Values for Transparency */
+  --color-primary-rgb: 99, 102, 241;
+  --color-accent-rgb: 16, 185, 129;
+  --color-success-rgb: 16, 185, 129;
+  --color-warning-rgb: 245, 158, 11;
+  --color-error-rgb: 239, 68, 68;
 
   --color-text-primary: #f8fafc;
   --color-text-secondary: #cbd5e1;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { Upload, Play, Pause, X, CheckCircle, AlertCircle, Loader } from 'lucide-react'
+import { Upload, Play, Pause, X, CheckCircle, AlertCircle, Loader, FileText, Image as ImageIcon, Trash2, Clock, Calendar } from 'lucide-react'
 import './BatchProcessing.css'
 
 const API_URL = 'http://localhost:5000/api'
@@ -21,12 +21,10 @@ function BatchProcessing() {
     }, [])
 
     useEffect(() => {
-        // Poll for batch status if processing
         if (currentBatch && batchStatus?.status === 'processing') {
             const interval = setInterval(() => {
                 fetchBatchStatus(currentBatch)
-            }, 2000) // Poll every 2 seconds
-
+            }, 2000)
             return () => clearInterval(interval)
         }
     }, [currentBatch, batchStatus])
@@ -54,7 +52,6 @@ function BatchProcessing() {
         e.preventDefault()
         e.stopPropagation()
         setDragActive(false)
-
         const files = Array.from(e.dataTransfer.files)
         handleFiles(files)
     }
@@ -65,19 +62,23 @@ function BatchProcessing() {
     }
 
     const handleFiles = (files) => {
-        // Filter for supported file types
         const supportedFiles = files.filter(file => {
             const ext = file.name.toLowerCase()
             return ext.endsWith('.pdf') || ext.endsWith('.png') ||
                 ext.endsWith('.jpg') || ext.endsWith('.jpeg') ||
                 ext.endsWith('.tiff') || ext.endsWith('.bmp')
         })
-
         setSelectedFiles(prev => [...prev, ...supportedFiles])
     }
 
     const removeFile = (index) => {
         setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const getFileIcon = (filename) => {
+        const ext = filename.split('.').pop().toLowerCase()
+        if (ext === 'pdf') return <FileText size={24} className="file-icon-pdf" />
+        return <ImageIcon size={24} className="file-icon-img" />
     }
 
     const handleUploadAndProcess = async () => {
@@ -89,30 +90,22 @@ function BatchProcessing() {
         setUploading(true)
 
         try {
-            // Create FormData
             const formData = new FormData()
             selectedFiles.forEach(file => {
                 formData.append('files', file)
             })
             formData.append('batch_name', batchName || `Batch ${new Date().toLocaleString()}`)
 
-            // Upload files and create batch
             const response = await axios.post(`${API_URL}/batch/create`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                headers: { 'Content-Type': 'multipart/form-data' }
             })
 
             const { batch_id } = response.data
-
-            // Start processing
             await axios.post(`${API_URL}/batch/${batch_id}/start`)
 
             setCurrentBatch(batch_id)
             setSelectedFiles([])
             setBatchName('')
-
-            // Start polling for status
             fetchBatchStatus(batch_id)
 
         } catch (error) {
@@ -127,18 +120,11 @@ function BatchProcessing() {
         try {
             const response = await axios.get(`${API_URL}/batch/${batchId}/status`)
             setBatchStatus(response.data)
-
-            // Reload recent batches when completed
             if (response.data.status === 'completed' || response.data.status === 'completed_with_errors') {
                 loadRecentBatches()
             }
         } catch (error) {
             console.error('Error fetching batch status:', error)
-            console.error('Error details:', error.response?.data)
-            // Show error to user
-            if (error.response?.data?.error) {
-                alert(`Error fetching batch status: ${error.response.data.error}`)
-            }
         }
     }
 
@@ -152,10 +138,7 @@ function BatchProcessing() {
     }
 
     const deleteBatch = async (batchId) => {
-        if (!confirm('Delete this batch? This will not delete the processed projects.')) {
-            return
-        }
-
+        if (!confirm('Delete this batch? This will not delete the processed projects.')) return
         try {
             await axios.delete(`${API_URL}/batch/${batchId}`)
             loadRecentBatches()
@@ -176,208 +159,201 @@ function BatchProcessing() {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'completed':
-                return <CheckCircle className="status-icon success" />
-            case 'processing':
-                return <Loader className="status-icon processing spin" />
+            case 'completed': return <CheckCircle className="status-icon success" />
+            case 'processing': return <Loader className="status-icon processing spin" />
             case 'failed':
-            case 'completed_with_errors':
-                return <AlertCircle className="status-icon error" />
-            default:
-                return <Loader className="status-icon" />
+            case 'completed_with_errors': return <AlertCircle className="status-icon error" />
+            default: return <Loader className="status-icon" />
         }
     }
 
     return (
         <div className="batch-processing-container">
             <div className="batch-header">
-                <h1>📦 Batch Processing</h1>
-                <p>Upload and process multiple documents at once</p>
+                <div className="header-content">
+                    <h1>📦 Batch Manager</h1>
+                    <p>Streamline your workflow by processing multiple documents simultaneously.</p>
+                </div>
+                <div className="header-stats">
+                    <div className="stat-pill">
+                        <Clock size={16} />
+                        <span>Avg. Time: ~3s/page</span>
+                    </div>
+                </div>
             </div>
 
-            {/* Upload Section */}
-            <div className="upload-section">
-                <div
-                    className={`drop-zone ${dragActive ? 'drag-active' : ''}`}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                >
-                    <Upload className="upload-icon" />
-                    <h3>Drag & Drop Multiple Files</h3>
-                    <p>or click to browse</p>
-                    <input
-                        type="file"
-                        multiple
-                        accept=".pdf,.png,.jpg,.jpeg,.tiff,.bmp"
-                        onChange={handleFileInput}
-                        className="file-input"
-                    />
-                    <p className="file-types">Supported: PDF, PNG, JPG, TIFF, BMP</p>
+            <div className={`batch-workspace ${selectedFiles.length > 0 ? 'has-files' : ''}`}>
+                {/* Upload Section */}
+                <div className="upload-pane">
+                    <div
+                        className={`drop-zone-premium ${dragActive ? 'active' : ''}`}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                    >
+                        <div className="drop-content">
+                            <div className="icon-wrapper">
+                                <Upload className="upload-icon-large" />
+                            </div>
+                            <h3>Drag & Drop Files Here</h3>
+                            <p className="sub-text">PDFs, Images (PNG, JPG, TIFF)</p>
+                            <label className="browse-btn">
+                                Browse Files
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept=".pdf,.png,.jpg,.jpeg,.tiff,.bmp"
+                                    onChange={handleFileInput}
+                                    className="hidden-input"
+                                />
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
+                {/* Selected Files List */}
                 {selectedFiles.length > 0 && (
-                    <div className="selected-files">
-                        <div className="files-header">
-                            <h3>Selected Files ({selectedFiles.length})</h3>
-                            <button
-                                className="clear-btn"
-                                onClick={() => setSelectedFiles([])}
-                            >
-                                Clear All
-                            </button>
+                    <div className="files-pane fade-in">
+                        <div className="pane-header">
+                            <h3>Queue ({selectedFiles.length})</h3>
+                            <button className="text-btn" onClick={() => setSelectedFiles([])}>Clear All</button>
                         </div>
 
-                        <div className="files-list">
+                        <div className="file-list-premium">
                             {selectedFiles.map((file, index) => (
-                                <div key={index} className="file-item">
-                                    <div className="file-info">
-                                        <span className="file-name">{file.name}</span>
-                                        <span className="file-size">{formatFileSize(file.size)}</span>
+                                <div key={index} className="file-row">
+                                    <div className="file-icon-container">
+                                        {getFileIcon(file.name)}
                                     </div>
-                                    <button
-                                        className="remove-btn"
-                                        onClick={() => removeFile(index)}
-                                    >
+                                    <div className="file-details">
+                                        <span className="name" title={file.name}>{file.name}</span>
+                                        <span className="size">{formatFileSize(file.size)}</span>
+                                    </div>
+                                    <button className="action-btn" onClick={() => removeFile(index)}>
                                         <X size={16} />
                                     </button>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="batch-controls">
+                        <div className="batch-actions">
                             <input
                                 type="text"
-                                placeholder="Batch name (optional)"
+                                placeholder="Name this batch (Optional)"
                                 value={batchName}
                                 onChange={(e) => setBatchName(e.target.value)}
-                                className="batch-name-input"
+                                className="batch-name-field"
                             />
                             <button
-                                className="upload-process-btn"
+                                className="process-btn-premium"
                                 onClick={handleUploadAndProcess}
                                 disabled={uploading}
                             >
-                                {uploading ? (
-                                    <>
-                                        <Loader className="spin" size={20} />
-                                        Uploading...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Play size={20} />
-                                        Upload & Process All
-                                    </>
-                                )}
+                                {uploading ? <Loader size={20} className="spin" /> : <Play size={20} />}
+                                {uploading ? 'Uploading...' : 'Start Batch Processing'}
                             </button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Current Batch Status */}
+            {/* Live Progress */}
             {batchStatus && (
-                <div className="batch-status-section">
-                    <h2>Current Batch: {batchStatus.name}</h2>
-
-                    <div className="progress-container">
-                        <div className="progress-bar">
-                            <div
-                                className="progress-fill"
-                                style={{ width: `${batchStatus.progress_percent}%` }}
-                            />
+                <div className="live-status-card fade-in">
+                    <div className="status-header">
+                        <div className="batch-title">
+                            <h3>{batchStatus.name}</h3>
+                            <span className={`status-badge ${batchStatus.status}`}>
+                                {batchStatus.status.replace('_', ' ')}
+                            </span>
                         </div>
-                        <div className="progress-text">
-                            {batchStatus.processed_files} / {batchStatus.total_files} files
-                            ({batchStatus.progress_percent}%)
+                        {batchStatus.status === 'processing' && (
+                            <button className="cancel-pill" onClick={() => cancelBatch(currentBatch)}>
+                                <X size={14} /> Cancel
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="premium-progress-bar">
+                        <div
+                            className={`premium-progress-fill ${batchStatus.status}`}
+                            style={{ width: `${batchStatus.progress_percent}%` }}
+                        />
+                    </div>
+
+                    <div className="progress-metrics">
+                        <div className="metric">
+                            <span className="label">Progress</span>
+                            <span className="value">{batchStatus.progress_percent}%</span>
+                        </div>
+                        <div className="metric">
+                            <span className="label">Documents</span>
+                            <span className="value">{batchStatus.processed_files} / {batchStatus.total_files}</span>
+                        </div>
+                        <div className="metric-group">
+                            <span className="metric success"><CheckCircle size={14} /> {batchStatus.status_counts?.completed || 0}</span>
+                            <span className="metric error"><AlertCircle size={14} /> {batchStatus.status_counts?.failed || 0}</span>
                         </div>
                     </div>
 
-                    <div className="status-counts">
-                        <div className="status-count success">
-                            <CheckCircle size={20} />
-                            <span>{batchStatus.status_counts?.completed || 0} Completed</span>
-                        </div>
-                        <div className="status-count error">
-                            <AlertCircle size={20} />
-                            <span>{batchStatus.status_counts?.failed || 0} Failed</span>
-                        </div>
-                        <div className="status-count pending">
-                            <Loader size={20} />
-                            <span>{batchStatus.status_counts?.pending || 0} Pending</span>
-                        </div>
-                    </div>
-
-                    {batchStatus.status === 'processing' && (
-                        <button
-                            className="cancel-btn"
-                            onClick={() => cancelBatch(currentBatch)}
-                        >
-                            <X size={20} />
-                            Cancel Batch
-                        </button>
-                    )}
-
-                    {/* Individual Files Status */}
-                    <div className="batch-items">
-                        <h3>Files</h3>
-                        <div className="items-list">
-                            {batchStatus.items?.map((item, index) => (
-                                <div key={index} className={`batch-item ${item.status}`}>
-                                    {getStatusIcon(item.status)}
-                                    <span className="item-filename">{item.filename}</span>
-                                    {item.error_message && (
-                                        <span className="item-error">{item.error_message}</span>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Recent Batches */}
-            <div className="recent-batches">
-                <h2>Recent Batches</h2>
-                {recentBatches.length === 0 ? (
-                    <p className="no-batches">No batches yet. Upload files to get started!</p>
-                ) : (
-                    <div className="batches-list">
-                        {recentBatches.map(batch => (
-                            <div key={batch.id} className="batch-card">
-                                <div className="batch-card-header">
-                                    <h3>{batch.name}</h3>
-                                    {getStatusIcon(batch.status)}
-                                </div>
-                                <div className="batch-card-info">
-                                    <span>{batch.total_files} files</span>
-                                    <span>•</span>
-                                    <span>{batch.processed_files} processed</span>
-                                    <span>•</span>
-                                    <span>{new Date(batch.created_at).toLocaleDateString()}</span>
-                                </div>
-                                <div className="batch-card-actions">
-                                    <button
-                                        className="view-btn"
-                                        onClick={() => {
-                                            setCurrentBatch(batch.id)
-                                            fetchBatchStatus(batch.id)
-                                        }}
-                                    >
-                                        View Details
-                                    </button>
-                                    <button
-                                        className="delete-btn"
-                                        onClick={() => deleteBatch(batch.id)}
-                                    >
-                                        Delete
-                                    </button>
+                    <div className="processed-items-grid">
+                        {batchStatus.items?.map((item, index) => (
+                            <div key={index} className={`mini-item-card ${item.status}`}>
+                                <div className="mini-icon">{getStatusIcon(item.status)}</div>
+                                <div className="mini-info">
+                                    <span className="mini-name">{item.filename}</span>
+                                    {item.error_message && <span className="mini-error">{item.error_message}</span>}
                                 </div>
                             </div>
                         ))}
                     </div>
-                )}
+                </div>
+            )}
+
+            {/* Recent Batches History */}
+            <div className="recent-batches-section">
+                <h2>Batch History</h2>
+                <div className="recent-grid">
+                    {recentBatches.length === 0 ? (
+                        <div className="empty-history">
+                            <Clock size={48} />
+                            <p>No recent batches found.</p>
+                        </div>
+                    ) : (
+                        recentBatches.map(batch => (
+                            <div key={batch.id} className="history-card">
+                                <div className="history-icon">
+                                    {getStatusIcon(batch.status)}
+                                </div>
+                                <div className="history-info">
+                                    <h4>{batch.name}</h4>
+                                    <div className="meta">
+                                        <span>{batch.total_files} Files</span>
+                                        <span>•</span>
+                                        <span>{new Date(batch.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                                <div className="history-actions">
+                                    <button
+                                        className="icon-action-btn"
+                                        onClick={() => { setCurrentBatch(batch.id); fetchBatchStatus(batch.id); }}
+                                        title="View Details"
+                                    >
+                                        <FileText size={18} />
+                                    </button>
+                                    <button
+                                        className="icon-action-btn danger"
+                                        onClick={() => deleteBatch(batch.id)}
+                                        title="Delete Log"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     )

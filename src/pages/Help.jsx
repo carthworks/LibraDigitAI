@@ -1,5 +1,5 @@
 import React from 'react'
-import { Book, Shield, Box, Search, Layers, FileText } from 'lucide-react'
+import { Book, Shield, Box, Search, Layers, FileText, Cpu, User, Lock } from 'lucide-react'
 import './Help.css'
 
 const Help = () => {
@@ -48,6 +48,24 @@ const Help = () => {
             </div>
 
             <div className="help-section">
+                <h2><Book size={24} /> System Capabilities</h2>
+                <div className="capabilities-grid">
+                    <div className="cap-card">
+                        <h3><Cpu size={20} /> OCR Processing</h3>
+                        <p>Tesseract-powered text extraction with multi-language support (Eng, Spa, Fra, Deu, etc.)</p>
+                    </div>
+                    <div className="cap-card">
+                        <h3><Lock size={20} /> Offline-First</h3>
+                        <p>No cloud dependency, complete data privacy. All data stays local on your machine.</p>
+                    </div>
+                    <div className="cap-card">
+                        <h3><FileText size={20} /> Searchable PDFs</h3>
+                        <p>Generates high-fidelity "Image-over-Text" PDFs that preserve original layout while being fully searchable.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="help-section">
                 <h2><Layers size={24} /> Workflow Guide</h2>
                 <div className="steps-container">
                     <div className="step-item">
@@ -77,6 +95,38 @@ const Help = () => {
                             <h4>Metadata & Archive</h4>
                             <p>Add descriptive details. The system then builds the BagIt package and embeds your metadata.</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="help-section">
+                <h2><Search size={24} /> Troubleshooting</h2>
+                <div className="troubleshoot-list">
+                    <details>
+                        <summary>Backend/Project Won't Start</summary>
+                        <p>Ensure Python backend is running via <code>python server.py</code> in the backend folder.</p>
+                    </details>
+                    <details>
+                        <summary>Tesseract Not Found</summary>
+                        <p>Install Tesseract OCR and add it to your system PATH. Verify with <code>tesseract --version</code>.</p>
+                    </details>
+                    <details>
+                        <summary>Failed to Load PDF</summary>
+                        <p>If a file is actually a text file with a .pdf extension, the system will now automatically detect and handle it.</p>
+                    </details>
+                </div>
+            </div>
+
+            <div className="help-section about-section">
+                <h2><User size={24} /> About the Developer</h2>
+                <div className="author-card">
+                    <img src="/welcome_screen.png" alt="LibraDigit AI Welcome" className="author-logo" />
+                    <div className="author-details">
+                        <h3>KarthikeyanT</h3>
+                        <p>Full Stack Developer & AI Specialist</p>
+                        <p><strong>Email:</strong> <a href="mailto:tkarthikeyan@gmail.com">tkarthikeyan@gmail.com</a></p>
+                        <p><strong>GitHub:</strong> <a href="https://github.com/carthworks" target="_blank" rel="noopener noreferrer">github.com/carthworks</a></p>
+                        <p className="author-note">"Built with ❤️ for librarians and archivists worldwide"</p>
                     </div>
                 </div>
             </div>
