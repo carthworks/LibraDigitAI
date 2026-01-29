@@ -135,6 +135,17 @@ def init_db():
         )
     ''')
     
+    # App Configuration table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS app_config (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+    ''')
+
+    # FTS5 Search Index
+    cursor.execute('CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5(project_id, title, author, content, keywords, tokenize="porter")')
+
     # Create indexes
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_batch_items_batch_id ON batch_items(batch_id)')
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_batch_items_project_id ON batch_items(project_id)')
@@ -187,6 +198,107 @@ def get_project_data(project_id):
     conn.close()
     return project_dict
 
+# --- Search Index Helpers ---
+def init_search_index():
+    """Initialize/rebuild the full-text search index from existing projects"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Clear existing index
+        cursor.execute('DELETE FROM search_index')
+        
+        # Get all projects with metadata and OCR text
+        cursor.execute('''
+            SELECT 
+                p.id,
+                p.filename,
+                COALESCE(m.title, '') as title,
+                COALESCE(m.author, '') as author,
+                COALESCE(m.keywords, '') as keywords,
+                COALESCE(o.original_text, '') as content,
+                COALESCE(o.cleaned_text, '') as cleaned_content
+            FROM projects p
+            LEFT JOIN metadata m ON p.id = m.project_id
+            LEFT JOIN ocr_text o ON p.id = o.project_id
+        ''')
+        
+        projects = cursor.fetchall()
+        
+        # Insert into search index
+        for project in projects:
+            # Combine original and cleaned text for better search
+            combined_content = f"{project['content']} {project['cleaned_content']}"
+            
+            cursor.execute('''
+                INSERT INTO search_index (project_id, title, author, content, keywords)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                project['id'],
+                project['title'],
+                project['author'],
+                combined_content,
+                project['keywords']
+            ))
+        
+        conn.commit()
+        conn.close()
+        print(f"✅ Search index initialized with {len(projects)} documents")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to initialize search index: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def update_search_index(project_id):
+    """Update search index for a specific project"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Get project data
+        cursor.execute('''
+            SELECT 
+                p.id,
+                COALESCE(m.title, '') as title,
+                COALESCE(m.author, '') as author,
+                COALESCE(m.keywords, '') as keywords,
+                COALESCE(o.original_text, '') as content,
+                COALESCE(o.cleaned_text, '') as cleaned_content
+            FROM projects p
+            LEFT JOIN metadata m ON p.id = m.project_id
+            LEFT JOIN ocr_text o ON p.id = o.project_id
+            WHERE p.id = ?
+        ''', (project_id,))
+        
+        project = cursor.fetchone()
+        
+        if project:
+            # Delete existing entry
+            cursor.execute('DELETE FROM search_index WHERE project_id = ?', (project_id,))
+            
+            # Insert updated entry
+            combined_content = f"{project['content']} {project['cleaned_content']}"
+            cursor.execute('''
+                INSERT INTO search_index (project_id, title, author, content, keywords)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                project['id'],
+                project['title'],
+                project['author'],
+                combined_content,
+                project['keywords']
+            ))
+            
+            conn.commit()
+        
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"⚠️ Failed to update search index for project {project_id}: {e}")
+        return False
+
 # API Routes
 
 @app.route('/')
@@ -222,6 +334,155 @@ def get_projects():
         return jsonify({
             'projects': [dict(p) for p in projects]
         })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# --- Configuration Helpers ---
+def get_config_value(key, default=None):
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM app_config WHERE key = ?", (key,))
+        row = cursor.fetchone()
+        conn.close()
+        return row['value'] if row else default
+    except Exception as e:
+        print(f"Error reading config {key}: {e}")
+        return default
+
+def set_config_value(key, value):
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO app_config (key, value) VALUES (?, ?)", (key, str(value)))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Error writing config {key}: {e}")
+        return False
+
+def get_archive_root():
+    custom_path = get_config_value('archive_storage_path')
+    if custom_path:
+        # Validate path
+        try:
+            if not os.path.exists(custom_path):
+                os.makedirs(custom_path, exist_ok=True)
+            return custom_path
+        except Exception as e:
+            print(f"Failed to use custom archive path: {e}")
+            return ARCHIVE_FOLDER
+    return ARCHIVE_FOLDER
+
+# --- Routes ---
+@app.route('/api/search', methods=['GET'])
+def search_archives():
+    """Full-text search across all archived documents"""
+    try:
+        query = request.args.get('q', '').strip()
+        limit = int(request.args.get('limit', 20))
+        
+        if not query:
+            return jsonify({'results': [], 'count': 0})
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # FTS5 search with snippet generation
+        # Use MATCH for full-text search, rank by relevance
+        cursor.execute('''
+            SELECT 
+                s.project_id,
+                s.title,
+                s.author,
+                snippet(search_index, 2, '<mark>', '</mark>', '...', 32) as snippet,
+                m.subject,
+                m.year,
+                rank
+            FROM search_index s
+            LEFT JOIN metadata m ON s.project_id = m.project_id
+            WHERE search_index MATCH ?
+            ORDER BY rank
+            LIMIT ?
+        ''', (query, limit))
+        
+        results = []
+        for row in cursor.fetchall():
+            results.append({
+                'id': row['project_id'],
+                'title': row['title'] or 'Untitled Document',
+                'author': row['author'] or 'Unknown',
+                'snippet': row['snippet'] or '',
+                'subject': row['subject'] or 'General',
+                'year': row['year'] or 'N/A'
+            })
+        
+        conn.close()
+        
+        return jsonify({
+            'results': results,
+            'count': len(results),
+            'query': query
+        })
+        
+    except Exception as e:
+        print(f"Search error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'results': []}), 500
+
+@app.route('/api/settings', methods=['GET'])
+def get_settings():
+    try:
+        settings = {
+            'archive_storage_path': get_config_value('archive_storage_path', ARCHIVE_FOLDER),
+            'export_as_zip': get_config_value('export_as_zip', 'false') == 'true',
+            'date_format': get_config_value('date_format', 'YYYY-MM-DD'),
+            'institution_name': get_config_value('institution_name', ''),
+            'file_naming_convention': get_config_value('file_naming_convention', '{title}_{year}'),
+            'default_ocr_language': get_config_value('default_ocr_language', 'eng'),
+            'pdf_quality': get_config_value('pdf_quality', 'high')
+        }
+        return jsonify(settings)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/settings', methods=['POST'])
+def update_settings():
+    try:
+        data = request.json
+        if 'archive_storage_path' in data:
+            # Validate path access
+            path = data['archive_storage_path']
+            if path and not os.path.exists(path):
+                try:
+                    os.makedirs(path, exist_ok=True)
+                except Exception as e:
+                    return jsonify({'error': f"Path is invalid or not writable: {str(e)}"}), 400
+            set_config_value('archive_storage_path', path)
+            
+        if 'export_as_zip' in data:
+            set_config_value('export_as_zip', str(data['export_as_zip']).lower())
+            
+        if 'date_format' in data:
+            set_config_value('date_format', data['date_format'])
+
+        # New Professional Settings
+        if 'institution_name' in data:
+            set_config_value('institution_name', data['institution_name'])
+            
+        if 'file_naming_convention' in data:
+            set_config_value('file_naming_convention', data['file_naming_convention'])
+            
+        if 'default_ocr_language' in data:
+            set_config_value('default_ocr_language', data['default_ocr_language'])
+            
+        if 'pdf_quality' in data:
+            set_config_value('pdf_quality', data['pdf_quality'])
+            
+        return jsonify({'message': 'Settings updated successfully', 'settings': data})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -743,12 +1004,23 @@ def convert_handwritten_to_pdf(project_id):
         output_filename = f"handwritten_{project_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         output_path = os.path.join(UPLOAD_FOLDER, output_filename)
         
+        # Get Institution Name from config
+        institution = get_config_value('institution_name', '')
+        
+        # Prepare metadata for PDF
+        pdf_metadata = {
+            'author': institution if institution else f"Project {project_id}",
+            'subject': f"Digitized Document: {title}",
+            'creator': f"{institution} via LibraDigit AI" if institution else "LibraDigit AI"
+        }
+
         # Convert handwritten text to PDF
         result = converter.convert_handwritten_to_pdf(
             image_path=filepath,
             output_path=output_path,
             title=title,
-            language=lang
+            language=lang,
+            metadata=pdf_metadata
         )
         
         if not result.get('success'):
@@ -821,6 +1093,9 @@ def save_cleaned_text(project_id):
         conn.commit()
         conn.close()
         
+        # Update search index with new cleaned text
+        update_search_index(project_id)
+        
         return jsonify({'success': True})
         
     except Exception as e:
@@ -870,6 +1145,9 @@ def save_metadata(project_id):
         
         conn.commit()
         conn.close()
+        
+        # Update search index with new metadata
+        update_search_index(project_id)
         
         return jsonify({'success': True})
         
@@ -1945,61 +2223,6 @@ def update_search_index(project_id, conn=None):
         if close_conn:
             conn.close()
 
-@app.route('/api/search', methods=['GET'])
-def search_archives():
-    """
-    Full-text search across all archives
-    Query params: q (query string), limit (default 20)
-    """
-    query = request.args.get('q', '').strip()
-    if not query:
-        return jsonify({'results': []})
-        
-    limit = request.args.get('limit', 20)
-    
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        
-        # FTS5 Match query
-        # We use snippet() function to get highlighted text context
-        # snippet(table_name, column_index, start_match, end_match, ellipses, max_tokens)
-        cursor.execute(f'''
-            SELECT 
-                si.project_id, 
-                si.title, 
-                si.author,
-                snippet(search_index, 3, '<b>', '</b>', '...', 30) as context,
-                si.rank,
-                m.subject,
-                m.year
-            FROM search_index si
-            LEFT JOIN metadata m ON si.project_id = m.project_id
-            WHERE search_index MATCH ? 
-            ORDER BY rank 
-            LIMIT ?
-        ''', (query, limit))
-        
-        results = []
-        rows = cursor.fetchall()
-        
-        for row in rows:
-            results.append({
-                'id': row['project_id'],
-                'title': row['title'],
-                'author': row['author'],
-                'snippet': row['context'],
-                'score': row['rank'],
-                'subject': row['subject'] if row['subject'] else 'Uncategorized',
-                'year': row['year'] if row['year'] else 'Unknown'
-            })
-            
-        conn.close()
-        
-        return jsonify({'results': results, 'count': len(results)})
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 @app.route('/api/analytics', methods=['GET'])
 def get_analytics():
     """Get system-wide analytics and statistics"""

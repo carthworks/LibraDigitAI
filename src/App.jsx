@@ -14,6 +14,7 @@ import LoginScreen from './components/LoginScreen'
 import { ProjectProvider } from './context/ProjectContext'
 import ArchiveSearch from './pages/ArchiveSearch'
 import Analytics from './pages/Analytics'
+import Settings from './pages/Settings'
 import { ToastProvider } from './context/ToastContext'
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
                                     <Route path="/archive/:projectId" element={<Archive />} />
                                     <Route path="/search" element={<ArchiveSearch />} />
                                     <Route path="/analytics" element={<Analytics />} />
+                                    <Route path="/settings" element={<Settings />} />
                                     <Route path="/help" element={<Help />} />
                                     <Route path="*" element={<Navigate to="/" replace />} />
                                 </Routes>

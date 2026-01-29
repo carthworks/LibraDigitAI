@@ -372,11 +372,19 @@ const UploadOCR = () => {
                                     <button
                                         className="btn btn-secondary btn-lg w-full"
                                         onClick={() => handleConvertToPDF(currentProject.id)}
-                                        disabled={convertingPDF}
+                                        disabled={convertingPDF || (file && !file.type.startsWith('image/'))}
+                                        style={{ opacity: (file && !file.type.startsWith('image/')) ? 0.5 : 1, cursor: (file && !file.type.startsWith('image/')) ? 'not-allowed' : 'pointer' }}
+                                        title={file && !file.type.startsWith('image/') ? "Only available for image files" : ""}
                                     >
                                         <FileDown size={20} />
                                         {convertingPDF ? 'Converting to PDF...' : 'Convert Handwritten to PDF'}
                                     </button>
+                                    {file && !file.type.startsWith('image/') && (
+                                        <p className="text-center mt-2" style={{ color: '#ff6b6b', fontSize: '0.85rem' }}>
+                                            <AlertCircle size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
+                                            Requires an image file (PNG/JPG).<br />PDFs cannot be processed as handwritten notes directly.
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* PDF Conversion Success */}

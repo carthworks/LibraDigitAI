@@ -15,6 +15,7 @@ const Sidebar = ({ onLogout }) => {
         { path: '/batch', icon: Layers, label: 'Batch Processing' },
         { path: '/search', icon: Search, label: 'Archive Search' },
         { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
+        { path: '/settings', icon: Settings, label: 'Settings' },
         { path: '/help', icon: FileText, label: 'Help & Guide' },
     ]
 

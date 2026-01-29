@@ -229,7 +229,10 @@ class HandwrittenToPDFConverter:
         return structured
     
     def generate_formatted_pdf(self, extracted_data: Dict[str, Any], output_path: str, 
-                               title: str = "Handwritten Notes") -> bool:
+                               title: str = "Handwritten Notes",
+                               author: str = None,
+                               subject: str = None,
+                               creator: str = None) -> bool:
         """
         Generate a clean, formatted PDF from extracted handwritten text
         """
@@ -243,7 +246,11 @@ class HandwrittenToPDFConverter:
                 rightMargin=72,
                 leftMargin=72,
                 topMargin=72,
-                bottomMargin=18
+                bottomMargin=18,
+                title=title,
+                author=author or "",
+                subject=subject or "",
+                creator=creator or "LibraDigit AI"
             )
             
             # Container for PDF elements
@@ -337,7 +344,8 @@ class HandwrittenToPDFConverter:
     
     def convert_handwritten_to_pdf(self, image_path: str, output_path: str, 
                                    title: str = "Handwritten Notes", 
-                                   language: str = 'eng') -> Dict[str, Any]:
+                                   language: str = 'eng',
+                                   metadata: Dict[str, str] = None) -> Dict[str, Any]:
         """
         Complete workflow: Extract handwritten text and generate formatted PDF
         """
@@ -352,7 +360,15 @@ class HandwrittenToPDFConverter:
                 }
             
             # Generate PDF
-            pdf_success = self.generate_formatted_pdf(extracted_data, output_path, title)
+            meta = metadata or {}
+            pdf_success = self.generate_formatted_pdf(
+                extracted_data, 
+                output_path, 
+                title,
+                author=meta.get('author'),
+                subject=meta.get('subject'),
+                creator=meta.get('creator')
+            )
             
             if not pdf_success:
                 return {
