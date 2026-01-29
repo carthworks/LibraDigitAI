@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { Plus, FileText, Clock, CheckCircle, AlertCircle, Trash2, LayoutGrid, List, Search, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react'
+import { API_URL } from '../config'
 import './Dashboard.css'
 
 const Dashboard = () => {
@@ -355,7 +356,7 @@ const Dashboard = () => {
                         <div className="modal-body p-0">
                             {/* Assuming the PDF or Image is served from the backend */}
                             <iframe
-                                src={`http://localhost:5000/api/projects/${previewProject.id}/file`}
+                                src={`${API_URL}/projects/${previewProject.id}/file`}
                                 className="pdf-preview-frame"
                                 title="Document Preview"
                             />

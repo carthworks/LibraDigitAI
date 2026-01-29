@@ -7,9 +7,8 @@ import {
 import {
     Activity, HardDrive, FileText, Layers, TrendingUp
 } from "lucide-react"
+import { API_URL } from "../config"
 import "./Analytics.css"
-
-const API_URL = "http://localhost:5000/api"
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"]
 
 export default function Analytics() {

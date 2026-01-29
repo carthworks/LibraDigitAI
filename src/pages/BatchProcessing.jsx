@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { Upload, Play, Pause, X, CheckCircle, AlertCircle, Loader, FileText, Image as ImageIcon, Trash2, Clock, Calendar, Edit3 } from 'lucide-react'
+import { API_URL } from '../config'
 import './BatchProcessing.css'
 import BulkMetadataEditor from '../components/BulkMetadataEditor'
-
-const API_URL = 'http://localhost:5000/api'
 
 function BatchProcessing() {
     const navigate = useNavigate()

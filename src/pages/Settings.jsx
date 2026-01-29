@@ -5,9 +5,8 @@ import {
     FileArchive, Building2, Languages, Sliders, FileText
 } from "lucide-react"
 import { useToast } from "../context/ToastContext"
+import { API_URL } from "../config"
 import "./Settings.css"
-
-const API_URL = "http://localhost:5000/api"
 
 const DEFAULT_SETTINGS = {
     archive_storage_path: "",

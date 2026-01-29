@@ -16,6 +16,7 @@
     margin-bottom: 0.5rem;
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -68,122 +69,196 @@
 /* --- Results Data Grid --- */
 
 .results-grid-container {
-    overflow-x: auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(51, 65, 85, 0.3) 100%);
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
-.results-table {
+.results-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 0.8fr 1.2fr 2.5fr 1fr;
+    gap: 0;
     width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
 }
 
-.results-table th,
-.results-table td {
-    padding: 1rem 1.5rem;
-    text-align: left;
-    border-bottom: 1px solid var(--color-border);
+.grid-header {
+    display: contents;
 }
 
-.results-table th {
-    background: var(--color-bg-secondary);
+.grid-header .grid-cell {
+    background: rgba(15, 23, 42, 0.8);
+    padding: 1rem 1.25rem;
     font-weight: 600;
-    color: var(--color-text-secondary);
-    white-space: nowrap;
+    font-size: 0.875rem;
+    color: #a5b4fc;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid rgba(139, 92, 246, 0.3);
     position: sticky;
     top: 0;
+    z-index: 10;
 }
 
-.results-table tr {
-    transition: background 0.2s;
+.grid-row {
+    display: contents;
     cursor: pointer;
 }
 
-.results-table tr:hover {
-    background: var(--color-bg-hover);
+.grid-row .grid-cell {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+    display: flex;
+    align-items: center;
+    color: var(--color-text-secondary, #cbd5e1);
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
 }
 
-.result-row:last-child td {
+.grid-row:hover .grid-cell {
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.grid-row:last-child .grid-cell {
     border-bottom: none;
+}
+
+.cell-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.cell-icon {
+    color: #a78bfa;
+    flex-shrink: 0;
+}
+
+.cell-title {
+    font-weight: 500;
+    color: var(--color-text-primary, #f8fafc);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.grid-cell-snippet {
+    padding-right: 1.5rem;
+}
+
+.grid-cell-snippet .result-snippet-text {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary, #94a3b8);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+.grid-cell-action {
+    justify-content: center;
+}
+
+.grid-cell-action .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
 }
 
 /* Badge Styles */
 .badge {
     padding: 0.35rem 0.85rem;
     border-radius: 100px;
-    font-size: 0.85rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.badge-primary {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* Search Meta Info */
+.search-meta-info {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--color-text-secondary, #cbd5e1);
+    font-size: 0.9375rem;
     font-weight: 500;
 }
 
-.badge.subject {
-    background: rgba(var(--color-primary-rgb), 0.1);
-    /* fallback needed if var not defined */
-    background: var(--color-bg-secondary);
-    /* safe fallback */
-    border: 1px solid var(--color-primary-light);
-    color: var(--color-primary);
-}
-
-/* Metadata Cell */
-.metadata-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
-.metadata-author {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--color-text);
-}
-
-.metadata-title {
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
-}
-
-/* Snippet */
-.snippet-cell {
-    max-width: 450px;
-}
-
-.result-snippet-text {
-    font-size: 0.9rem;
-    color: var(--color-text-secondary);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.5;
-}
-
-.result-snippet-text b {
-    background-color: rgba(255, 215, 0, 0.3);
-    color: var(--color-text);
-    padding: 0 3px;
+/* Snippet Highlighting */
+.result-snippet-text b,
+.result-snippet-text mark {
+    background: linear-gradient(120deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 165, 0, 0.4) 100%);
+    color: var(--color-text-primary, #f8fafc);
+    padding: 0.1rem 0.25rem;
     border-radius: 3px;
     font-weight: 600;
+    border-bottom: 2px solid rgba(255, 165, 0, 0.6);
 }
 
-/* View Button */
-.view-btn {
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    background: transparent;
-    border: 1px solid var(--color-primary);
-    color: var(--color-primary);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 500;
+/* Responsive Grid */
+@media (max-width: 1400px) {
+    .results-grid {
+        grid-template-columns: 1.5fr 1fr 0.7fr 1fr 2fr 0.9fr;
+    }
 }
 
-.result-row:hover .view-btn {
-    background: var(--color-primary);
-    color: white;
+@media (max-width: 1200px) {
+    .results-grid {
+        grid-template-columns: 1.5fr 0.8fr 0.6fr 1fr 1.8fr 0.8fr;
+        font-size: 0.875rem;
+    }
+
+    .grid-cell {
+        padding: 0.875rem 1rem !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .results-grid {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .grid-header {
+        display: none;
+    }
+
+    .grid-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        padding: 1.25rem;
+        border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+    }
+
+    .grid-row .grid-cell {
+        padding: 0;
+        border: none;
+    }
+
+    .grid-cell-snippet {
+        grid-column: 1 / -1;
+    }
+
+    .grid-cell-action {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
 }
 
 /* --- PDF Modal Styles --- */

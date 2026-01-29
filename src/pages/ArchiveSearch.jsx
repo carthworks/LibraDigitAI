@@ -5,18 +5,17 @@ import DOMPurify from "dompurify"
 import {
     Search, Loader, AlertCircle, X,
     ZoomIn, ZoomOut, ChevronLeft, ChevronRight,
-    Maximize2, Minimize2
+    Maximize2, Minimize2, FileText
 } from "lucide-react"
 import { Document, Page, pdfjs } from "react-pdf"
 import { useToast } from "../context/ToastContext"
+import { API_URL } from "../config"
 import "./ArchiveSearch.css"
 import "react-pdf/dist/Page/AnnotationLayer.css"
 import "react-pdf/dist/Page/TextLayer.css"
 
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url"
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker
-
-const API_URL = "http://localhost:5000/api"
 const MemoPage = memo(Page)
 
 export default function ArchiveSearch() {
@@ -126,38 +125,61 @@ export default function ArchiveSearch() {
             )}
 
             {results.length ? (
-                <table className="results-table">
-                    <thead>
-                        <tr>
-                            <th>Subject</th>
-                            <th>Year</th>
-                            <th>Metadata</th>
-                            <th>Context</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div className="results-grid-container">
+                    <div className="results-grid">
+                        <div className="grid-header">
+                            <div className="grid-cell">Title</div>
+                            <div className="grid-cell">Subject</div>
+                            <div className="grid-cell">Year</div>
+                            <div className="grid-cell">Author</div>
+                            <div className="grid-cell">Context</div>
+                            <div className="grid-cell">Action</div>
+                        </div>
                         {results.map((r) => (
-                            <tr key={r.id} onClick={() => openPdfViewer(r)} className="result-row">
-                                <td>{r.subject || "General"}</td>
-                                <td>{r.year || "N/A"}</td>
-                                <td>
-                                    <b>{r.author || "Unknown"}</b>
-                                    <div>{r.title}</div>
-                                </td>
-                                <td>
+                            <div
+                                key={r.id}
+                                className="grid-row"
+                                onClick={() => openPdfViewer(r)}
+                            >
+                                <div className="grid-cell">
+                                    <div className="cell-content">
+                                        <FileText size={18} className="cell-icon" />
+                                        <span className="cell-title">{r.title || "Untitled Document"}</span>
+                                    </div>
+                                </div>
+                                <div className="grid-cell">
+                                    <span className="badge badge-primary">
+                                        {r.subject || "General"}
+                                    </span>
+                                </div>
+                                <div className="grid-cell">
+                                    {r.year || "N/A"}
+                                </div>
+                                <div className="grid-cell">
+                                    {r.author || "Unknown"}
+                                </div>
+                                <div className="grid-cell grid-cell-snippet">
                                     <div
                                         className="result-snippet-text"
                                         dangerouslySetInnerHTML={sanitize(r.snippet)}
                                     />
-                                </td>
-                                <td>
-                                    <button className="view-btn">View PDF</button>
-                                </td>
-                            </tr>
+                                </div>
+                                <div className="grid-cell grid-cell-action">
+                                    <button
+                                        className="btn btn-sm btn-primary"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            openPdfViewer(r)
+                                        }}
+                                    >
+                                        <ZoomIn size={16} />
+                                        View
+                                    </button>
+                                </div>
+                            </div>
                         ))}
-                    </tbody>
-                </table>
+                    </div>
+                </div>
             ) : (
                 searched && !loading && (
                     <div className="empty-state">

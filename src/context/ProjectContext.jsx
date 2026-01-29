@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
+import { API_URL as API_BASE } from '../config'
 
 const ProjectContext = createContext()
 
@@ -10,8 +11,6 @@ export const useProject = () => {
     }
     return context
 }
-
-const API_BASE = 'http://localhost:5000/api'
 
 export const ProjectProvider = ({ children }) => {
     const [projects, setProjects] = useState([])
