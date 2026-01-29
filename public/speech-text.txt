@@ -1,0 +1,79 @@
+Here is a training speech designed for a software demonstration. It is structured to guide an audience of librarians and archivists through the "Why" (digitization in the AI era) and the "How" (using LibraDigit AI).
+
+***
+
+# Training Speech: LibraDigit AI & The Future of Archiving
+
+**Subject:** Digitization in the AI Era & LibraDigit AI Demo
+**Audience:** Librarians, Archivists, and Digitization Teams
+**Tone:** Professional, inspiring, and instructional
+
+---
+
+### I. Introduction: The Library in the Age of AI
+
+Good morning everyone. Thank you for joining today’s session on the future of our digital collections.
+
+We often talk about libraries as gatekeepers of knowledge. But in the "AI Era," our role is shifting. We aren't just storing physical paper anymore; we are managing **data**. The goal of modern digitization isn't just to take a picture of a page; it is to make that page searchable, structured, and accessible to the machines and algorithms that assist researchers today.
+
+That is why we are introducing **LibraDigit AI**. This is not just a scanner tool; it is a production-grade digital archive builder designed specifically for the needs of librarians and archivists.
+
+### II. Privacy & Security First
+
+Before we look at the features, I want to address the most critical concern for any archive: **Privacy and Control.**
+
+In an era where everything is in the "cloud," LibraDigit AI takes a different approach. It is **offline-first**. It has zero cloud dependency. All data, hashes, and files stay exclusively on your local machine. When you log in, your authentication is handled locally using secure hashing. This ensures that our sensitive or copyright-restricted collections remain entirely under our physical control.
+
+### III. Demo Phase 1: The Core Workflow
+
+Let’s dive into how this software transforms our workflow.
+
+*(Action: Open the application dashboard)*
+
+**1. Upload and Ingest**
+We start by creating a project. The interface is responsive and modern—whether you are on a desktop monitor or a tablet. We simply drag and drop our scanned PDF, PNG, or JPEG files here.
+
+**2. Standard OCR & Cleaning**
+Once the document is loaded, we run the OCR (Optical Character Recognition). LibraDigit AI uses the Tesseract engine to convert image text into a searchable layer.
+But machines aren't perfect. Look at the **side-by-side rich text editor**. This allows us to manually clean typos and improve accuracy immediately after the scan.
+
+**3. Metadata Enrichment**
+A file without data is just a lost file. Here, we add the **Dublin Core elements**: Title, Author, Year, Subject, and Keywords. Crucially, this software uses **XMP Metadata Embedding**, meaning these details are embedded directly into the PDF binary. If a researcher downloads a file, the metadata travels *with* it.
+
+### IV. Demo Phase 2: AI Capabilities (The "Smart" Features)
+
+Now, let's look at why this is called "LibraDigit **AI**." Standard scanning fails when documents get complex. This is where we use the **Advanced OCR** features.
+
+**1. Layout Analysis & Structure**
+When we toggle "Advanced OCR Analysis", the system doesn't just read words; it reads the page.
+*   **Intelligent Layout Understanding:** It automatically detects headers, footers, stamps, and signatures.
+*   **Tables and Forms:** It identifies table structures and even detects checkboxes in forms.
+*   **Orientation:** It automatically corrects pages that were scanned upside down or sideways.
+
+**2. The Handwriting Breakthrough**
+Historically, handwritten notes were invisible to search engines. LibraDigit AI changes that. Using a specialized neural network, we can convert handwritten text into formatted, searchable PDFs. It detects headings, bullet points, and paragraphs within handwritten notes with 75–92% accuracy.
+
+*(Action: Show the "Handwritten to PDF" conversion result)*
+
+### V. Demo Phase 3: Archival Standards & Management
+
+Finally, how do we manage the collection long-term?
+
+**1. The BagIt Standard**
+When we are ready to archive, we don't just get a folder of files. The system generates a package using the **BagIt standard**. This is an international standard for preservation. It includes **MD5 Manifests**, which are automatic integrity checks to ensure our files haven't been corrupted over decades of storage.
+
+**2. Analytics Dashboard**
+As managers, you need to see what your team is doing. The **Analytics Dashboard** visualizes our workflow. We can track project distribution, storage metrics, and even view "Top Subjects" to see which areas of our collection are growing the fastest.
+
+**3. Searchability**
+Once archived, how do we find things? The software includes a **Full-Text Search (FTS5)** engine. You can search instantly through thousands of documents, not just by title, but by the content inside the pages, with keyword highlighting showing you exactly where the term appears.
+
+### VI. Conclusion
+
+To summarize: We are moving from "scanning" to "intelligent archiving."
+
+With LibraDigit AI, we are securing our data offline, unlocking handwritten history, and adhering to strict archival standards like BagIt. This is how we ensure our library remains the vital, accessible heart of knowledge in the AI era.
+
+Let's get started with your first project. Please open the "Install Guide" to set up your master password.
+
+Thank you.
