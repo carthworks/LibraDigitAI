@@ -1,5 +1,5 @@
 import React from 'react'
-import { Book, Shield, Box, Search, Layers, FileText, Cpu, User, Lock } from 'lucide-react'
+import { Book, Shield, Box, Search, Layers, FileText, Cpu, User, Lock, Users, Target, Zap } from 'lucide-react'
 import './Help.css'
 
 const Help = () => {
@@ -12,56 +12,50 @@ const Help = () => {
             </div>
 
             <div className="help-section">
-                <h2><Shield size={24} /> New Features & Standards</h2>
+                <h2><Target size={24} /> Project Overview</h2>
                 <div className="feature-card">
-                    <h3>📦 Standard BagIt Archiving</h3>
+                    <h3>🎯 Problem & Scope</h3>
                     <p>
-                        We have upgraded our archiving engine to follow the international <strong>BagIt</strong> standard.
-                        Instead of just a single PDF, your archives are now robust packages containing:
+                        <strong>The Problem:</strong> Physical archives are deteriorating, difficult to search, and often inaccessible. Cloud solutions compromise privacy, while manual digitization is slow and inconsistent.
                     </p>
-                    <ul>
-                        <li><strong>Data Folder</strong>: Contains your pristine, searchable PDF.</li>
-                        <li><strong>Manifest File</strong>: A cryptographic checksum (MD5) to prove file integrity years from now.</li>
-                        <li><strong>Bag Info</strong>: Human-readable metadata about the archive package.</li>
+                    <p>
+                        <strong>The Scope:</strong> LibraDigit AI provides a complete, <strong>offline-first ecosystem</strong> for transforming physical documents into future-proof digital assets. from OCR to metadata enrichment and long-term preservation, ensuring history is never lost.
+                    </p>
+                </div>
+
+                <div className="feature-card">
+                    <h3>👥 Target Audience</h3>
+                    <ul className="help-list">
+                        <li><strong>🏛️ Librarians & Archivists</strong>: For standard-compliant (BagIt) digital preservation.</li>
+                        <li><strong>⚖️ Legal & Medical Professionals</strong>: For 100% private, offline document processing.</li>
+                        <li><strong>🎓 Researchers & Historians</strong>: To digitize and search personal reference collections.</li>
+                        <li><strong>🏢 Organizations</strong>: Managing large-scale document digitization projects.</li>
                     </ul>
-                </div>
-
-                <div className="feature-card">
-                    <h3>🏷️ Embedded Metadata</h3>
-                    <p>
-                        Metadata is no longer just in the database. We now <strong>embed</strong> your Title, Author, Subject,
-                        and Keywords directly into the PDF file itself (XMP Metadata).
-                    </p>
-                    <p>
-                        This means if you email the PDF to someone or open it in any external viewer, the metadata travels
-                        with the file, making it universally searchable.
-                    </p>
-                </div>
-
-                <div className="feature-card">
-                    <h3>👁️ Draft Preview</h3>
-                    <p>
-                        You can now verify your documents <em>before</em> finishing the project.
-                        Click the <strong>Eye Icon</strong> on any project in the "Needs Cleanup" or "Metadata" stage
-                        to see the <strong>Searchable PDF Draft</strong>.
-                    </p>
                 </div>
             </div>
 
             <div className="help-section">
-                <h2><Book size={24} /> System Capabilities</h2>
+                <h2><Zap size={24} /> Core Features</h2>
                 <div className="capabilities-grid">
                     <div className="cap-card">
-                        <h3><Cpu size={20} /> OCR Processing</h3>
-                        <p>Tesseract-powered text extraction with multi-language support (Eng, Spa, Fra, Deu, etc.)</p>
+                        <h3><Layers size={20} /> Batch Processing</h3>
+                        <p>Process hundreds of documents simultaneously with our multi-threaded batch engine.</p>
                     </div>
                     <div className="cap-card">
-                        <h3><Lock size={20} /> Offline-First</h3>
-                        <p>No cloud dependency, complete data privacy. All data stays local on your machine.</p>
+                        <h3><Search size={20} /> Full-Text Search</h3>
+                        <p>Instantly find any word across your entire archive with context-aware snippet highlighting.</p>
                     </div>
                     <div className="cap-card">
-                        <h3><FileText size={20} /> Searchable PDFs</h3>
-                        <p>Generates high-fidelity "Image-over-Text" PDFs that preserve original layout while being fully searchable.</p>
+                        <h3><Cpu size={20} /> AI OCR Engine</h3>
+                        <p>Tesseract-powered engine supporting 100+ languages with layout preservation.</p>
+                    </div>
+                    <div className="cap-card">
+                        <h3><Lock size={20} /> Privacy First</h3>
+                        <p>Zero cloud dependency. Your sensitive data never leaves your local machine.</p>
+                    </div>
+                    <div className="cap-card">
+                        <h3><FileText size={20} /> Smart PDF/A</h3>
+                        <p>Generates ISO-compliant archival PDFs with embedded XMP metadata and searchable text layers.</p>
                     </div>
                 </div>
             </div>
@@ -103,6 +97,10 @@ const Help = () => {
             <div className="help-section">
                 <h2><Search size={24} /> Troubleshooting</h2>
                 <div className="troubleshoot-list">
+                    <details>
+                        <summary>Installation & Setup Guide</summary>
+                        <p>Need help installing? <a href="/install_guide.html" target="_blank" style={{ color: 'var(--color-primary)' }}>Open the detailed Visual Installation Guide</a>.</p>
+                    </details>
                     <details>
                         <summary>Backend/Project Won't Start</summary>
                         <p>Ensure Python backend is running via <code>python server.py</code> in the backend folder.</p>

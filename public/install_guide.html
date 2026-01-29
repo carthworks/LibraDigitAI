@@ -41,6 +41,7 @@
             margin-bottom: 10px;
             background: linear-gradient(135deg, var(--primary), #818cf8);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -123,62 +124,79 @@
     <div class="container">
         <div class="header">
             <h1>LibraDigit AI</h1>
-            <p>Installation & Setup Guide for Librarians</p>
+            <p>Electron Desktop App • Installation & Setup Guide</p>
         </div>
 
         <div class="step-card">
             <div class="step-number">1</div>
             <div class="step-content">
-                <h3>Locate the Installer</h3>
-                <p>Find the file named <strong>LibraDigitAI_Setup_1.0.0.exe</strong> in the folder provided to you. This
-                    is the complete application package.</p>
+                <h3>Pre-requisite: OCR Engine</h3>
+                <p>LibraDigit AI requires <strong>Tesseract OCR</strong> to read documents.</p>
+                <div
+                    style="background: rgba(16, 185, 129, 0.1); padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px solid var(--accent);">
+                    <strong>Is it installed?</strong> Open Command Prompt and type <code>tesseract --version</code>.<br>
+                    If not found, download and install it from <a href="https://github.com/UB-Mannheim/tesseract/wiki"
+                        style="color: var(--accent);">UB-Mannheim/tesseract</a>.
+                </div>
             </div>
         </div>
 
         <div class="step-card">
             <div class="step-number">2</div>
             <div class="step-content">
-                <h3>Run Installation</h3>
-                <p>Double-click the .exe file. Windows might ask for permission or show a "SmartScreen" warning since
-                    this is an internal tool. Click "Run Anyway" or "Yes" to proceed.</p>
+                <h3>Locate the Installer</h3>
+                <p>Find the setup file (e.g., <strong>LibraDigitAI_Setup_1.0.0.exe</strong>) in your distribution
+                    folder.</p>
             </div>
         </div>
 
         <div class="step-card">
             <div class="step-number">3</div>
             <div class="step-content">
-                <h3>Launch Application</h3>
-                <p>Once installed, you will find a <strong>LibraDigit AI</strong> icon on your desktop. Double-click to
-                    launch.</p>
+                <h3>Install & Security Check</h3>
+                <p>Double-click the .exe file. As an internal secure tool, Windows SmartScreen may appear.</p>
+                <p>Click <strong>More Info > Run Anyway</strong> to proceed. This is normal for unsigned internal tools.
+                </p>
             </div>
         </div>
 
         <div class="step-card">
             <div class="step-number">4</div>
             <div class="step-content">
-                <h3>Login</h3>
-                <p>The application is password protected to ensure secure access to the archive system.</p>
+                <h3>Launch & Login</h3>
+                <p>Launch <strong>LibraDigit AI</strong> from your desktop. The app runs entirely
+                    <strong>offline</strong> for maximum security.
+                </p>
 
                 <div class="credentials-box">
-                    <strong>🔐 Default Access Credentials:</strong><br><br>
-                    Password: <code>libradigit</code>
+                    <strong>🔐 Setup Your Master Key:</strong><br><br>
+                    <p style="margin-bottom: 10px;">On your first launch, you will be asked to create a new
+                        <strong>Master Password</strong>.</p>
+                    <ul style="margin: 0; padding-left: 20px; color: var(--text-muted);">
+                        <li>This password encrypts your local database.</li>
+                        <li>It cannot be recovered if lost.</li>
+                        <li>It ensures your archive remains private and offline.</li>
+                    </ul>
                 </div>
             </div>
         </div>
 
         <div class="troubleshooting">
-            <h3>🐛 Common Issues & Solutions</h3>
-            <p><strong>"Backend Not Connected" Error:</strong><br>
-                Close the application completely and restart it. The background scanning service needs a moment to
-                initialize on the first run.</p>
+            <h3>🐛 Troubleshooting Guide</h3>
+            <p><strong>OCR Not Working?</strong><br>
+                Ensure Tesseract is in your system PATH environment variable. Restart the PC after installing Tesseract.
+            </p>
             <br>
-            <p><strong>Files not saving:</strong><br>
-                Ensure you run the application with appropriate permissions if saving to a protected folder.</p>
+            <p><strong>"Backend Connection Fail"?</strong><br>
+                This Electron app manages a local Python server. If it fails, check if an antivirus is blocking
+                <code>server.exe</code> or port <code>5000</code>.
+            </p>
         </div>
 
         <div style="text-align: center; margin-top: 60px; color: var(--text-muted);">
-            <p>Need additional help? Contact your IT administrator.</p>
-            <p>LibraDigit AI v1.0.0</p>
+            <p>Developed by KarthikeyanT | <a href="https://github.com/carthworks"
+                    style="color: var(--text-muted)">github.com/carthworks</a></p>
+            <p>LibraDigit AI v1.0.0 • Electron • Python • React</p>
         </div>
     </div>
 </body>

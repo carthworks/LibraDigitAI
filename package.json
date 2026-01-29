@@ -1,7 +1,7 @@
 {
   "name": "libradigit-ai",
-  "version": "1.0.0",
-  "description": "AI-Based Digitization & Digital Archive Builder for Libraries",
+  "version": "1.2.0",
+  "description": "AI-Based Digitization & Digital Archive Builder for Libraries with Advanced OCR and Handwritten Text Recognition",
   "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -14,15 +14,22 @@
   },
   "keywords": [
     "ocr",
+    "advanced-ocr",
+    "handwriting-recognition",
     "digitization",
     "library",
     "archive",
-    "electron"
+    "electron",
+    "ai",
+    "machine-learning",
+    "pdf-generation",
+    "document-processing"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.6.2",
+    "bcryptjs": "^3.0.3",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.294.0",
     "pdfjs-dist": "^5.4.530",
@@ -30,7 +37,8 @@
     "react-dom": "^18.2.0",
     "react-pdf": "^10.3.0",
     "react-quill": "^2.0.0",
-    "react-router-dom": "^6.20.0"
+    "react-router-dom": "^6.20.0",
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",

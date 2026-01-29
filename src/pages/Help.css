@@ -268,7 +268,14 @@
     display: inline-block;
 }
 
-.help-image:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
+
+.help-list {
+    margin: 0;
+    padding-left: var(--space-xl);
+    color: var(--color-text-secondary);
+}
+
+.help-list li {
+    margin-bottom: var(--space-sm);
+    line-height: 1.6;
 }

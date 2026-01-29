@@ -198,3 +198,13 @@
         transform: translateX(5px);
     }
 }
+
+@media (max-width: 480px) {
+    .login-screen {
+        padding: var(--space-md);
+    }
+
+    .login-card {
+        padding: var(--space-lg);
+    }
+}

@@ -13,12 +13,29 @@ import WelcomeScreen from './components/WelcomeScreen'
 import LoginScreen from './components/LoginScreen'
 import { ProjectProvider } from './context/ProjectContext'
 import ArchiveSearch from './pages/ArchiveSearch'
+import Analytics from './pages/Analytics'
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [showWelcome, setShowWelcome] = useState(false)
 
+    useEffect(() => {
+        // Sync logout across tabs - listen for storage events from other tabs
+        const handleStorageChange = (e) => {
+            if (e.key === 'app_session_active' && !e.newValue) {
+                setIsLoggedIn(false)
+            }
+        }
+        window.addEventListener('storage', handleStorageChange)
+
+        // Optional: Check existence on mount if we wanted persistence, 
+        // but for now we settle for just syncing the logout action if it happens elsewhere.
+
+        return () => window.removeEventListener('storage', handleStorageChange)
+    }, [])
+
     const handleLogin = () => {
+        localStorage.setItem('app_session_active', 'true')
         setIsLoggedIn(true)
         setShowWelcome(true)
     }
@@ -28,6 +45,7 @@ function App() {
     }
 
     const handleLogout = () => {
+        localStorage.removeItem('app_session_active')
         setIsLoggedIn(false)
     }
 
@@ -50,6 +68,7 @@ function App() {
                                 <Route path="/metadata/:projectId" element={<Metadata />} />
                                 <Route path="/archive/:projectId" element={<Archive />} />
                                 <Route path="/search" element={<ArchiveSearch />} />
+                                <Route path="/analytics" element={<Analytics />} />
                                 <Route path="/help" element={<Help />} />
                                 <Route path="*" element={<Navigate to="/" replace />} />
                             </Routes>

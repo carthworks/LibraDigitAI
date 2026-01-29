@@ -40,6 +40,11 @@ backend/uploads/*
 *~
 *.md 
 !README.md
+*.zip
+*.exe   
+
+
+
 
 
 # OS

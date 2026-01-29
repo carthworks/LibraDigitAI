@@ -19,6 +19,15 @@ export const ProjectProvider = ({ children }) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
+    // Helper to notify other tabs of changes
+    const notifyOtherTabs = (type, data = null) => {
+        localStorage.setItem(`project_sync_event`, JSON.stringify({
+            type,
+            data,
+            timestamp: Date.now()
+        }))
+    }
+
     // Fetch all projects
     const fetchProjects = async () => {
         try {
@@ -50,6 +59,7 @@ export const ProjectProvider = ({ children }) => {
             })
 
             await fetchProjects()
+            notifyOtherTabs('REFRESH')
             setError(null)
             return response.data.project
         } catch (err) {
@@ -83,6 +93,7 @@ export const ProjectProvider = ({ children }) => {
         try {
             await axios.put(`${API_BASE}/projects/${projectId}/status`, { status })
             await fetchProjects()
+            notifyOtherTabs('REFRESH')
             if (currentProject?.id === projectId) {
                 setCurrentProject({ ...currentProject, status })
             }
@@ -97,6 +108,7 @@ export const ProjectProvider = ({ children }) => {
             setLoading(true)
             const response = await axios.post(`${API_BASE}/ocr/${projectId}`, { language })
             await getProject(projectId)
+            notifyOtherTabs('REFRESH')
             setError(null)
             return response.data
         } catch (err) {
@@ -109,12 +121,57 @@ export const ProjectProvider = ({ children }) => {
         }
     }
 
+    // Run Advanced OCR with layout analysis
+    const runAdvancedOCR = async (projectId, language = 'eng') => {
+        try {
+            setLoading(true)
+            const response = await axios.post(`${API_BASE}/ocr/advanced/${projectId}`, {
+                language,
+                advanced: true
+            })
+            await getProject(projectId)
+            notifyOtherTabs('REFRESH')
+            setError(null)
+            return response.data
+        } catch (err) {
+            const errorMsg = err.response?.data?.error || 'Advanced OCR processing failed. Please check if OpenCV and Tesseract are installed.'
+            setError(errorMsg)
+            console.error('Error running advanced OCR:', err)
+            throw new Error(errorMsg)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // Convert handwritten text to PDF
+    const convertHandwrittenToPDF = async (projectId, title, language = 'eng') => {
+        try {
+            setLoading(true)
+            const response = await axios.post(`${API_BASE}/handwritten-to-pdf/${projectId}`, {
+                title,
+                language
+            })
+            await getProject(projectId)
+            notifyOtherTabs('REFRESH')
+            setError(null)
+            return response.data
+        } catch (err) {
+            const errorMsg = err.response?.data?.error || 'Handwritten to PDF conversion failed.'
+            setError(errorMsg)
+            console.error('Error converting handwritten to PDF:', err)
+            throw new Error(errorMsg)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     // Save cleaned text
     const saveCleanedText = async (projectId, cleanedText) => {
         try {
             setLoading(true)
             await axios.post(`${API_BASE}/cleanup/${projectId}`, { cleaned_text: cleanedText })
             await getProject(projectId)
+            notifyOtherTabs('REFRESH')
             setError(null)
         } catch (err) {
             setError('Unable to save cleaned text.')
@@ -131,6 +188,7 @@ export const ProjectProvider = ({ children }) => {
             setLoading(true)
             await axios.post(`${API_BASE}/metadata/${projectId}`, metadata)
             await getProject(projectId)
+            notifyOtherTabs('REFRESH')
             setError(null)
         } catch (err) {
             setError('Unable to save metadata.')
@@ -147,6 +205,7 @@ export const ProjectProvider = ({ children }) => {
             setLoading(true)
             const response = await axios.post(`${API_BASE}/archive/${projectId}`)
             await getProject(projectId)
+            notifyOtherTabs('REFRESH')
             setError(null)
             return response.data
         } catch (err) {
@@ -163,7 +222,13 @@ export const ProjectProvider = ({ children }) => {
     const deleteProject = async (projectId) => {
         try {
             await axios.delete(`${API_BASE}/projects/${projectId}`)
-            await fetchProjects()
+
+            // Remove locally first
+            setProjects(prev => prev.filter(p => p.id !== projectId))
+
+            // Notify other tabs
+            notifyOtherTabs('DELETE', { id: projectId })
+
             if (currentProject?.id === projectId) {
                 setCurrentProject(null)
             }
@@ -175,6 +240,28 @@ export const ProjectProvider = ({ children }) => {
 
     useEffect(() => {
         fetchProjects()
+
+        // Listen for cross-tab events
+        const handleStorageEvent = (e) => {
+            if (e.key === 'project_sync_event' && e.newValue) {
+                try {
+                    const eventData = JSON.parse(e.newValue)
+                    if (eventData.type === 'DELETE') {
+                        setProjects(prev => prev.filter(p => p.id !== eventData.data.id))
+                    } else if (eventData.type === 'REFRESH') {
+                        // Silent background fetch to update list without global spinner
+                        axios.get(`${API_BASE}/projects`).then(response => {
+                            setProjects(response.data.projects || [])
+                        })
+                    }
+                } catch (err) {
+                    console.error("Failed to process sync event", err)
+                }
+            }
+        }
+
+        window.addEventListener('storage', handleStorageEvent)
+        return () => window.removeEventListener('storage', handleStorageEvent)
     }, [])
 
     const value = {
@@ -187,6 +274,8 @@ export const ProjectProvider = ({ children }) => {
         getProject,
         updateProjectStatus,
         runOCR,
+        runAdvancedOCR,
+        convertHandwrittenToPDF,
         saveCleanedText,
         saveMetadata,
         generateArchive,

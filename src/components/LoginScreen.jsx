@@ -1,28 +1,82 @@
-import React, { useState } from 'react'
-import { Lock, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Lock, ArrowRight, ShieldCheck, AlertCircle, UserPlus, CheckCircle } from 'lucide-react'
+import bcrypt from 'bcryptjs'
 import LogoLoader from './LogoLoader'
 import './LoginScreen.css'
 
 const LoginScreen = ({ onLogin }) => {
     const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [isFirstRun, setIsFirstRun] = useState(false)
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [successMessage, setSuccessMessage] = useState('')
+
+    useEffect(() => {
+        // Check if we have a stored hash
+        const hash = localStorage.getItem('auth_hash')
+        if (!hash) {
+            setIsFirstRun(true)
+        }
+    }, [])
+
+    const handleRegister = (e) => {
+        e.preventDefault()
+        setError('')
+        setSuccessMessage('')
+
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters')
+            return
+        }
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match')
+            return
+        }
+
+        setIsLoading(true)
+
+        // Hashing intentionally delayed to prevent blocking UI if it was synchronous, 
+        // though bcryptjs is sync by default unless async method used.
+        // We simulate "Setup" process
+        setTimeout(() => {
+            try {
+                const salt = bcrypt.genSaltSync(10)
+                const hash = bcrypt.hashSync(password, salt)
+                localStorage.setItem('auth_hash', hash)
+
+                setSuccessMessage('Security setup complete! Logging you in...')
+
+                setTimeout(() => {
+                    onLogin()
+                }, 1000)
+            } catch (err) {
+                setError('Failed to secure password. Please try again.')
+                setIsLoading(false)
+            }
+        }, 800)
+    }
 
     const handleLogin = (e) => {
         e.preventDefault()
         setError('')
         setIsLoading(true)
 
-        // Simulate network delay for security feel
         setTimeout(() => {
-            // Hardcoded password for standalone distribution
-            // In a real app, this would check against a secure storage or hash
-            if (password === 'libradigit' || password === 'admin') {
+            const storedHash = localStorage.getItem('auth_hash')
+            if (!storedHash) {
+                setError('Security error: No password found. Please reset application data.')
                 setIsLoading(false)
+                return
+            }
+
+            const isValid = bcrypt.compareSync(password, storedHash)
+            if (isValid) {
                 onLogin()
             } else {
                 setIsLoading(false)
-                setError('Invalid password. Default is "libradigit"')
+                setError('Invalid password. Access denied.')
             }
         }, 800)
     }
@@ -32,16 +86,18 @@ const LoginScreen = ({ onLogin }) => {
             <div className="login-card">
                 <div className="login-header">
                     <LogoLoader size="md" />
-                    <h1>Welcome Back</h1>
-                    <p>Enter your credentials to access the archive builder</p>
+                    <h1>{isFirstRun ? 'System Setup' : 'Welcome Back'}</h1>
+                    <p>{isFirstRun
+                        ? 'Create a secure password for your local archive.'
+                        : 'Enter your credentials to access the archive builder'}</p>
                 </div>
 
-                <form onSubmit={handleLogin} className="login-form">
+                <form onSubmit={isFirstRun ? handleRegister : handleLogin} className="login-form">
                     <div className="input-group">
                         <Lock className="input-icon" size={20} />
                         <input
                             type="password"
-                            placeholder="Password"
+                            placeholder={isFirstRun ? "Create Password" : "Password"}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className={error ? 'error' : ''}
@@ -49,10 +105,30 @@ const LoginScreen = ({ onLogin }) => {
                         />
                     </div>
 
+                    {isFirstRun && (
+                        <div className="input-group">
+                            <Lock className="input-icon" size={20} />
+                            <input
+                                type="password"
+                                placeholder="Confirm Password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className={error ? 'error' : ''}
+                            />
+                        </div>
+                    )}
+
                     {error && (
                         <div className="error-message">
                             <AlertCircle size={16} />
                             <span>{error}</span>
+                        </div>
+                    )}
+
+                    {successMessage && (
+                        <div className="success-message" style={{ color: 'green', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+                            <CheckCircle size={16} />
+                            <span>{successMessage}</span>
                         </div>
                     )}
 
@@ -62,10 +138,10 @@ const LoginScreen = ({ onLogin }) => {
                         disabled={isLoading || !password}
                     >
                         {isLoading ? (
-                            <span className="loading-dots">Verifying...</span>
+                            <span className="loading-dots">{isFirstRun ? 'Securing...' : 'Verifying...'}</span>
                         ) : (
                             <>
-                                Access System
+                                {isFirstRun ? 'Set Password & Login' : 'Access System'}
                                 <ArrowRight size={20} />
                             </>
                         )}
@@ -74,7 +150,7 @@ const LoginScreen = ({ onLogin }) => {
 
                 <div className="login-footer">
                     <ShieldCheck size={16} />
-                    <span>Secure Offline Environment</span>
+                    <span>{isFirstRun ? 'Offline & Encrypted Storage' : 'Secure Offline Environment'}</span>
                 </div>
             </div>
 

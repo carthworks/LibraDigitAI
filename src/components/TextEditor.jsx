@@ -6,6 +6,7 @@ import './TextEditor.css'
 
 const TextEditor = ({ value, onChange, placeholder = "Text will appear here..." }) => {
     const [stats, setStats] = useState({ chars: 0, words: 0, lines: 0 })
+    const quillRef = useRef(null)
 
     // Custom Toolbar Configuration
     const modules = {
@@ -53,6 +54,7 @@ const TextEditor = ({ value, onChange, placeholder = "Text will appear here..." 
     return (
         <div className="text-editor rich-editor">
             <ReactQuill
+                ref={quillRef}
                 theme="snow"
                 value={value}
                 onChange={handleChange}

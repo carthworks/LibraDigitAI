@@ -367,3 +367,41 @@
     font-size: 0.8125rem;
     color: var(--color-text-muted);
 }
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-md);
+    }
+
+    .dashboard-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .view-toggle {
+        justify-content: center;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .projects-list-container {
+        overflow-x: auto;
+    }
+
+    .projects-table {
+        min-width: 600px;
+    }
+
+    .project-card {
+        padding: var(--space-md);
+    }
+}

@@ -2,23 +2,35 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sqlite3
 import os
+import sys
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytesseract
 from PIL import Image
 import PyPDF2
 import mimetypes
 from metadata_extractor import extract_metadata
 from batch_processor import BatchProcessor
+from advanced_ocr_processor import AdvancedOCRProcessor
+from handwritten_to_pdf import HandwrittenToPDFConverter
 
 
 app = Flask(__name__)
 CORS(app)
 
 # Configuration
-DATABASE = 'libradigit.db'
-UPLOAD_FOLDER = 'uploads'
-ARCHIVE_FOLDER = 'Archive'
+if getattr(sys, 'frozen', False):
+    # If the application is run as a bundle, the PyInstaller bootloader
+    # extends the sys module by a flag frozen=True and sets the app 
+    # path into variable _MEIPASS'.
+    # For one-file bunding, we might want to use the executable dir for data
+    BASE_DIR = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DATABASE = os.path.join(BASE_DIR, 'libradigit.db')
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+ARCHIVE_FOLDER = os.path.join(BASE_DIR, 'Archive')
 
 # Ensure folders exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -589,6 +601,197 @@ Note: To extract real text, please upload a PDF or image file."""
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ocr/advanced/<int:project_id>', methods=['POST'])
+def run_advanced_ocr(project_id):
+    """Run Advanced OCR with layout analysis, table detection, and structure recognition"""
+    try:
+        # Get project data
+        project = get_project_data(project_id)
+        if not project:
+            return jsonify({'error': 'Project not found'}), 404
+        
+        filepath = project.get('filepath', '')
+        if not filepath or not os.path.exists(filepath):
+            return jsonify({'error': 'File not found'}), 404
+        
+        # Get language preference
+        req_data = request.get_json(silent=True) or {}
+        lang = req_data.get('language', 'eng')
+        use_advanced = req_data.get('advanced', True)
+        
+        file_ext = os.path.splitext(filepath)[1].lower()
+        
+        # Only process images with advanced OCR
+        if file_ext not in ['.png', '.jpg', '.jpeg', '.tiff', '.bmp']:
+            return jsonify({
+                'error': 'Advanced OCR only supports image files (PNG, JPG, JPEG, TIFF, BMP)',
+                'file_type': file_ext
+            }), 400
+        
+        # Initialize advanced OCR processor
+        processor = AdvancedOCRProcessor()
+        
+        # Process document with full layout analysis
+        result = processor.process_document_with_layout(filepath, lang)
+        
+        if not result.get('success'):
+            return jsonify({
+                'error': result.get('error', 'Advanced OCR processing failed'),
+                'success': False
+            }), 500
+        
+        # Generate structured output for the UI
+        structured_text = processor.generate_structured_output(result)
+        
+        # Save to database
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Save the structured text as original_text
+        cursor.execute('''
+            UPDATE ocr_text 
+            SET original_text = ?
+            WHERE project_id = ?
+        ''', (structured_text, project_id))
+        
+        # Save the analysis results as JSON in a new column (we'll add this)
+        # For now, we'll store it in cleaned_text temporarily
+        analysis_json = json.dumps({
+            'orientation': result.get('orientation'),
+            'page_structure': result.get('page_structure'),
+            'tables': result.get('tables'),
+            'forms': result.get('forms'),
+            'statistics': result.get('statistics')
+        }, indent=2)
+        
+        cursor.execute('''
+            UPDATE projects 
+            SET status = 'cleanup', updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ''', (project_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Advanced OCR completed successfully',
+            'statistics': {
+                'total_words': int(result.get('statistics', {}).get('total_words', 0)),
+                'tables_found': int(result.get('statistics', {}).get('tables_found', 0)),
+                'checkboxes_found': int(result.get('statistics', {}).get('checkboxes_found', 0)),
+                'text_fields_found': int(result.get('statistics', {}).get('text_fields_found', 0)),
+                'stamps_found': int(result.get('statistics', {}).get('stamps_found', 0)),
+                'signatures_found': int(result.get('statistics', {}).get('signatures_found', 0))
+            },
+            'orientation': {
+                'corrected': bool(result.get('orientation', {}).get('corrected', False)),
+                'rotation_angle': int(result.get('orientation', {}).get('rotation_angle', 0))
+            },
+            'page_structure': {
+                'has_header': bool(result.get('page_structure', {}).get('header', {}).get('present', False)),
+                'has_footer': bool(result.get('page_structure', {}).get('footer', {}).get('present', False)),
+                'stamps_count': int(len(result.get('page_structure', {}).get('stamps', []))),
+                'signatures_count': int(len(result.get('page_structure', {}).get('signatures', [])))
+            },
+            'tables_found': int(len(result.get('tables', []))),
+            'forms_found': {
+                'checkboxes': int(len(result.get('forms', {}).get('checkboxes', []))),
+                'text_fields': int(len(result.get('forms', {}).get('text_fields', [])))
+            },
+            'text_length': int(len(structured_text)),
+            'pages': 1
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'success': False}), 500
+
+@app.route('/api/handwritten-to-pdf/<int:project_id>', methods=['POST'])
+def convert_handwritten_to_pdf(project_id):
+    """Convert handwritten text image to formatted PDF"""
+    try:
+        # Get project data
+        project = get_project_data(project_id)
+        if not project:
+            return jsonify({'error': 'Project not found'}), 404
+        
+        filepath = project.get('filepath', '')
+        if not filepath or not os.path.exists(filepath):
+            return jsonify({'error': 'File not found'}), 404
+        
+        # Get parameters
+        req_data = request.get_json(silent=True) or {}
+        lang = req_data.get('language', 'eng')
+        title = req_data.get('title', project.get('title', 'Handwritten Notes'))
+        
+        file_ext = os.path.splitext(filepath)[1].lower()
+        
+        # Only process images
+        if file_ext not in ['.png', '.jpg', '.jpeg', '.tiff', '.bmp']:
+            return jsonify({
+                'error': 'Handwritten to PDF conversion only supports image files',
+                'file_type': file_ext
+            }), 400
+        
+        # Initialize converter
+        converter = HandwrittenToPDFConverter()
+        
+        # Generate output path
+        output_filename = f"handwritten_{project_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        output_path = os.path.join(UPLOAD_FOLDER, output_filename)
+        
+        # Convert handwritten text to PDF
+        result = converter.convert_handwritten_to_pdf(
+            image_path=filepath,
+            output_path=output_path,
+            title=title,
+            language=lang
+        )
+        
+        if not result.get('success'):
+            return jsonify({
+                'error': result.get('error', 'Conversion failed'),
+                'success': False
+            }), 500
+        
+        # Save the extracted text to database
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        extracted_text = result.get('extracted_text', '')
+        
+        cursor.execute('''
+            UPDATE ocr_text 
+            SET original_text = ?
+            WHERE project_id = ?
+        ''', (extracted_text, project_id))
+        
+        cursor.execute('''
+            UPDATE projects 
+            SET status = 'cleanup', updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ''', (project_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Handwritten text converted to PDF successfully',
+            'pdf_path': output_path,
+            'pdf_filename': output_filename,
+            'word_count': int(result.get('word_count', 0)),
+            'line_count': int(result.get('line_count', 0)),
+            'text_length': len(extracted_text)
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'success': False}), 500
 
 @app.route('/api/cleanup/<int:project_id>', methods=['POST'])
 def save_cleaned_text(project_id):
@@ -1792,6 +1995,103 @@ def search_archives():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+@app.route('/api/analytics', methods=['GET'])
+def get_analytics():
+    """Get system-wide analytics and statistics"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        analytics = {}
+        
+        # 1. Project Status Counts
+        cursor.execute('''
+            SELECT status, COUNT(*) as count 
+            FROM projects 
+            GROUP BY status
+        ''')
+        status_counts = dict(cursor.fetchall())
+        analytics['status_distribution'] = [
+            {'name': 'Upload', 'value': status_counts.get('upload', 0)},
+            {'name': 'OCR', 'value': status_counts.get('ocr', 0)},
+            {'name': 'Cleanup', 'value': status_counts.get('cleanup', 0)},
+            {'name': 'Metadata', 'value': status_counts.get('metadata', 0)},
+            {'name': 'Archived', 'value': status_counts.get('archived', 0)}
+        ]
+        
+        analytics['total_projects'] = sum(item['value'] for item in analytics['status_distribution'])
+        
+        # 2. Storage Usage (Approximation from file sizes)
+        # Assuming we have access to files table or just checking uploads dir size? 
+        # Better to query DB if we stored sizes, but we didn't explicitly store size in 'projects' table.
+        # Let's count files in UPLOAD_FOLDER and ARCHIVE_FOLDER.
+        
+        total_size_bytes = 0
+        file_count = 0
+        
+        def get_dir_size(path):
+            total = 0
+            count = 0
+            try:
+                for entry in os.scandir(path):
+                    if entry.is_file():
+                        total += entry.stat().st_size
+                        count += 1
+            except FileNotFoundError:
+                pass
+            return total, count
+
+        upload_size, upload_count = get_dir_size(UPLOAD_FOLDER)
+        archive_size, archive_count = get_dir_size(ARCHIVE_FOLDER)
+        
+        total_size_bytes = upload_size + archive_size
+        analytics['storage_usage'] = {
+            'total_bytes': total_size_bytes,
+            'total_files': upload_count + archive_count,
+            'formatted': f"{total_size_bytes / (1024*1024):.2f} MB" 
+        }
+
+        # 3. Subject Distribution (from Metadata)
+        cursor.execute('''
+            SELECT subject, COUNT(*) as count 
+            FROM metadata 
+            GROUP BY subject
+            ORDER BY count DESC
+            LIMIT 10
+        ''')
+        analytics['subjects'] = [{'name': row[0], 'value': row[1]} for row in cursor.fetchall()]
+        
+        # 4. Activity Timeline (Projects created in last 7 days)
+        # SQLite 'date' function
+        cursor.execute('''
+            SELECT date(created_at) as day, COUNT(*) as count
+            FROM projects
+            WHERE created_at >= date('now', '-6 days')
+            GROUP BY day
+            ORDER BY day ASC
+        ''')
+        
+        daily_activity = {row[0]: row[1] for row in cursor.fetchall()}
+        
+        # Fill in missing days
+        timeline = []
+        for i in range(6, -1, -1):
+            date_str = (datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d')
+            timeline.append({
+                'day': datetime.strptime(date_str, '%Y-%m-%d').strftime('%a'), # Mon, Tue
+                'date': date_str,
+                'count': daily_activity.get(date_str, 0)
+            })
+            
+        analytics['timeline'] = timeline
+        
+        conn.close()
+        return jsonify(analytics)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 if __name__ == '__main__':
     init_db()

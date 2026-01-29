@@ -4,7 +4,7 @@
 
 A production-grade desktop application that converts scanned documents into searchable, metadata-rich digital archives using a guided workflow.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ![LibraDigit AI Poster](ad_librDigitIT_2026.png)
@@ -13,33 +13,50 @@ A production-grade desktop application that converts scanned documents into sear
 
 LibraDigit AI is an offline-first desktop application designed for librarians, archivists, and digitization teams to:
 
-- ✅ Convert scanned PDFs/images to searchable documents using OCR
-- ✅ Clean and improve OCR text accuracy
-- ✅ Add comprehensive metadata (title, author, year, subject, keywords)
-- ✅ Generate structured digital archives with organized folder hierarchies
-- ✅ Track workflow progress through a 5-step guided process
+- ✅ Convert scanned PDFs/images to searchable documents using OCR.
+- ✅ **Advanced OCR with AI-powered layout analysis** - Detect tables, forms, signatures, and page structure.
+- ✅ **Handwritten text to PDF conversion** - Transform handwritten notes into formatted, searchable PDFs.
+- ✅ Clean and improve OCR text accuracy.
+- ✅ Add comprehensive metadata (title, author, year, subject, keywords).
+- ✅ Generate structured digital archives with organized folder hierarchies.
+- ✅ **Search** across an entire archive using a dedicated Full-Text Search engine.
+- ✅ **Analyze** digitization progress with a built-in statistics dashboard.
 
-## 🚀 Features
+## 🚀 Key Features
 
-### Core Workflow
+### 🤖 Advanced OCR & AI Analysis
+- **Intelligent Layout Understanding**: Automatically detects page structure including headers, footers, stamps, and signatures.
+- **Table & Form Extraction**: Identifies and extracts structured data from tables and form fields with checkbox detection.
+- **Auto-Orientation Correction**: Automatically detects and corrects page rotation (0°, 90°, 180°, 270°).
+- **Handwritten Text Recognition**: Specialized LSTM neural network for improved handwriting accuracy (75-92%).
+- **Enhanced Preprocessing**: CLAHE enhancement, adaptive thresholding, and advanced denoising for better accuracy.
+- **Handwritten to PDF**: Convert handwritten notes directly to professionally formatted, searchable PDF documents.
 
-1. **Upload & OCR** - Upload scanned documents and run OCR processing
-2. **Text Cleanup** - Review and correct OCR errors
-3. **Metadata Entry** - Add searchable metadata (Title, Author, Subject)
-4. **Archive Generation** - Create standard-compliant digital archives
-5. **Progress Tracking** - Visual workflow tracker
+### 🔍 Extensive Search Facility
+- **Full-Text Search (FTS5)**: Powered by SQLite's FTS5, search instantly through thousands of archived documents.
+- **Content-Aware Snippets**: Search results show exactly where terms appear with keyword highlighting.
+- **Universal Metadata Search**: Find documents by Title, Author, Keywords, or any content within the text.
 
-### Key Capabilities
+### 📊 Analytics & Statistics
+- **Workflow Visualization**: Track project distribution across Upload, OCR, Cleanup, Metadata, and Archived stages.
+- **Storage Metrics**: Real-time tracking of disk space usage by your digital collection.
+- **Activity Trends**: Weekly activity charts showing your digitization team's productivity.
+- **Top Subjects**: Bar charts showcasing the most represented subjects in your archive.
 
-- 🔍 **OCR Processing** - Tesseract-powered text extraction with multi-language support (Eng, Spa, Fra, Deu, etc.)
-- 📄 **Searchable PDFs** - Generates high-fidelity "Image-over-Text" PDFs that preserve original layout while being fully searchable
-- 📦 **Standard Archiving** - Implements **BagIt** style folder structure for long-term preservation
-- 🏷️ **Embedded Metadata** - Injects XMP metadata directly into the final PDF files (Title, Author, Keywords) for universal searchability
-- 📝 **Text Editor** - Side-by-side cleanup interface
-- 💾 **Persistent Storage** - SQLite database for project management
-- 🎨 **Modern UI** - Premium dark theme with smooth animations
-- 🔒 **Offline-First** - No cloud dependency, complete data privacy
-- 👁️ **Draft Preview** - Instant preview of converted searchable PDFs before archiving
+### 🔒 Secure & Private
+- **Secure Offline Auth**: Implements bcryptjs hashing for local authentication.
+- **First-Run Setup**: Guided password setup on the first launch.
+- **Privacy-First**: Zero cloud dependency; all data, hashes, and files stay exclusively on your local machine.
+
+### 📱 Responsive & Modern UI
+- **Responsive Design**: Optimized for everything from desktop monitors to mobile devices.
+- **Multi-tab Synchronization**: Log out or delete a project in one browser tab, and all other tabs will instantly synchronize.
+- **Premium Aesthetics**: High-end dark theme with smooth gradients and micro-animations.
+
+### 📦 Archival Standards
+- **BagIt Packaging**: Implements the international BagIt standard for robust, verifiable data packages.
+- **XMP Metadata Embedding**: Metadata (Title, Author, etc.) is embedded directly into the PDF binary, traveling with the file even when shared.
+- **MD5 Manifests**: Automatic integrity checks to ensure files remain uncorrupted over decades.
 
 ## 📋 Prerequisites
 
@@ -56,35 +73,35 @@ LibraDigit AI is an offline-first desktop application designed for librarians, a
    - **macOS**: `brew install tesseract`
    - **Linux**: `sudo apt-get install tesseract-ocr`
 
+### Additional Dependencies for Advanced Features
+
+4. **OpenCV** (for advanced image processing)
+   - Installed automatically via `requirements.txt`
+   - Required for: Advanced OCR, handwritten text recognition, table detection
+
+5. **ReportLab** (for PDF generation)
+   - Installed automatically via `requirements.txt`
+   - Required for: Handwritten to PDF conversion
+
 ## 🛠️ Installation
 
 ### 1. Clone or Download the Project
 
 ```bash
-cd "c:\Users\tkart\Dev\products\LibraDigit AI"
+cd "LibraDigit AI"
 ```
 
-### 2. Install Frontend Dependencies
+### 2. Install Dependencies
 
 ```bash
+# Install frontend packages
 npm install
-```
 
-### 3. Install Backend Dependencies
-
-```bash
+# Install backend packages (includes OpenCV, NumPy, ReportLab)
 cd backend
 pip install -r requirements.txt
 cd ..
 ```
-
-### 4. Verify Tesseract Installation
-
-```bash
-tesseract --version
-```
-
-If Tesseract is not found, install it following the prerequisites section.
 
 ## 🎮 Running the Application
 
@@ -97,59 +114,64 @@ npm run dev
 ```
 
 This will:
-- Start the React frontend (http://localhost:3000)
-- Start the Python backend (http://localhost:5000)
+- Start the React frontend (Vite)
+- Start the Python backend (Flask)
 - Launch the Electron desktop window
-
-### Manual Start (Alternative)
-
-If you prefer to run components separately:
-
-**Terminal 1 - Backend:**
-```bash
-npm run dev:python
-```
-
-**Terminal 2 - Frontend:**
-```bash
-npm run dev:react
-```
-
-**Terminal 3 - Electron:**
-```bash
-npx electron .
-```
 
 ## 📖 Usage Guide
 
 ### Creating Your First Project
 
-1. **Launch the Application**
-   - Click "Start New Project" on the dashboard
+1. **Launch & Setup**: On first run, create your master password.
+2. **Upload Document**: Drag and drop a PDF or image file (PDF, PNG, JPEG, TIFF).
+3. **Choose OCR Method**:
+   - **Standard OCR**: Fast text extraction for printed documents
+   - **Advanced OCR**: AI-powered analysis with table detection, form recognition, and layout understanding
+   - **Handwritten to PDF**: Convert handwritten notes to formatted, searchable PDFs
+4. **Run OCR**: Tesseract converts image text into a searchable layer.
+5. **Clean Text**: Use the side-by-side rich text editor to correct OCR typos.
+6. **Add Metadata**: Add descriptive details (Subject, Year, Author).
+7. **Generate Archive**: The system builds the BagIt package and embeds your metadata.
 
-2. **Upload Document**
-   - Drag and drop a PDF or image file
-   - Supported formats: PDF, PNG, JPEG, TIFF
-   - Click "Upload and Process"
+### 🤖 Using Advanced OCR
 
-3. **Run OCR**
-   - The system will automatically process the document
-   - Wait for OCR completion
+For documents with complex layouts:
 
-4. **Clean Text**
-   - Review the extracted text
-   - Correct any OCR errors
-   - Save your changes
+1. Upload your document (image format recommended)
+2. Toggle **"Advanced OCR Analysis"** switch
+3. Click **"Run Advanced OCR"**
+4. View comprehensive results including:
+   - Detected tables and their contents
+   - Form fields and checkboxes (with fill status)
+   - Page orientation corrections
+   - Headers, footers, stamps, and signatures
+   - Enhanced text extraction with layout preservation
 
-5. **Add Metadata**
-   - Enter title (required)
-   - Add author, year, subject, keywords
-   - Preview the archive path
+### ✍️ Converting Handwritten Notes to PDF
 
-6. **Generate Archive**
-   - Review the folder structure
-   - Click "Generate Archive File"
-   - Your document is now archived!
+For handwritten documents:
+
+1. Upload a clear image of handwritten notes (300+ DPI recommended)
+2. Select the appropriate language
+3. Click **"Convert Handwritten to PDF"**
+4. Receive a professionally formatted PDF with:
+   - Extracted and structured text
+   - Detected headings and paragraphs
+   - Bullet points and lists
+   - Diagrams and technical content
+   - Complete metadata
+
+### 📚 Installation Guide
+For a detailed step-by-step visual guide on installing the Electron desktop application, please refer to:
+`public/install_guide.html` (included in the distribution package).
+
+This guide covers:
+- System Requirements (Tesseract OCR)
+- SmartScreen Security Bypass (for internal tools)
+- First-time Account Setup
+
+### Searching the Archive
+Click **"Archive Search"** in the sidebar to perform lightning-fast keyword searches across your entire processed collection.
 
 ### Archive Structure (BagIt Standard)
 Documents are organized using a standard preservation hierarchy:
@@ -164,160 +186,60 @@ Archive/
               ├── bag-info.txt                (Archive package metadata)
               └── manifest-md5.txt            (Checksums for file integrity)
 ```
-This ensures your archives are professional, verifiable, and future-proof.
-
-## 🗄️ Database Schema
-
-The application uses SQLite with the following tables:
-
-- **projects** - Project information and status
-- **files** - File paths (original, OCR, cleaned, final)
-- **metadata** - Document metadata
-- **ocr_text** - Original and cleaned OCR text
-
-## 🎨 Design Philosophy
-
-- **Premium UI** - Modern dark theme with vibrant gradients
-- **User Guidance** - Clear error messages and helpful hints
-- **Workflow Focus** - Linear 5-step process
-- **Offline-First** - No internet required
-- **Data Privacy** - All data stays local
 
 ## 🔧 Technology Stack
 
-### Frontend
-- **React** - UI framework
-- **React Router** - Navigation
-- **Axios** - API communication
-- **Lucide React** - Icon library
-- **Vite** - Build tool
+### Frontend & UI
+- **React 18** (Vite)
+- **Lucide React** (Icons)
+- **Recharts** (Analytics)
+- **Bcryptjs** (Local Auth)
+- **Axios** (API)
 
 ### Desktop
-- **Electron** - Desktop application wrapper
+- **Electron** (Cross-platform desktop engine)
 
-### Backend
-- **Flask** - Python web framework
-- **SQLite** - Database
-- **Tesseract OCR** - Text extraction
-- **OCRmyPDF** - PDF processing
-- **Pillow** - Image processing
+### Backend & Engine
+- **Flask** (Python API)
+- **SQLite 3** (Database & FTS5 Search Engine)
+- **Tesseract OCR** (Text Extraction with LSTM neural networks)
+- **OpenCV** (Advanced image processing & computer vision)
+- **NumPy** (Numerical operations for image analysis)
+- **PyPDF2 & ReportLab** (PDF Metadata, Generation & Manipulation)
+- **Bagit-Python** (Packaging standard)
 
-## 📁 Project Structure
+## 🎨 Project Structure
 
 ```
 LibraDigit AI/
-├── backend/
-│   ├── server.py           # Flask API server
-│   └── requirements.txt    # Python dependencies
-├── electron/
-│   └── main.js            # Electron main process
+├── backend/                    # Flask server & OCR engines
+│   ├── advanced_ocr_processor.py    # Advanced OCR with layout analysis
+│   ├── handwritten_to_pdf.py        # Handwritten text converter
+│   ├── metadata_extractor.py        # Metadata extraction
+│   ├── batch_processor.py           # Batch operations
+│   └── server.py                    # Main Flask API
 ├── src/
-│   ├── components/        # React components
-│   ├── context/          # State management
-│   ├── pages/            # Page components
-│   ├── App.jsx           # Main app component
-│   ├── index.css         # Design system
-│   └── main.jsx          # React entry point
-├── Archive/              # Generated archives
-├── uploads/              # Uploaded files
-├── index.html           # HTML entry point
-├── package.json         # Node dependencies
-├── vite.config.js       # Vite configuration
-└── README.md           # This file
+│   ├── components/             # UI elements (Charts, Loaders, Sidebar)
+│   │   └── AdvancedOCRResults.jsx   # Advanced OCR results display
+│   ├── pages/                  # Full views (Analytics, Search, Dashboard)
+│   ├── context/                # Multi-tab sync & Global state
+│   └── index.css               # Design system & Desktop/Mobile styles
+├── Archive/                    # Final BagIt collections
+├── Documentation/              # Feature documentation
+│   ├── ADVANCED_OCR_DOCUMENTATION.md
+│   ├── HANDWRITTEN_TO_PDF_DOCUMENTATION.md
+│   └── QUICK_START_ADVANCED_OCR.md
+├── package.json                # Frontend scripts
+└── README.md                   # This guide
 ```
 
-## 🐛 Troubleshooting
+## 📚 Additional Documentation
 
-### Backend Won't Start
-
-**Error**: "Unable to fetch projects"
-
-**Solution**: Ensure Python backend is running:
-```bash
-cd backend
-python server.py
-```
-
-### Tesseract Not Found
-
-**Error**: "OCR engine not found"
-
-**Solution**: Install Tesseract OCR and add to PATH:
-- Windows: Add Tesseract installation folder to system PATH
-- Verify: `tesseract --version`
-
-### Port Already in Use
-
-**Error**: "Port 3000/5000 already in use"
-
-**Solution**: Kill the process or change ports in:
-- Frontend: `vite.config.js`
-- Backend: `server.py`
-
-### Failed to Load PDF Document
-
-**Error**: "Failed to load PDF document"
-
-**Cause**: File is actually a plain text file with a `.pdf` extension
-
-**Solutions**:
-
-1. **Automatic Handling** (Recommended):
-   - Simply upload the file through LibraDigit AI
-   - The system automatically detects and handles text files
-   - Text content will be extracted normally
-
-2. **Manual Conversion**:
-   ```bash
-   cd backend
-   # Convert single file
-   python convert_text_to_pdf.py "path/to/file.pdf"
-   
-   # Convert entire Archive directory
-   python convert_text_to_pdf.py "Archive/"
-   ```
-
-**More Info**: See `HANDLING_TEXT_PDF_FILES.md` for detailed documentation
-
-## 🚀 Building for Production
-
-To create a production build:
-
-```bash
-npm run build
-```
-
-The built files will be in the `dist/` folder.
-
-## 📝 License
-
-MIT License - See LICENSE file for details
-
-## 🤝 Contributing
-
-This is a production tool designed for library digitization workflows. Contributions are welcome!
-
-## 📧 Support
-
-For issues or questions, please create an issue in the repository.
-
-## 🎓 Training Mode
-
-LibraDigit AI includes a training mode feature (coming soon) that:
-- Provides guided tooltips at each step
-- Enforces workflow order
-- Generates project reports
-- Tracks time saved
-
-This makes it both a **learning platform** and a **digitization system**.
-
-## 📊 Success Metrics
-
-- ⏱️ Convert 10-page scan → searchable PDF in < 3 minutes
-- 📝 Metadata creation in < 2 minutes
-- 🔒 Zero dependency on external SaaS
-- 👥 Librarians can complete workflow without technical help
+- **[Advanced OCR Documentation](ADVANCED_OCR_DOCUMENTATION.md)** - Complete guide to advanced OCR features
+- **[Handwritten to PDF Guide](HANDWRITTEN_TO_PDF_DOCUMENTATION.md)** - Handwritten text conversion documentation
+- **[Quick Start Guide](QUICK_START_ADVANCED_OCR.md)** - Get started with advanced features quickly
+- **[JSON Serialization Fix](JSON_SERIALIZATION_FIX.md)** - Technical troubleshooting guide
 
 ---
 
-**Built with ❤️ for librarians and archivists worldwide**
+**Built with ❤️ for librarians and archivists worldwide | github.com/carthworks**

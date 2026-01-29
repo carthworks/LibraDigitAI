@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraDigit AI - Developer Maintenance Guide</title>
+    <style>
+        :root {
+            --primary: #f43f5e;
+            --secondary: #6366f1;
+            --dark: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 40px;
+            margin-bottom: 60px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(244, 63, 94, 0.1);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            background: linear-gradient(135deg, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 60px;
+            margin-bottom: 30px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon {
+            color: var(--primary);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            background: var(--surface-hover);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: var(--text);
+        }
+
+        code {
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 6px;
+            color: var(--secondary);
+            font-size: 0.9em;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-muted);
+        }
+
+        .alert-box {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #fecdd3;
+        }
+
+        .alert-box strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        ul {
+            padding-left: 20px;
+            color: var(--text-muted);
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .toc {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .toc ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .toc a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover {
+            color: var(--primary);
+        }
+
+        footer {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="badge">DEVELOPER INTERNAL</span>
+            <h1>Maintenance & Support Guide</h1>
+            <p style="font-size: 1.2rem; color: var(--text-muted);">Technical documentation for building, debugging, and
+                supporting LibraDigit AI.</p>
+        </div>
+
+        <nav class="toc">
+            <ul>
+                <li><a href="#build-process">📦 Build & Release</a></li>
+                <li><a href="#password-reset">🔑 Password Reset</a></li>
+                <li><a href="#debugging">🐛 Debugging & Logs</a></li>
+                <li><a href="#performance">⚡ Process Memory</a></li>
+                <li><a href="#support">🤝 User Support</a></li>
+            </ul>
+        </nav>
+
+        <section id="build-process">
+            <h2><span class="icon">📦</span> Creating the Executable</h2>
+            <p>Follow these steps to package the Electron application for distribution.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>1. Prerequisites</h3>
+                    <ul>
+                        <li>Verify <code>version</code> is updated in <code>package.json</code></li>
+                        <li>Ensure backend environment is active</li>
+                        <li>Check that no dev servers are running</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>2. Run Build Command</h3>
+                    <p>Open your terminal in the root directory and run:</p>
+                    <pre><code>npm run dist</code></pre>
+                    <p>This triggers <code>electron-builder</code> which packages the React frontend and bundles the
+                        Python backend.</p>
+                </div>
+                <div class="card">
+                    <h3>3. Locate Output</h3>
+                    <p>The final installer will be generated in:</p>
+                    <code>/dist/LibraDigit AI Setup 1.0.0.exe</code>
+                </div>
+            </div>
+        </section>
+
+        <section id="password-reset">
+            <h2><span class="icon">🔑</span> Emergency Password Reset</h2>
+            <div class="alert-box">
+                <strong>WARNING: DATA LOSS RISK</strong>
+                Resetting the password involves clearing the local database configuration. This should only be done if
+                the user has absolutely lost access.
+            </div>
+
+            <p>Since the app is offline-first, there is no "Forgot Password" email flow. To reset:</p>
+            <ol style="color: var(--text-muted);">
+                <li>Navigate to the user's AppData folder: <br><code>%APPDATA%\LibraDigit AI\</code></li>
+                <li>Locate the <code>libradigit.db</code> file. (Or checking inside the pyton backend older if running
+                    portable).</li>
+                <li><strong>Option A (Hard Reset):</strong> Delete <code>libradigit.db</code>.
+                    <ul>
+                        <li>Next launch acts as a fresh install.</li>
+                        <li>User creates a new password.</li>
+                        <li><strong>Note:</strong> Previous project metadata history is lost, but original PDF files
+                            remain on disk.</li>
+                    </ul>
+                </li>
+                <li><strong>Option B (SQL Injection - Advanced):</strong>
+                    <ul>
+                        <li>Open DB with SQLite Browser.</li>
+                        <li>Clear the <code>auth_hash</code> field in the <code>config</code> table.</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+
+        <section id="debugging">
+            <h2><span class="icon">🐛</span> Debugging & Uninstall</h2>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Uninstall Process</h3>
+                    <p>Standard Windows uninstall:</p>
+                    <ol>
+                        <li>Settings > Apps > Installed Apps</li>
+                        <li>Search "LibraDigit AI"</li>
+                        <li>Click "Uninstall"</li>
+                    </ol>
+                    <p><strong>Clean Uninstall:</strong> Manually delete <code>%APPDATA%\LibraDigit AI</code> to remove
+                        all local databases and logs.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Viewing Logs</h3>
+                    <p><strong>Frontend Logs:</strong> Open app with <code>Ctrl+Shift+I</code> to view Console.</p>
+                    <p><strong>Backend Logs:</strong> Check the <code>backend/logs/app.log</code> file (if configured)
+                        or run the executable from CMD to see stdout.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="performance">
+            <h2><span class="icon">⚡</span> Performance & Memory</h2>
+            <p>Monitor and optimize the application's resource usage.</p>
+
+            <div class="card">
+                <h3>Process Management</h3>
+                <ul>
+                    <li><strong>Electron Main Process:</strong> Orchestrates the window. Low memory usage (~50MB).</li>
+                    <li><strong>Renderer Process:</strong> The React UI. Can grow with large lists. (<500MB is
+                            healthy).</li>
+                    <li><strong>Python Subprocess:</strong> The OCR engine.
+                        <br><em>Warning:</em> Loading Tesseract models can spike RAM usage.
+                    </li>
+                </ul>
+                <p><strong>Optimization Tip:</strong> If <code>python.exe</code> memory leaks, the app is designed to
+                    restart the subprocess on idle timeout.</p>
+            </div>
+        </section>
+
+        <section id="support">
+            <h2><span class="icon">🤝</span> User Support Scripts</h2>
+            <p>Common responses for user inquiries.</p>
+
+            <div class="card-grid" style="grid-template-columns: 1fr;">
+                <div class="card">
+                    <h3>User says: "The app is stuck on 'Initializing'..."</h3>
+                    <p><strong>Response:</strong> "This usually means the background service is blocked. Please check if
+                        your Antivirus has quarantined <code>server.exe</code> or 'backend'. Try adding the Main
+                        Installation folder to your Antivirus Exclusions list."</p>
+                </div>
+
+                <div class="card">
+                    <h3>User says: "OCR is gibberish..."</h3>
+                    <p><strong>Response:</strong> "Check the resolution of your source PDF. Images below 300 DPI produce
+                        poor results. Also ensure the correct Language Pack (e.g., 'eng', 'fra') is selected in the
+                        dashboard before processing."</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>LibraDigit AI Internal Documentation • Do Not Distribute Continuously</p>
+        </footer>
+    </div>
+</body>
+
+</html>

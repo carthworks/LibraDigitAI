@@ -1,7 +1,7 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
-import { Home, Upload, Edit3, FileText, Archive, Settings, Layers, LogOut, Search } from 'lucide-react'
+import { Home, Upload, Edit3, FileText, Archive, Settings, Layers, LogOut, Search, TrendingUp } from 'lucide-react'
 import './Sidebar.css'
 
 const Sidebar = ({ onLogout }) => {
@@ -14,6 +14,7 @@ const Sidebar = ({ onLogout }) => {
         { path: '/upload', icon: Upload, label: 'Upload & OCR' },
         { path: '/batch', icon: Layers, label: 'Batch Processing' },
         { path: '/search', icon: Search, label: 'Archive Search' },
+        { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
         { path: '/help', icon: FileText, label: 'Help & Guide' },
     ]
 

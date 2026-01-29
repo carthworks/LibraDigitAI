@@ -705,3 +705,70 @@ code {
   color: var(--color-text-muted);
   margin-bottom: var(--space-xl);
 }
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    flex-direction: row;
+    align-items: center;
+    padding: var(--space-sm);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .sidebar-header {
+    padding: var(--space-sm);
+    border-bottom: none;
+    margin-right: var(--space-md);
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    padding: var(--space-sm);
+    gap: var(--space-md);
+  }
+
+  .logo-text,
+  .sidebar-footer {
+    display: none;
+  }
+
+  .nav-item {
+    padding: 0.5rem;
+    width: auto;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  .nav-item span {
+    display: none;
+  }
+
+  .content-area {
+    padding: var(--space-md);
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}

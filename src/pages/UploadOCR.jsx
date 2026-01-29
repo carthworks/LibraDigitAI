@@ -1,20 +1,24 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
-import { Upload, FileText, AlertCircle, CheckCircle, Loader, X } from 'lucide-react'
+import { Upload, FileText, AlertCircle, CheckCircle, Loader, X, Sparkles, FileDown } from 'lucide-react'
+import AdvancedOCRResults from '../components/AdvancedOCRResults'
 import './UploadOCR.css'
 
 const UploadOCR = () => {
     const navigate = useNavigate()
-    const { createProject, runOCR, deleteProject, error, setError } = useProject()
+    const { createProject, runOCR, runAdvancedOCR, convertHandwrittenToPDF, deleteProject, error, setError } = useProject()
 
     const [file, setFile] = useState(null)
     const [dragActive, setDragActive] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [processing, setProcessing] = useState(false)
+    const [convertingPDF, setConvertingPDF] = useState(false)
     const [currentProject, setCurrentProject] = useState(null)
     const [ocrResult, setOcrResult] = useState(null)
+    const [pdfResult, setPdfResult] = useState(null)
     const [language, setLanguage] = useState('eng')
+    const [useAdvancedOCR, setUseAdvancedOCR] = useState(false)
 
     const handleDrag = (e) => {
         e.preventDefault()
@@ -89,17 +93,50 @@ const UploadOCR = () => {
             setProcessing(true)
             setError(null)
 
-            const result = await runOCR(projectId || currentProject.id, language)
+            // Use advanced OCR if enabled and file is an image
+            let result;
+            if (useAdvancedOCR) {
+                result = await runAdvancedOCR(projectId || currentProject.id, language)
+            } else {
+                result = await runOCR(projectId || currentProject.id, language)
+            }
+
             setOcrResult(result)
             setProcessing(false)
 
             // Navigate to cleanup after OCR
             setTimeout(() => {
                 navigate(`/cleanup/${projectId || currentProject.id}`)
-            }, 1500)
+            }, 2000)
 
         } catch (err) {
             setProcessing(false)
+        }
+    }
+
+    const handleConvertToPDF = async (projectId) => {
+        try {
+            setConvertingPDF(true)
+            setError(null)
+
+            const title = file?.name?.replace(/\.[^/.]+$/, "") || "Handwritten Notes"
+
+            const result = await convertHandwrittenToPDF(
+                projectId || currentProject.id,
+                title,
+                language
+            )
+
+            setPdfResult(result)
+            setConvertingPDF(false)
+
+            // Show success message
+            setTimeout(() => {
+                navigate(`/cleanup/${projectId || currentProject.id}`)
+            }, 2000)
+
+        } catch (err) {
+            setConvertingPDF(false)
         }
     }
 
@@ -239,6 +276,12 @@ const UploadOCR = () => {
                                 <CheckCircle size={48} className="success-icon" />
                                 <h3>OCR Complete!</h3>
                                 <p>Your document has been processed successfully</p>
+
+                                {/* Show advanced OCR results if available */}
+                                {useAdvancedOCR && ocrResult.statistics && (
+                                    <AdvancedOCRResults results={ocrResult} />
+                                )}
+
                                 <div className="ocr-stats">
                                     <div className="stat">
                                         <span className="stat-label">Pages Processed</span>
@@ -278,12 +321,83 @@ const UploadOCR = () => {
                                     </select>
                                     <p className="form-hint">Note: Ensure corresponding language pack is installed in Tesseract.</p>
                                 </div>
+
+                                {/* Advanced OCR Toggle */}
+                                <div className="advanced-ocr-toggle mb-lg">
+                                    <div className="toggle-header">
+                                        <div className="toggle-info">
+                                            <Sparkles size={20} className="sparkles-icon" />
+                                            <div>
+                                                <label className="form-label">Advanced OCR Analysis</label>
+                                                <p className="form-hint">
+                                                    Detect tables, forms, signatures, page structure, and auto-correct orientation
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <label className="switch">
+                                            <input
+                                                type="checkbox"
+                                                checked={useAdvancedOCR}
+                                                onChange={(e) => setUseAdvancedOCR(e.target.checked)}
+                                            />
+                                            <span className="slider"></span>
+                                        </label>
+                                    </div>
+                                    {useAdvancedOCR && (
+                                        <div className="advanced-features-list">
+                                            <ul>
+                                                <li>✓ Page orientation detection & correction</li>
+                                                <li>✓ Table & form field extraction</li>
+                                                <li>✓ Header, footer & page structure analysis</li>
+                                                <li>✓ Stamp & signature detection</li>
+                                                <li>✓ Handwritten text recognition</li>
+                                                <li>✓ Enhanced image preprocessing</li>
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+
                                 <button
                                     className="btn btn-primary btn-lg w-full"
                                     onClick={() => handleRunOCR(currentProject.id)}
                                 >
-                                    Run OCR
+                                    {useAdvancedOCR ? (
+                                        <>
+                                            <Sparkles size={20} />
+                                            Run Advanced OCR
+                                        </>
+                                    ) : (
+                                        'Run OCR'
+                                    )}
                                 </button>
+
+                                {/* Handwritten to PDF Button */}
+                                <div className="mt-md">
+                                    <p className="text-center text-muted mb-sm">
+                                        <strong>Or</strong> convert handwritten notes directly to formatted PDF
+                                    </p>
+                                    <button
+                                        className="btn btn-secondary btn-lg w-full"
+                                        onClick={() => handleConvertToPDF(currentProject.id)}
+                                        disabled={convertingPDF}
+                                    >
+                                        <FileDown size={20} />
+                                        {convertingPDF ? 'Converting to PDF...' : 'Convert Handwritten to PDF'}
+                                    </button>
+                                </div>
+
+                                {/* PDF Conversion Success */}
+                                {pdfResult && (
+                                    <div className="success-message mt-md">
+                                        <CheckCircle size={20} className="success-icon" />
+                                        <div>
+                                            <strong>PDF Generated!</strong>
+                                            <p className="text-sm">
+                                                {pdfResult.word_count} words extracted • {pdfResult.line_count} lines
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>
