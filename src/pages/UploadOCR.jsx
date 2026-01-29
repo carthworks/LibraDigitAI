@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
+import { useToast } from '../context/ToastContext'
 import { Upload, FileText, AlertCircle, CheckCircle, Loader, X, Sparkles, FileDown } from 'lucide-react'
 import AdvancedOCRResults from '../components/AdvancedOCRResults'
 import './UploadOCR.css'
@@ -8,6 +9,7 @@ import './UploadOCR.css'
 const UploadOCR = () => {
     const navigate = useNavigate()
     const { createProject, runOCR, runAdvancedOCR, convertHandwrittenToPDF, deleteProject, error, setError } = useProject()
+    const { addToast } = useToast()
 
     const [file, setFile] = useState(null)
     const [dragActive, setDragActive] = useState(false)
@@ -50,17 +52,17 @@ const UploadOCR = () => {
         const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg', 'image/tiff']
 
         if (!validTypes.includes(selectedFile.type)) {
-            setError('Only PDF or image files (PNG, JPEG, TIFF) are allowed')
+            addToast('Only PDF or image files (PNG, JPEG, TIFF) are allowed', 'error')
             return
         }
 
         if (selectedFile.size > 50 * 1024 * 1024) { // 50MB limit
-            setError('File size must be less than 50MB')
+            addToast('File size must be less than 50MB', 'error')
             return
         }
 
         setFile(selectedFile)
-        setError(null)
+        setError(null) // Clear global context error if any
     }
 
     const handleUpload = async () => {
@@ -75,16 +77,11 @@ const UploadOCR = () => {
             setCurrentProject(project)
 
             setUploading(false)
-
-            // Show success message
-            // Show success message
-            // Auto-advance to OCR setup screen
-            // The user will then select language and click "Run OCR" manually
-            setUploading(false)
+            addToast('File uploaded successfully! Ready for processing.', 'success')
 
         } catch (err) {
             setUploading(false)
-            setError('Failed to upload file. Please try again.')
+            addToast('Failed to upload file. Please try again.', 'error')
         }
     }
 
@@ -103,6 +100,7 @@ const UploadOCR = () => {
 
             setOcrResult(result)
             setProcessing(false)
+            addToast('OCR processing completed successfully!', 'success')
 
             // Navigate to cleanup after OCR
             setTimeout(() => {
@@ -111,6 +109,7 @@ const UploadOCR = () => {
 
         } catch (err) {
             setProcessing(false)
+            addToast('OCR processing failed. Please check the file and try again.', 'error')
         }
     }
 
@@ -129,6 +128,7 @@ const UploadOCR = () => {
 
             setPdfResult(result)
             setConvertingPDF(false)
+            addToast('PDF conversion successful!', 'success')
 
             // Show success message
             setTimeout(() => {
@@ -137,6 +137,7 @@ const UploadOCR = () => {
 
         } catch (err) {
             setConvertingPDF(false)
+            addToast('PDF conversion failed: ' + (err.message || 'Unknown error'), 'error')
         }
     }
 
@@ -160,15 +161,7 @@ const UploadOCR = () => {
 
     return (
         <div className="upload-ocr">
-            {error && (
-                <div className="alert alert-error">
-                    <AlertCircle size={20} />
-                    <div>
-                        <strong>Error</strong>
-                        <p>{error}</p>
-                    </div>
-                </div>
-            )}
+            {/* Inline Error Removed - handled by Toasts */}
 
             {!currentProject ? (
                 <div className="upload-section">
@@ -241,7 +234,7 @@ const UploadOCR = () => {
                         {uploading && (
                             <div className="processing-status">
                                 <Loader size={24} className="spinner" />
-                                <span>Uploading file...</span>
+                                <span className="upload-text-anim">Uploading file...</span>
                             </div>
                         )}
                     </div>

@@ -11,3 +11,4 @@ export default defineConfig({
     outDir: 'dist'
   }
 })
+// Trigger reload

@@ -32,7 +32,7 @@
     "bcryptjs": "^3.0.3",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.294.0",
-    "pdfjs-dist": "^5.4.530",
+    "pdfjs-dist": "5.4.296",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-pdf": "^10.3.0",

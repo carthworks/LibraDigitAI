@@ -1966,12 +1966,15 @@ def search_archives():
         # snippet(table_name, column_index, start_match, end_match, ellipses, max_tokens)
         cursor.execute(f'''
             SELECT 
-                project_id, 
-                title, 
-                author,
+                si.project_id, 
+                si.title, 
+                si.author,
                 snippet(search_index, 3, '<b>', '</b>', '...', 30) as context,
-                rank
-            FROM search_index 
+                si.rank,
+                m.subject,
+                m.year
+            FROM search_index si
+            LEFT JOIN metadata m ON si.project_id = m.project_id
             WHERE search_index MATCH ? 
             ORDER BY rank 
             LIMIT ?
@@ -1986,7 +1989,9 @@ def search_archives():
                 'title': row['title'],
                 'author': row['author'],
                 'snippet': row['context'],
-                'score': row['rank']
+                'score': row['rank'],
+                'subject': row['subject'] if row['subject'] else 'Uncategorized',
+                'year': row['year'] if row['year'] else 'Unknown'
             })
             
         conn.close()

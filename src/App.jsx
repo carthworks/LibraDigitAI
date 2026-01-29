@@ -14,6 +14,7 @@ import LoginScreen from './components/LoginScreen'
 import { ProjectProvider } from './context/ProjectContext'
 import ArchiveSearch from './pages/ArchiveSearch'
 import Analytics from './pages/Analytics'
+import { ToastProvider } from './context/ToastContext'
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -50,33 +51,35 @@ function App() {
     }
 
     return (
-        <ProjectProvider>
-            {showWelcome && (
-                <WelcomeScreen onComplete={() => setShowWelcome(false)} />
-            )}
-            <Router>
-                <div className="app-container">
-                    <Sidebar onLogout={handleLogout} />
-                    <div className="main-content">
-                        <Header />
-                        <div className="content-area">
-                            <Routes>
-                                <Route path="/" element={<Dashboard />} />
-                                <Route path="/upload" element={<UploadOCR />} />
-                                <Route path="/batch" element={<BatchProcessing />} />
-                                <Route path="/cleanup/:projectId" element={<Cleanup />} />
-                                <Route path="/metadata/:projectId" element={<Metadata />} />
-                                <Route path="/archive/:projectId" element={<Archive />} />
-                                <Route path="/search" element={<ArchiveSearch />} />
-                                <Route path="/analytics" element={<Analytics />} />
-                                <Route path="/help" element={<Help />} />
-                                <Route path="*" element={<Navigate to="/" replace />} />
-                            </Routes>
+        <ToastProvider>
+            <ProjectProvider>
+                {showWelcome && (
+                    <WelcomeScreen onComplete={() => setShowWelcome(false)} />
+                )}
+                <Router>
+                    <div className="app-container">
+                        <Sidebar onLogout={handleLogout} />
+                        <div className="main-content">
+                            <Header />
+                            <div className="content-area">
+                                <Routes>
+                                    <Route path="/" element={<Dashboard />} />
+                                    <Route path="/upload" element={<UploadOCR />} />
+                                    <Route path="/batch" element={<BatchProcessing />} />
+                                    <Route path="/cleanup/:projectId" element={<Cleanup />} />
+                                    <Route path="/metadata/:projectId" element={<Metadata />} />
+                                    <Route path="/archive/:projectId" element={<Archive />} />
+                                    <Route path="/search" element={<ArchiveSearch />} />
+                                    <Route path="/analytics" element={<Analytics />} />
+                                    <Route path="/help" element={<Help />} />
+                                    <Route path="*" element={<Navigate to="/" replace />} />
+                                </Routes>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </Router>
-        </ProjectProvider>
+                </Router>
+            </ProjectProvider>
+        </ToastProvider>
     )
 }
 
