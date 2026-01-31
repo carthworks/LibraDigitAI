@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
-import { Save, AlertCircle, ArrowRight, X } from 'lucide-react'
+import { Save, AlertCircle, ArrowRight, X, Download, Globe, AlertTriangle } from 'lucide-react'
 import WorkflowTracker from '../components/WorkflowTracker'
 import TextEditor from '../components/TextEditor'
+import Modal from '../components/Modal'
+import { API_URL } from '../config'
+import { useToast } from '../context/ToastContext'
 import './Cleanup.css'
 
 const Cleanup = () => {
     const { projectId } = useParams()
     const navigate = useNavigate()
     const { getProject, saveCleanedText, deleteProject, currentProject, loading, error } = useProject()
+    const { addToast } = useToast()
 
     const [cleanedText, setCleanedText] = useState('')
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
     const [showCancelDialog, setShowCancelDialog] = useState(false)
+
+    const [confidenceData, setConfidenceData] = useState([])
+
+    // Modal States
+    const [showTranslateModal, setShowTranslateModal] = useState(false)
+    const [showPDFConfirm, setShowPDFConfirm] = useState(false)
+    const [targetLang, setTargetLang] = useState('en')
+    const [translationError, setTranslationError] = useState('')
 
     useEffect(() => {
         if (projectId) {
@@ -26,14 +38,77 @@ const Cleanup = () => {
         try {
             const project = await getProject(projectId)
             setCleanedText(project.cleaned_text || project.ocr_text || '')
+            if (project.confidence_data) {
+                try {
+                    setConfidenceData(JSON.parse(project.confidence_data))
+                } catch (e) {
+                    console.error("Error parsing confidence data", e)
+                }
+            }
         } catch (err) {
             console.error('Failed to load project:', err)
         }
     }
 
+    const handleDownloadSearchablePDF = () => setShowPDFConfirm(true)
+
+    const performDownloadPDF = () => {
+        window.open(`${API_URL}/projects/${projectId}/searchable_pdf`, '_blank')
+        setShowPDFConfirm(false)
+    }
+
+    const handleTranslate = () => setShowTranslateModal(true)
+
+    const performTranslation = async () => {
+        if (!targetLang) return
+        setTranslationError('')
+
+        try {
+            setSaving(true)
+            const res = await fetch(`${API_URL}/translate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: cleanedText, target: targetLang })
+            })
+            const data = await res.json()
+            if (data.translated_text) {
+                setCleanedText(data.translated_text)
+                setShowTranslateModal(false)
+            } else {
+                setTranslationError('Translation failed: ' + (data.error || 'Unknown error'))
+            }
+        } catch (e) {
+            setTranslationError('Error translating: ' + e.message)
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const handleHighlightUncertain = () => {
+        if (!confidenceData || !confidenceData.length) {
+            addToast('No low confidence text data available.', 'info')
+            return
+        }
+        let newText = cleanedText
+        let count = 0
+        confidenceData.forEach(item => {
+            const regex = new RegExp(`\\b${item.word}\\b`, 'g')
+            if (!newText.includes(`background-color: #fff9c4`)) {
+            }
+            newText = newText.replace(regex, `<span style="background-color: #fff9c4" title="Confidence: ${item.conf}%">${item.word}</span>`)
+            count++
+        })
+        if (count > 0) {
+            setCleanedText(newText)
+            addToast(`Highlighted ${count} uncertain words`, 'success')
+        } else {
+            addToast("Could not match words in current text.", 'warning')
+        }
+    }
+
     const handleSave = async () => {
         if (!cleanedText.trim()) {
-            alert('Text cannot be empty')
+            addToast('Text cannot be empty', 'error')
             return
         }
 
@@ -42,9 +117,10 @@ const Cleanup = () => {
             setSaved(false)
             await saveCleanedText(projectId, cleanedText)
             setSaved(true)
+            addToast('Progress saved successfully', 'success')
             setTimeout(() => setSaved(false), 3000)
         } catch (err) {
-            alert('Failed to save cleaned text')
+            addToast('Failed to save cleaned text', 'error')
         } finally {
             setSaving(false)
         }
@@ -67,7 +143,7 @@ const Cleanup = () => {
             navigate('/')
         } catch (err) {
             console.error('Failed to delete project:', err)
-            alert('Failed to cancel project. Please try again.')
+            addToast('Failed to cancel project. Please try again.', 'error')
         }
     }
 
@@ -105,6 +181,22 @@ const Cleanup = () => {
                         </p>
                     </div>
                     <div className="cleanup-actions">
+                        <div className="cleanup-tools" style={{ display: 'flex', gap: '8px', marginRight: '16px', borderRight: '1px solid #ddd', paddingRight: '16px' }}>
+                            <button className="btn btn-ghost" onClick={handleDownloadSearchablePDF} title="Download Searchable PDF (Sandwich)">
+                                <Download size={20} />
+                            </button>
+                            <button className="btn btn-ghost" onClick={handleTranslate} title="Translate Text">
+                                <Globe size={20} />
+                            </button>
+                            <button
+                                className="btn btn-ghost"
+                                onClick={handleHighlightUncertain}
+                                title={`Highlight ${confidenceData.length} Low Confidence Words`}
+                                disabled={!confidenceData.length}
+                            >
+                                <AlertTriangle size={20} color={confidenceData.length ? "#F59E0B" : "currentColor"} />
+                            </button>
+                        </div>
                         <button
                             className="btn btn-ghost"
                             onClick={handleCancel}
@@ -186,43 +278,65 @@ const Cleanup = () => {
                 </div>
             </div>
 
-            {/* Cancel Confirmation Dialog */}
-            {showCancelDialog && (
-                <div className="modal-overlay" onClick={() => setShowCancelDialog(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>Cancel Project?</h3>
-                            <button
-                                className="modal-close"
-                                onClick={() => setShowCancelDialog(false)}
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <p>
-                                Are you sure you want to cancel this project? This will delete the uploaded file
-                                and all associated data. This action cannot be undone.
-                            </p>
-                        </div>
-                        <div className="modal-footer">
-                            <button
-                                className="btn btn-secondary"
-                                onClick={() => setShowCancelDialog(false)}
-                            >
-                                Keep Working
-                            </button>
-                            <button
-                                className="btn btn-danger"
-                                onClick={confirmCancel}
-                            >
-                                <X size={20} />
-                                Yes, Cancel Project
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Cancel Project Modal */}
+            <Modal
+                isOpen={showCancelDialog}
+                title="Cancel Project?"
+                onClose={() => setShowCancelDialog(false)}
+                footer={
+                    <>
+                        <button className="btn btn-secondary" onClick={() => setShowCancelDialog(false)}>Keep Working</button>
+                        <button className="btn btn-danger" onClick={confirmCancel}>
+                            <X size={20} style={{ marginRight: '8px' }} /> Yes, Cancel Project
+                        </button>
+                    </>
+                }
+            >
+                <p>Are you sure you want to cancel this project? This will delete the uploaded file and all associated data. This action cannot be undone.</p>
+            </Modal>
+
+            {/* Translation Modal */}
+            <Modal
+                isOpen={showTranslateModal}
+                title="Translate Document"
+                onClose={() => setShowTranslateModal(false)}
+                footer={
+                    <>
+                        <button className="btn btn-ghost" onClick={() => setShowTranslateModal(false)}>Cancel</button>
+                        <button className="btn btn-primary" onClick={performTranslation} disabled={saving}>
+                            {saving ? 'Translating...' : 'Translate'}
+                        </button>
+                    </>
+                }
+            >
+                <p>Enter the target language code (e.g., 'es' for Spanish, 'fr' for French):</p>
+                <input
+                    className="form-input"
+                    value={targetLang}
+                    onChange={(e) => setTargetLang(e.target.value)}
+                    placeholder="en"
+                    autoFocus
+                />
+                {translationError && <p className="mt-2" style={{ color: '#ef4444' }}>{translationError}</p>}
+            </Modal>
+
+            {/* PDF Download Confirmation Modal */}
+            <Modal
+                isOpen={showPDFConfirm}
+                title="Download Searchable PDF"
+                onClose={() => setShowPDFConfirm(false)}
+                footer={
+                    <>
+                        <button className="btn btn-ghost" onClick={() => setShowPDFConfirm(false)}>Cancel</button>
+                        <button className="btn btn-primary" onClick={performDownloadPDF}>
+                            <Download size={20} style={{ marginRight: '8px' }} /> Download
+                        </button>
+                    </>
+                }
+            >
+                <p>Do you want to download the auto-generated Searchable PDF (Sandwich PDF)?</p>
+                <p style={{ marginTop: '8px', opacity: 0.7, fontSize: '0.9em' }}>This file contains the original image with an invisible text layer, preserving the original look.</p>
+            </Modal>
         </div>
     )
 }

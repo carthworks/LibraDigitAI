@@ -1,0 +1,165 @@
+/* =========================
+   Modal Overlay
+========================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 1000;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+/* =========================
+   Modal Container
+========================= */
+.modal-content {
+    background: var(--color-bg-secondary, #1a1a24);
+    border: 1px solid var(--color-border, #2d2d3b);
+    border-radius: var(--radius-lg, 12px);
+    width: 100%;
+    max-width: var(--modal-width, 600px);
+    max-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalSlideUp 0.25s ease-out;
+}
+
+/* =========================
+   Size Variants
+========================= */
+.modal-sm {
+    --modal-width: 400px;
+}
+
+.modal-md {
+    --modal-width: 600px;
+}
+
+.modal-lg {
+    --modal-width: 900px;
+}
+
+/* =========================
+   Header
+========================= */
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--color-border, #2d2d3b);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--color-text-primary, #fff);
+}
+
+/* =========================
+   Close Button
+========================= */
+.modal-close {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: var(--radius-sm, 6px);
+    color: var(--color-text-muted, #71717a);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.modal-close:hover {
+    background: var(--color-bg-tertiary, #272732);
+    color: var(--color-text-primary, #fff);
+}
+
+.modal-close:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 2px;
+}
+
+/* =========================
+   Body
+========================= */
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    color: var(--color-text-secondary, #a1a1aa);
+    line-height: 1.6;
+}
+
+/* =========================
+   Footer
+========================= */
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--color-border, #2d2d3b);
+    justify-content: flex-end;
+}
+
+/* =========================
+   Form Input
+========================= */
+.form-input {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: var(--radius-md, 8px);
+    background: var(--color-bg-tertiary, #272732);
+    border: 1px solid var(--color-border, #2d2d3b);
+    color: var(--color-text-primary, #fff);
+}
+
+.form-input:focus-visible {
+    border-color: var(--color-primary, #3b82f6);
+    outline: none;
+}
+
+/* =========================
+   Animations
+========================= */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* =========================
+   Motion Accessibility
+========================= */
+@media (prefers-reduced-motion: reduce) {
+
+    .modal-overlay,
+    .modal-content {
+        animation: none;
+    }
+}

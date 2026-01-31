@@ -10,3 +10,5 @@ python-dateutil==2.9.0
 pycryptodome==3.20.0
 opencv-python==4.8.1.78
 numpy==1.24.3
+pymupdf==1.23.8
+deep-translator==1.11.4

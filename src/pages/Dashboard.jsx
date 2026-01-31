@@ -2,12 +2,15 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { Plus, FileText, Clock, CheckCircle, AlertCircle, Trash2, LayoutGrid, List, Search, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react'
+import Modal from '../components/Modal'
+import { useToast } from '../context/ToastContext'
 import { API_URL } from '../config'
 import './Dashboard.css'
 
 const Dashboard = () => {
     const navigate = useNavigate()
     const { projects, loading, error, deleteProject, fetchProjects } = useProject()
+    const { addToast } = useToast()
     const [viewMode, setViewMode] = useState('list') // 'grid' or 'list'
 
     // Refresh projects on mount to ensure data is up to date when navigating from sidebar
@@ -22,6 +25,10 @@ const Dashboard = () => {
 
     // Preview Modal State
     const [previewProject, setPreviewProject] = useState(null)
+
+    // Delete Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [projectToDelete, setProjectToDelete] = useState(null)
 
     const handlePreview = (e, project) => {
         e.stopPropagation()
@@ -72,15 +79,23 @@ const Dashboard = () => {
         }
     }
 
-    const handleDelete = async (e, projectId) => {
+    const handleDelete = (e, projectId) => {
         e.stopPropagation()
-        if (window.confirm('Are you sure you want to delete this project?')) {
-            try {
-                await deleteProject(projectId)
-            } catch (err) {
-                alert('Failed to delete project')
-            }
+        setProjectToDelete(projectId)
+        setShowDeleteModal(true)
+    }
+
+    const confirmDelete = async () => {
+        if (!projectToDelete) return
+
+        try {
+            await deleteProject(projectToDelete)
+            addToast('Project deleted successfully', 'success')
+        } catch (err) {
+            addToast('Failed to delete project', 'error')
         }
+        setShowDeleteModal(false)
+        setProjectToDelete(null)
     }
 
     // Filter and Pagination Logic
@@ -198,7 +213,7 @@ const Dashboard = () => {
                                             <div className="flex gap-sm">
                                                 <button
                                                     className={`project-delete ${['upload', 'ocr'].includes(project.status) ? 'btn-disabled-opacity' : ''}`}
-                                                    onClick={(e) => !['upload', 'ocr'].includes(project.status) ? handlePreview(e, project) : alert('PDF preview is available after OCR processing is complete.')}
+                                                    onClick={(e) => !['upload', 'ocr'].includes(project.status) ? handlePreview(e, project) : addToast('PDF preview is available after OCR processing is complete.', 'info')}
                                                     title={project.status === 'archived' ? "View Archived Document" : "View Searchable PDF (Draft)"}
                                                 >
                                                     <Eye size={16} />
@@ -289,7 +304,7 @@ const Dashboard = () => {
                                                     <div className="flex gap-sm">
                                                         <button
                                                             className={`btn-icon ${['upload', 'ocr'].includes(project.status) ? 'btn-disabled-opacity' : ''}`}
-                                                            onClick={(e) => !['upload', 'ocr'].includes(project.status) ? handlePreview(e, project) : alert('PDF preview is available after OCR processing is complete.')}
+                                                            onClick={(e) => !['upload', 'ocr'].includes(project.status) ? handlePreview(e, project) : addToast('PDF preview is available after OCR processing is complete.', 'info')}
                                                             title={project.status === 'archived' ? "View Archived Document" : "View Searchable PDF (Draft)"}
                                                         >
                                                             <Eye size={18} />
@@ -334,50 +349,70 @@ const Dashboard = () => {
                         </div>
                     )}
                 </>
-            )}
+            )
+            }
 
             {/* Document Preview Modal */}
-            {previewProject && (
-                <div className="modal-overlay" onClick={closePreview}>
-                    <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <div>
-                                <h3>{previewProject.filename}</h3>
-                                {previewProject.status === 'archived' ? (
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 'bold' }}>FINAL ARCHIVE</span>
-                                ) : (
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--color-warning)', fontWeight: 'bold' }}>DRAFT PREVIEW (SEARCHABLE PDF)</span>
-                                )}
+            {
+                previewProject && (
+                    <div className="modal-overlay" onClick={closePreview}>
+                        <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
+                            <div className="modal-header">
+                                <div>
+                                    <h3>{previewProject.filename}</h3>
+                                    {previewProject.status === 'archived' ? (
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 'bold' }}>FINAL ARCHIVE</span>
+                                    ) : (
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--color-warning)', fontWeight: 'bold' }}>DRAFT PREVIEW (SEARCHABLE PDF)</span>
+                                    )}
+                                </div>
+                                <button className="modal-close" onClick={closePreview}>
+                                    <X size={20} />
+                                </button>
                             </div>
-                            <button className="modal-close" onClick={closePreview}>
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="modal-body p-0">
-                            {/* Assuming the PDF or Image is served from the backend */}
-                            <iframe
-                                src={`${API_URL}/projects/${previewProject.id}/file`}
-                                className="pdf-preview-frame"
-                                title="Document Preview"
-                            />
-                        </div>
-                        <div className="modal-footer">
-                            <div className="flex items-center gap-md">
-                                <span className={`badge badge-${getStatusInfo(previewProject.status).color}`}>
-                                    {getStatusInfo(previewProject.status).label}
-                                </span>
-                                <span className="text-sm text-muted">
-                                    {new Date(previewProject.created_at).toLocaleString()}
-                                </span>
+                            <div className="modal-body p-0">
+                                {/* Assuming the PDF or Image is served from the backend */}
+                                <iframe
+                                    src={`${API_URL}/projects/${previewProject.id}/file`}
+                                    className="pdf-preview-frame"
+                                    title="Document Preview"
+                                />
                             </div>
-                            <button className="btn btn-primary" onClick={() => handleProjectClick(previewProject)}>
-                                Open Project Workflow
-                            </button>
+                            <div className="modal-footer">
+                                <div className="flex items-center gap-md">
+                                    <span className={`badge badge-${getStatusInfo(previewProject.status).color}`}>
+                                        {getStatusInfo(previewProject.status).label}
+                                    </span>
+                                    <span className="text-sm text-muted">
+                                        {new Date(previewProject.created_at).toLocaleString()}
+                                    </span>
+                                </div>
+                                <button className="btn btn-primary" onClick={() => handleProjectClick(previewProject)}>
+                                    Open Project Workflow
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                isOpen={showDeleteModal}
+                title="Delete Project?"
+                onClose={() => setShowDeleteModal(false)}
+                footer={
+                    <>
+                        <button className="btn btn-ghost" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                        <button className="btn btn-danger" onClick={confirmDelete}>
+                            <Trash2 size={16} style={{ marginRight: '8px' }} /> Delete
+                        </button>
+                    </>
+                }
+            >
+                <p>Are you sure you want to delete this project? This action cannot be undone.</p>
+            </Modal>
+        </div >
     )
 }
 

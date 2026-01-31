@@ -14,6 +14,7 @@ A production-grade desktop application that converts scanned documents into sear
 LibraDigit AI is an offline-first desktop application designed for librarians, archivists, and digitization teams to:
 
 - ✅ Convert scanned PDFs/images to searchable documents using OCR.
+- ✅ **Automatic Scanned PDF Detection** - Intelligently detects image-based PDFs and applies OCR automatically.
 - ✅ **Advanced OCR with AI-powered layout analysis** - Detect tables, forms, signatures, and page structure.
 - ✅ **Handwritten text to PDF conversion** - Transform handwritten notes into formatted, searchable PDFs.
 - ✅ Clean and improve OCR text accuracy.
@@ -25,6 +26,7 @@ LibraDigit AI is an offline-first desktop application designed for librarians, a
 ## 🚀 Key Features
 
 ### 🤖 Advanced OCR & AI Analysis
+- **Scanned PDF OCR with Handwritten Support**: Automatically detects PDFs with embedded images and applies intelligent OCR. Switches to handwritten mode (LSTM) when handwriting is detected on any page.
 - **Intelligent Layout Understanding**: Automatically detects page structure including headers, footers, stamps, and signatures.
 - **Table & Form Extraction**: Identifies and extracts structured data from tables and form fields with checkbox detection.
 - **Auto-Orientation Correction**: Automatically detects and corrects page rotation (0°, 90°, 180°, 270°).
@@ -123,12 +125,12 @@ This will:
 ### Creating Your First Project
 
 1. **Launch & Setup**: On first run, create your master password.
-2. **Upload Document**: Drag and drop a PDF or image file (PDF, PNG, JPEG, TIFF).
+2. **Upload Document**: Drag and drop a PDF or image file (PDF, PNG, JPEG, TIFF). Scanned PDFs are automatically detected.
 3. **Choose OCR Method**:
-   - **Standard OCR**: Fast text extraction for printed documents
-   - **Advanced OCR**: AI-powered analysis with table detection, form recognition, and layout understanding
-   - **Handwritten to PDF**: Convert handwritten notes to formatted, searchable PDFs
-4. **Run OCR**: Tesseract converts image text into a searchable layer.
+   - **Standard OCR**: Fast text extraction for printed documents and scanned PDFs
+   - **Advanced OCR**: AI-powered analysis with table detection, form recognition, and layout understanding (images only)
+   - **Handwritten to PDF**: Convert handwritten notes to formatted, searchable PDFs (images only)
+4. **Run OCR**: Tesseract converts image text into a searchable layer. For scanned PDFs, pages are automatically rendered as images at 300 DPI.
 5. **Clean Text**: Use the side-by-side rich text editor to correct OCR typos.
 6. **Add Metadata**: Add descriptive details (Subject, Year, Author).
 7. **Generate Archive**: The system builds the BagIt package and embeds your metadata.
@@ -203,6 +205,7 @@ Archive/
 - **Flask** (Python API)
 - **SQLite 3** (Database & FTS5 Search Engine)
 - **Tesseract OCR** (Text Extraction with LSTM neural networks)
+- **PyMuPDF (fitz)** (PDF rendering for scanned PDF OCR at 300 DPI)
 - **OpenCV** (Advanced image processing & computer vision)
 - **NumPy** (Numerical operations for image analysis)
 - **PyPDF2 & ReportLab** (PDF Metadata, Generation & Manipulation)

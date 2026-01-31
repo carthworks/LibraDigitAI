@@ -67,7 +67,7 @@ const Help = () => {
                         <div className="step-number">1</div>
                         <div className="step-content">
                             <h4>Upload & Language</h4>
-                            <p>Upload your scanned PDF or Image. Select the document language (English, Spanish, French, etc.) for accurate OCR.</p>
+                            <p>Upload your scanned PDF (with images) or Image file. The system automatically detects and processes scanned PDFs using OCR, including handwritten text detection. Select the document language (English, Spanish, French, etc.) for accurate text extraction.</p>
                         </div>
                     </div>
                     <div className="step-item">
@@ -112,6 +112,10 @@ const Help = () => {
                     <details>
                         <summary>Failed to Load PDF</summary>
                         <p>If a file is actually a text file with a .pdf extension, the system will now automatically detect and handle it.</p>
+                    </details>
+                    <details>
+                        <summary>Scanned PDF Not Extracting Text</summary>
+                        <p>The system automatically detects scanned PDFs (PDFs containing images instead of text) and applies OCR. If OCR fails, ensure Tesseract is properly installed and the PDF contains readable images.</p>
                     </details>
                 </div>
             </div>

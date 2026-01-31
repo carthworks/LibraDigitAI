@@ -52,7 +52,7 @@ const UploadOCR = () => {
         const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg', 'image/tiff']
 
         if (!validTypes.includes(selectedFile.type)) {
-            addToast('Only PDF or image files (PNG, JPEG, TIFF) are allowed', 'error')
+            addToast('Only PDF (including scanned PDFs) or image files (PNG, JPEG, TIFF) are allowed', 'error')
             return
         }
 
@@ -216,7 +216,7 @@ const UploadOCR = () => {
                                             style={{ display: 'none' }}
                                         />
                                     </label>
-                                    <p className="upload-hint">Supported: PDF, PNG, JPEG, TIFF (Max 50MB)</p>
+                                    <p className="upload-hint">Supported: PDF (including scanned), PNG, JPEG, TIFF (Max 50MB)</p>
                                 </>
                             )}
                         </div>
@@ -367,22 +367,22 @@ const UploadOCR = () => {
                                 {/* Handwritten to PDF Button */}
                                 <div className="mt-md">
                                     <p className="text-center text-muted mb-sm">
-                                        <strong>Or</strong> convert handwritten notes directly to formatted PDF
+                                        <strong>Or</strong> convert handwritten image notes to formatted PDF
                                     </p>
                                     <button
                                         className="btn btn-secondary btn-lg w-full"
                                         onClick={() => handleConvertToPDF(currentProject.id)}
                                         disabled={convertingPDF || (file && !file.type.startsWith('image/'))}
-                                        style={{ opacity: (file && !file.type.startsWith('image/')) ? 0.5 : 1, cursor: (file && !file.type.startsWith('image/')) ? 'not-allowed' : 'pointer' }}
-                                        title={file && !file.type.startsWith('image/') ? "Only available for image files" : ""}
+                                        style={{ opacity: (file && !file.type.startsWith('image/')) ? 0.7 : 1, cursor: (file && !file.type.startsWith('image/')) ? 'not-allowed' : 'pointer' }}
+                                        title={file && !file.type.startsWith('image/') ? "This feature is for direct image files. For scanned PDFs with handwriting, use 'Run OCR' above." : "Convert handwritten notes from images to formatted PDF"}
                                     >
                                         <FileDown size={20} />
-                                        {convertingPDF ? 'Converting to PDF...' : 'Convert Handwritten to PDF'}
+                                        {convertingPDF ? 'Converting to PDF...' : 'Convert Handwritten Image to PDF'}
                                     </button>
-                                    {file && !file.type.startsWith('image/') && (
-                                        <p className="text-center mt-2" style={{ color: '#ff6b6b', fontSize: '0.85rem' }}>
-                                            <AlertCircle size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
-                                            Requires an image file (PNG/JPG).<br />PDFs cannot be processed as handwritten notes directly.
+                                    {file && file.type === 'application/pdf' && (
+                                        <p className="text-center mt-2" style={{ color: '#4CAF50', fontSize: '0.85rem' }}>
+                                            <CheckCircle size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
+                                            For scanned PDFs with handwritten text, use <strong>"Run OCR"</strong> above - it automatically detects and processes handwriting!
                                         </p>
                                     )}
                                 </div>

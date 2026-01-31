@@ -1,14 +1,17 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import sqlite3
 import os
 import sys
 import json
+import io
 from datetime import datetime, timedelta
 import pytesseract
 from PIL import Image
 import PyPDF2
 import mimetypes
+import fitz # PyMuPDF
+from deep_translator import GoogleTranslator
 from metadata_extractor import extract_metadata
 from batch_processor import BatchProcessor
 from advanced_ocr_processor import AdvancedOCRProcessor
@@ -87,10 +90,17 @@ def init_db():
             project_id INTEGER,
             original_text TEXT,
             cleaned_text TEXT,
+            confidence_data TEXT,
             FOREIGN KEY (project_id) REFERENCES projects (id)
         )
     ''')
     
+    # Migration: Add confidence_data if not exists
+    try:
+        cursor.execute('ALTER TABLE ocr_text ADD COLUMN confidence_data TEXT')
+    except sqlite3.OperationalError:
+        pass # Column likely already exists
+
     # Batch jobs table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS batch_jobs (
@@ -194,6 +204,7 @@ def get_project_data(project_id):
     if ocr:
         project_dict['ocr_text'] = dict(ocr).get('original_text', '')
         project_dict['cleaned_text'] = dict(ocr).get('cleaned_text', '')
+        project_dict['confidence_data'] = dict(ocr).get('confidence_data')
     
     conn.close()
     return project_dict
@@ -379,34 +390,80 @@ def get_archive_root():
 # --- Routes ---
 @app.route('/api/search', methods=['GET'])
 def search_archives():
-    """Full-text search across all archived documents"""
+    """Full-text search across all archived documents with advanced filtering"""
     try:
         query = request.args.get('q', '').strip()
         limit = int(request.args.get('limit', 20))
         
-        if not query:
+        # Advanced Filters
+        exact_match = request.args.get('exact', 'false').lower() == 'true'
+        smart_search = request.args.get('smart', 'false').lower() == 'true'
+        field = request.args.get('field', 'all')
+        year_start = request.args.get('year_start')
+        year_end = request.args.get('year_end')
+        
+        # Return empty if no criteria
+        if not query and not (year_start or year_end):
             return jsonify({'results': [], 'count': 0})
         
+        # Construct FTS Query
+        fts_query = query
+        if query:
+            if exact_match:
+                fts_query = f'"{query}"'
+            elif smart_search:
+                # Add prefix matching to each word for "intelligence"
+                if '"' not in query: # Don't mess with existing quotes
+                    parts = query.split()
+                    fts_query = " ".join([f"{p}*" for p in parts])
+            
+            # Apply Field restriction
+            if field in ['title', 'author', 'content', 'keywords']:
+                 fts_query = f'{field}:{fts_query}'
+
         conn = get_db()
         cursor = conn.cursor()
         
-        # FTS5 search with snippet generation
-        # Use MATCH for full-text search, rank by relevance
-        cursor.execute('''
+        params = []
+        where_clauses = []
+        
+        # If we have a text query, use MATCH
+        if query:
+            where_clauses.append("search_index MATCH ?")
+            params.append(fts_query)
+        
+        # Year Filtering from Metadata
+        if year_start and year_start.isdigit():
+            where_clauses.append("CAST(m.year AS INTEGER) >= ?")
+            params.append(int(year_start))
+            
+        if year_end and year_end.isdigit():
+             where_clauses.append("CAST(m.year AS INTEGER) <= ?")
+             params.append(int(year_end))
+             
+        where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
+        
+        # Determine snippet source (snippet function only works if MATCH is used)
+        snippet_expr = "snippet(search_index, 2, '<mark>', '</mark>', '...', 32)" if query else "substr(s.content, 1, 200)"
+        
+        sql = f'''
             SELECT 
                 s.project_id,
                 s.title,
                 s.author,
-                snippet(search_index, 2, '<mark>', '</mark>', '...', 32) as snippet,
+                {snippet_expr} as snippet,
                 m.subject,
                 m.year,
                 rank
             FROM search_index s
             LEFT JOIN metadata m ON s.project_id = m.project_id
-            WHERE search_index MATCH ?
+            WHERE {where_sql}
             ORDER BY rank
             LIMIT ?
-        ''', (query, limit))
+        '''
+        params.append(limit)
+        
+        cursor.execute(sql, params)
         
         results = []
         for row in cursor.fetchall():
@@ -756,22 +813,115 @@ Note: To extract real text, please upload a PDF or image file."""
         elif file_ext == '.pdf':
             # Extract text from PDF
             try:
+                # First try standard text extraction with PyPDF2
                 with open(filepath, 'rb') as file:
                     pdf_reader = PyPDF2.PdfReader(file)
                     num_pages = len(pdf_reader.pages)
                     
                     for page_num in range(num_pages):
                         page = pdf_reader.pages[page_num]
-                        extracted_text += page.extract_text() + "\\n\\n"
+                        text = page.extract_text()
+                        if text:
+                            extracted_text += text + "\\n\\n"
+                
+                # If little/no text found, treat as scanned PDF (image-like)
+                if not extracted_text.strip() or len(extracted_text.strip()) < 50:
+                    print("⚠️ Minimal text found in PDF, attempting OCR as scanned document...")
                     
-                    if not extracted_text.strip():
-                        extracted_text = "No text found in PDF. The PDF might be scanned images. Please use Tesseract OCR for image-based PDFs."
-                    
-                file_type_msg = "PDF"
+                    try:
+                         # Use PyMuPDF (fitz) to render pages as images
+                         doc = fitz.open(filepath)
+                         ocr_text = ""
+                         confidence_data = [] # New: Store low-confidence words
+                         pdf_merger = PyPDF2.PdfMerger() # New: For Searchable PDF
+                         has_pdf_pages = False
+                         
+                         print(f"📄 Processing {len(doc)} pages with OCR...")
+                         for page_idx, page in enumerate(doc):
+                             # Render page to image (300 DPI for better OCR)
+                             pix = page.get_pixmap(dpi=300)
+                             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                             
+                             # 1. Generate Searchable PDF Page
+                             try:
+                                 pdf_bytes = pytesseract.image_to_pdf_or_hocr(img, extension='pdf', lang=lang)
+                                 pdf_merger.append(io.BytesIO(pdf_bytes))
+                                 has_pdf_pages = True
+                             except Exception as pdf_err:
+                                 print(f"  ⚠️ Searchable PDF Gen failed for p{page_idx}: {pdf_err}")
+                             
+                             # 2. Extract Confidence Data
+                             page_conf = extract_confidence_from_image(img, lang=lang)
+                             if page_conf:
+                                 for item in page_conf:
+                                     item['page'] = page_idx + 1
+                                 confidence_data.extend(page_conf)
+                             
+                             # 3. Standard OCR
+                             page_text = pytesseract.image_to_string(img, lang=lang)
+                             
+                             # If minimal text found, try handwritten OCR mode
+                             if len(page_text.strip()) < 20:
+                                 print(f"  Page {page_idx + 1}: Trying handwritten OCR mode...")
+                                 # Use LSTM mode (--oem 1) which is better for handwriting
+                                 # PSM 6 assumes uniform block of text
+                                 handwritten_config = r'--oem 1 --psm 6'
+                                 page_text = pytesseract.image_to_string(
+                                     img, 
+                                     lang=lang,
+                                     config=handwritten_config
+                                 )
+                                 if page_text.strip():
+                                     print(f"  ✍️ Handwritten text detected on page {page_idx + 1}")
+                             
+                             ocr_text += page_text + "\\n\\n"
+                         
+                         # Save Searchable PDF
+                         if has_pdf_pages:
+                             ocr_filename = f"ocr_{os.path.splitext(os.path.basename(filepath))[0]}.pdf"
+                             ocr_pdf_path = os.path.join(UPLOAD_FOLDER, ocr_filename)
+                             pdf_merger.write(ocr_pdf_path)
+                             pdf_merger.close()
+                             print(f"✅ Generated searchable PDF: {ocr_pdf_path}")
+                         
+                         if ocr_text.strip():
+                             extracted_text = ocr_text
+                             file_type_msg = "PDF (Scanned/OCR)"
+                         else:
+                             if not extracted_text.strip():
+                                 extracted_text = "No text found in PDF (OCR produced no results)."
+                                 file_type_msg = "PDF (Empty)"
+                    except Exception as ocr_err:
+                        print(f"❌ PDF OCR Error: {ocr_err}")
+                        if not extracted_text.strip():
+                            extracted_text = f"No text found in PDF. OCR failed: {str(ocr_err)}"
+                        file_type_msg = "PDF (OCR Failed)"
+                else:
+                    file_type_msg = "PDF"
                         
             except Exception as e:
-                extracted_text = f"Error extracting text from PDF: {str(e)}\\n\\nPlease ensure the PDF is not corrupted."
-                file_type_msg = "PDF (error)"
+                extracted_text = f"Error extracting text from PDF: {str(e)}\\n\\nAttempting fallback OCR..."
+                # Try OCR as fallback
+                try:
+                    doc = fitz.open(filepath)
+                    extracted_text = ""
+                    for page_idx, page in enumerate(doc):
+                        pix = page.get_pixmap(dpi=300)
+                        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                        
+                        # Try standard OCR
+                        page_text = pytesseract.image_to_string(img, lang=lang)
+                        
+                        # If minimal text, try handwritten mode
+                        if len(page_text.strip()) < 20:
+                            handwritten_config = r'--oem 1 --psm 6'
+                            page_text = pytesseract.image_to_string(img, lang=lang, config=handwritten_config)
+                        
+                        extracted_text += page_text + "\\n\\n"
+                    file_type_msg = "PDF (OCR Fallback)"
+                except Exception as inner_e:
+                    extracted_text += f"\\nOCR Fallback failed: {str(inner_e)}"
+                    file_type_msg = "PDF (Error)"
         
         elif file_ext in ['.png', '.jpg', '.jpeg', '.tiff', '.bmp']:
             # Extract text from image using Tesseract
@@ -781,6 +931,9 @@ Note: To extract real text, please upload a PDF or image file."""
                     
                     # 1. Get plain text for UI editing
                     extracted_text = pytesseract.image_to_string(image, lang=lang)
+                    
+                    # 2. Extract Confidence
+                    confidence_data = extract_confidence_from_image(image, lang=lang)
                     
                     if not extracted_text.strip():
                         extracted_text = "No text detected in image. Please ensure the image contains readable text."
@@ -827,11 +980,15 @@ Note: To extract real text, please upload a PDF or image file."""
         conn = get_db()
         cursor = conn.cursor()
         
+        # Serialize confidence data
+        import json
+        conf_json = json.dumps(confidence_data) if 'confidence_data' in locals() and confidence_data else None
+
         cursor.execute('''
             UPDATE ocr_text 
-            SET original_text = ?
+            SET original_text = ?, confidence_data = ?
             WHERE project_id = ?
-        ''', (extracted_text, project_id))
+        ''', (extracted_text, conf_json, project_id))
         
         # Update ocr_path if we generated one
         if ocr_pdf_path:
@@ -2321,6 +2478,75 @@ def get_analytics():
 
 
 
+@app.route('/api/translate', methods=['POST'])
+def translate_text():
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        target_lang = data.get('target', 'en')
+        source_lang = data.get('source', 'auto')
+        
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+            
+        translated = GoogleTranslator(source=source_lang, target=target_lang).translate(text)
+        return jsonify({'translated_text': translated})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def extract_confidence_from_image(image, lang='eng'):
+    """Extract words with low confidence from an image"""
+    try:
+        data = pytesseract.image_to_data(image, lang=lang, output_type=pytesseract.Output.DICT)
+        low_confidence_words = []
+        n_boxes = len(data['level'])
+        
+        for i in range(n_boxes):
+            # level 5 corresponds to words
+            if data['level'][i] == 5:
+                # filter out empty texts
+                word = data['text'][i].strip()
+                conf = data['conf'][i]
+                
+                # Check for valid word
+                if word and conf != -1:
+                    if conf < 80: # Threshold for highlighting
+                        low_confidence_words.append({
+                            'word': word,
+                            'conf': conf
+                        })
+        return low_confidence_words
+    except Exception as e:
+        print(f"Error extracting confidence: {e}")
+        return []
+
+@app.route('/api/projects/<int:project_id>/searchable_pdf', methods=['GET'])
+def download_searchable_pdf(project_id):
+    """Download the auto-generated searchable PDF (Sandwich PDF)"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT ocr_path, filepath, filename FROM projects JOIN files ON projects.id = files.project_id WHERE projects.id = ?", (project_id,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if not row:
+            return jsonify({'error': 'Project not found'}), 404
+            
+        original_filepath = row[1]
+        filename_base = os.path.splitext(os.path.basename(original_filepath))[0]
+        ocr_filename = f"ocr_{filename_base}.pdf"
+        ocr_pdf_path = os.path.join(UPLOAD_FOLDER, ocr_filename)
+        
+        if os.path.exists(ocr_pdf_path):
+            return send_file(ocr_pdf_path, as_attachment=True, download_name=f"Searchable_{row[2]}")
+        else:
+            return jsonify({'error': 'Searchable PDF not generated yet. Please Run OCR.'}), 404
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     init_db()
     init_search_index()
@@ -2328,5 +2554,7 @@ if __name__ == '__main__':
     print("📊 Database initialized")
     print("🔍 Tesseract OCR:", "✓ Available" if check_tesseract() else "✗ Not found")
     print("🌐 Server running on http://localhost:5000")
+    print("📅 Date:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print("---")
     app.run(debug=True, port=5000)
 

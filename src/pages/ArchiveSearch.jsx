@@ -5,7 +5,7 @@ import DOMPurify from "dompurify"
 import {
     Search, Loader, AlertCircle, X,
     ZoomIn, ZoomOut, ChevronLeft, ChevronRight,
-    Maximize2, Minimize2, FileText
+    Maximize2, Minimize2, FileText, Sliders, ChevronDown, ChevronUp
 } from "lucide-react"
 import { Document, Page, pdfjs } from "react-pdf"
 import { useToast } from "../context/ToastContext"
@@ -26,6 +26,16 @@ export default function ArchiveSearch() {
     const [loading, setLoading] = useState(false)
     const [searched, setSearched] = useState(false)
 
+    // Advanced Filters State
+    const [advancedOpen, setAdvancedOpen] = useState(false)
+    const [filters, setFilters] = useState({
+        exact: false,
+        smart: false,
+        field: 'all',
+        yearStart: '',
+        yearEnd: ''
+    })
+
     const [selectedPdf, setSelectedPdf] = useState(null)
     const [numPages, setNumPages] = useState(null)
     const [pageNumber, setPageNumber] = useState(1)
@@ -33,30 +43,36 @@ export default function ArchiveSearch() {
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [viewAsImage, setViewAsImage] = useState(false)
 
-    const cache = useRef(new Map())
+    const handleSearchChange = (e) => setQuery(e.target.value)
 
-    // Stable debounce instance
-    const debouncedSearch = useRef(
-        debounce(async (searchQuery) => {
-            if (!searchQuery.trim()) {
+    const handleFilterChange = (key, value) => {
+        setFilters(prev => ({ ...prev, [key]: value }))
+    }
+
+    // Effect for Searching with Debounce
+    useEffect(() => {
+        const performSearch = async () => {
+            // Return if empty query AND no filters are set
+            if (!query.trim() && !filters.yearStart && !filters.yearEnd) {
                 setResults([])
+                setSearched(false)
                 setLoading(false)
-                return
-            }
-
-            if (cache.current.has(searchQuery)) {
-                setResults(cache.current.get(searchQuery))
-                setLoading(false)
-                setSearched(true)
                 return
             }
 
             setLoading(true)
             try {
-                const { data } = await axios.get(`${API_URL}/search`, {
-                    params: { q: searchQuery, limit: 50 }
-                })
-                cache.current.set(searchQuery, data.results || [])
+                const params = {
+                    q: query,
+                    limit: 50,
+                    exact: filters.exact,
+                    smart: filters.smart,
+                    field: filters.field,
+                    year_start: filters.yearStart,
+                    year_end: filters.yearEnd
+                }
+
+                const { data } = await axios.get(`${API_URL}/search`, { params })
                 setResults(data.results || [])
                 setSearched(true)
             } catch {
@@ -64,16 +80,11 @@ export default function ArchiveSearch() {
             } finally {
                 setLoading(false)
             }
-        }, 300)
-    ).current
+        }
 
-    useEffect(() => () => debouncedSearch.cancel(), [])
-
-    const handleSearchChange = (e) => {
-        const val = e.target.value
-        setQuery(val)
-        debouncedSearch(val)
-    }
+        const timer = setTimeout(performSearch, 400)
+        return () => clearTimeout(timer)
+    }, [query, filters, addToast])
 
     const openPdfViewer = (result) => {
         setSelectedPdf({ ...result, url: `${API_URL}/projects/${result.id}/file` })
@@ -108,15 +119,86 @@ export default function ArchiveSearch() {
             </div>
 
             <div className="search-box-wrapper">
-                <Search size={22} />
+                <Search size={22} className="search-icon-large" />
                 <input
                     className="search-input"
                     value={query}
                     onChange={handleSearchChange}
                     placeholder="Search by title, author, content..."
                 />
-                {loading && <Loader className="spin" size={22} />}
+                {loading && <Loader className="spin search-spinner" size={22} />}
             </div>
+
+            <div className="advanced-filter-toggle">
+                <button
+                    className="advanced-toggle-btn"
+                    onClick={() => setAdvancedOpen(!advancedOpen)}
+                >
+                    <Sliders size={16} />
+                    Advanced Options
+                    {advancedOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+            </div>
+
+            {advancedOpen && (
+                <div className="advanced-filters-panel">
+                    <div className="filter-group">
+                        <label>Search Mode</label>
+                        <div className="filter-controls-row">
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={filters.exact}
+                                    onChange={(e) => handleFilterChange('exact', e.target.checked)}
+                                />
+                                Exact Phrase
+                            </label>
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={filters.smart}
+                                    onChange={(e) => handleFilterChange('smart', e.target.checked)}
+                                />
+                                Smart Search (Fuzzy)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Field</label>
+                        <select
+                            className="filter-select"
+                            value={filters.field}
+                            onChange={(e) => handleFilterChange('field', e.target.value)}
+                        >
+                            <option value="all">All Fields</option>
+                            <option value="title">Title</option>
+                            <option value="author">Author</option>
+                            <option value="content">Content</option>
+                            <option value="keywords">Keywords</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Year Range</label>
+                        <div className="date-inputs">
+                            <input
+                                type="number"
+                                className="filter-input" placeholder="Start"
+                                value={filters.yearStart}
+                                onChange={(e) => handleFilterChange('yearStart', e.target.value)}
+                            />
+                            <span>-</span>
+                            <input
+                                type="number"
+                                className="filter-input" placeholder="End"
+                                value={filters.yearEnd}
+                                onChange={(e) => handleFilterChange('yearEnd', e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {searched && results.length > 0 && (
                 <div className="search-meta-info">

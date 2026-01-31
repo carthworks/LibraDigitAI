@@ -95,14 +95,44 @@ export default function Settings() {
                             label="Storage Path"
                             hint="Absolute folder or network path. App must have write access."
                         >
-                            <input
-                                type="text"
-                                name="archive_storage_path"
-                                value={settings.archive_storage_path}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="C:\Archive or /mnt/archive"
-                            />
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <input
+                                    type="text"
+                                    name="archive_storage_path"
+                                    value={settings.archive_storage_path}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                    placeholder="C:\Archive or /mnt/archive"
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={async () => {
+                                        try {
+                                            // Check if running in Electron
+                                            if (window.electron && window.electron.selectFolder) {
+                                                const folderPath = await window.electron.selectFolder()
+                                                if (folderPath) {
+                                                    setSettings(prev => ({
+                                                        ...prev,
+                                                        archive_storage_path: folderPath
+                                                    }))
+                                                }
+                                            } else {
+                                                addToast('Folder picker only available in desktop app', 'info')
+                                            }
+                                        } catch (error) {
+                                            console.error('Folder selection error:', error)
+                                            addToast('Failed to open folder picker', 'error')
+                                        }
+                                    }}
+                                    style={{ whiteSpace: 'nowrap' }}
+                                >
+                                    <Folder size={16} />
+                                    Browse
+                                </button>
+                            </div>
                         </FormGroup>
                     </SettingsCard>
 
