@@ -9,13 +9,13 @@ export function initConsoleSignature() {
     if (isSignatureInitialized || typeof window === 'undefined') return
     isSignatureInitialized = true
 
-    const titleStyle = 'font-size: 14px; font-weight: 800; color: #ffffff; background: linear-gradient(135deg, #6366f1 0%, #7c3aed 50%, #10b981 100%); padding: 6px 14px; border-radius: 6px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);'
-    const labelStyle = 'font-weight: 700; color: #6366f1;'
-    const valStyle = 'color: #cbd5e1;'
-    const linkStyle = 'color: #10b981; font-weight: 600; text-decoration: underline;'
-    const quoteStyle = 'font-style: italic; color: #38bdf8;'
-    const tipLabelStyle = 'font-weight: 700; color: #f59e0b;'
-    const codeStyle = 'font-family: "JetBrains Mono", monospace; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 2px 6px; border-radius: 4px;'
+    const titleStyle = 'font-size: 14px; font-weight: 800; color: #ffffff; background: linear-gradient(135deg, #f15a24 0%, #ff6900 50%, #fcb900 100%); padding: 6px 14px; border-radius: 6px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);'
+    const labelStyle = 'font-weight: 700; color: #f15a24;'
+    const valStyle = 'color: #eff1f6;'
+    const linkStyle = 'color: #fcb900; font-weight: 600; text-decoration: underline;'
+    const quoteStyle = 'font-style: italic; color: #00d084;'
+    const tipLabelStyle = 'font-weight: 700; color: #fcb900;'
+    const codeStyle = 'font-family: "JetBrains Mono", monospace; color: #f15a24; background: rgba(241, 90, 36, 0.15); padding: 2px 6px; border-radius: 4px;'
 
     console.log('%c🏛️ LibraDigit AI — Digital Archive Builder v1.2.0', titleStyle)
 

@@ -34,15 +34,15 @@ class ErrorBoundary extends React.Component {
                     justifyContent: 'center',
                     minHeight: '100vh',
                     padding: '2rem',
-                    backgroundColor: '#0a0a0f',
-                    color: '#f8fafc',
+                    backgroundColor: '#212327',
+                    color: '#ffffff',
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
                     textAlign: 'center'
                 }}>
                     <div style={{
                         maxWidth: '480px',
-                        background: '#13131a',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        background: '#191b1f',
+                        border: '1px solid rgba(207, 46, 46, 0.3)',
                         borderRadius: '1rem',
                         padding: '2rem',
                         boxShadow: '0 20px 25px -5px rgba(0,0,0,0.6)'
@@ -51,25 +51,25 @@ class ErrorBoundary extends React.Component {
                             display: 'inline-flex',
                             padding: '1rem',
                             borderRadius: '50%',
-                            background: 'rgba(239, 68, 68, 0.15)',
-                            color: '#ef4444',
+                            background: 'rgba(207, 46, 46, 0.15)',
+                            color: '#cf2e2e',
                             marginBottom: '1rem'
                         }}>
                             <AlertTriangle size={36} />
                         </div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem', color: '#ffffff' }}>
                             Something went wrong
                         </h2>
-                        <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+                        <p style={{ color: '#abb8c3', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                             An unexpected error occurred while rendering the interface. Your archive data remains safe.
                         </p>
                         {this.state.error?.message && (
                             <div style={{
-                                background: '#1a1a24',
+                                background: '#2a2d34',
                                 padding: '0.75rem 1rem',
                                 borderRadius: '0.5rem',
                                 fontSize: '0.8rem',
-                                color: '#ef4444',
+                                color: '#cf2e2e',
                                 fontFamily: 'JetBrains Mono, monospace',
                                 marginBottom: '1.5rem',
                                 textAlign: 'left',
@@ -87,7 +87,7 @@ class ErrorBoundary extends React.Component {
                                     gap: '0.5rem',
                                     padding: '0.625rem 1.25rem',
                                     borderRadius: '0.5rem',
-                                    background: '#6366f1',
+                                    background: '#f15a24',
                                     color: '#fff',
                                     border: 'none',
                                     cursor: 'pointer',

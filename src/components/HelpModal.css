@@ -114,7 +114,7 @@
     margin-bottom: 0;
 }
 
-.section-header {
+.help-section .section-header {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
@@ -122,7 +122,7 @@
     color: var(--color-primary);
 }
 
-.section-header h3 {
+.help-section .section-header h3 {
     margin: 0;
     font-size: 1.25rem;
     color: var(--color-text-primary);
@@ -138,14 +138,14 @@
     margin-bottom: var(--space-md);
 }
 
-.feature-list {
+.help-section .feature-list {
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
     margin-top: var(--space-lg);
 }
 
-.feature-item {
+.help-section .feature-item {
     display: flex;
     align-items: center;
     gap: var(--space-md);
@@ -155,18 +155,18 @@
     color: var(--color-text-secondary);
 }
 
-.feature-icon {
+.help-section .feature-icon {
     font-size: 1.25rem;
     flex-shrink: 0;
 }
 
-.modal-workflow-steps {
+.help-section .modal-workflow-steps {
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
 }
 
-.modal-workflow-step-item {
+.help-section .modal-workflow-step-item {
     display: flex;
     gap: var(--space-lg);
     padding: var(--space-lg);
@@ -175,7 +175,7 @@
     border-left: 3px solid var(--color-primary);
 }
 
-.step-number {
+.help-section .step-number {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -189,30 +189,30 @@
     flex-shrink: 0;
 }
 
-.step-content h4 {
+.help-section .step-content h4 {
     margin: 0 0 var(--space-xs) 0;
     font-size: 1rem;
     color: var(--color-text-primary);
 }
 
-.step-content p {
+.help-section .step-content p {
     margin: 0;
     font-size: 0.9375rem;
     color: var(--color-text-tertiary);
     line-height: 1.6;
 }
 
-.step-content code {
+.help-section .step-content code {
     font-size: 0.8125rem;
 }
 
-.tips-list {
+.help-section .tips-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.tips-list li {
+.help-section .tips-list li {
     padding: var(--space-md);
     margin-bottom: var(--space-sm);
     background: var(--color-surface);
@@ -222,7 +222,7 @@
     padding-left: var(--space-xl);
 }
 
-.tips-list li::before {
+.help-section .tips-list li::before {
     content: '→';
     position: absolute;
     left: var(--space-md);

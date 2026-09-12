@@ -1,141 +1,318 @@
-.analytics-page {
-    padding: var(--space-xl);
-    max-width: 1400px;
+/* ==========================================================================
+   LibraDigit AI - Modern Analytics & Telemetry Stylesheet
+   ========================================================================== */
+
+.analytics-container {
+    max-width: 1440px;
     margin: 0 auto;
-    animation: fadeIn 0.5s ease-out;
+    padding: var(--space-xs) 0 var(--space-xl) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    animation: analyticsFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.analytics-header {
-    margin-bottom: var(--space-xl);
+@keyframes analyticsFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.analytics-header h1 {
-    font-size: 2rem;
-    color: var(--color-text);
+.analytics-loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 460px;
+    gap: var(--space-lg);
+    color: var(--color-text-secondary);
+}
+
+.analytics-error-banner {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: var(--radius-lg);
+    color: #fca5a5;
 }
 
-.analytics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+/* --------------------------------------------------------------------------
+   Hero Banner
+   -------------------------------------------------------------------------- */
+.analytics-hero-banner {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg) var(--space-xl);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: var(--space-lg);
-    margin-bottom: var(--space-xl);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
-.stat-card {
-    background: var(--color-bg);
+.hero-banner-left h1 {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.02em;
+}
+
+.hero-banner-left p {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4-Card KPI Grid
+   -------------------------------------------------------------------------- */
+.analytics-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+}
+
+.kpi-card {
+    background: rgba(25, 27, 31, 0.85);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     padding: var(--space-lg);
     display: flex;
-    align-items: flex-start;
-    gap: var(--space-md);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
 }
 
-.stat-card:hover {
+.kpi-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    border-color: rgba(59, 130, 246, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-.stat-icon {
-    padding: 0.5rem;
+.kpi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.kpi-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+}
+
+.kpi-icon-box {
+    width: 34px;
+    height: 34px;
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-bg-secondary);
-    color: var(--color-primary);
-    padding: 0.8rem;
 }
 
-.stat-content h3 {
-    font-size: 0.9rem;
-    color: var(--color-text-secondary);
-    margin: 0 0 0.3rem 0;
-    font-weight: 500;
+.kpi-icon-box.primary {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
-.stat-value {
-    font-size: 1.8rem;
+.kpi-icon-box.info {
+    background: rgba(14, 165, 233, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.kpi-icon-box.success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.kpi-icon-box.warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.kpi-number {
+    font-size: 1.85rem;
     font-weight: 700;
-    color: var(--color-text);
+    color: #ffffff;
+    line-height: 1.1;
+}
+
+.kpi-footer {
+    font-size: 0.78rem;
+    color: var(--color-text-tertiary);
+}
+
+.text-info {
+    color: #38bdf8;
+}
+
+/* --------------------------------------------------------------------------
+   Charts Deck
+   -------------------------------------------------------------------------- */
+.analytics-charts-deck {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+}
+
+.analytics-chart-panel {
+    background: rgba(25, 27, 31, 0.85);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.analytics-chart-panel.span-2 {
+    grid-column: span 2;
+}
+
+.analytics-chart-panel.span-full {
+    grid-column: span 3;
+}
+
+.chart-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chart-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.chart-title-wrap h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 2px 0;
+}
+
+.chart-title-wrap p {
+    font-size: 0.78rem;
+    color: var(--color-text-tertiary);
     margin: 0;
 }
 
-.stat-footer {
-    font-size: 0.8rem;
-    color: var(--color-text-tertiary);
-    margin-top: 0.2rem;
+.chart-body-box {
+    width: 100%;
+    min-height: 240px;
 }
 
+.chart-body-box.pie-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-/* Charts Section */
-.charts-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: var(--space-xl);
+/* Custom Tooltip */
+.custom-analytics-tooltip {
+    background: rgba(15, 17, 21, 0.95);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tooltip-label {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+}
+
+.tooltip-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* Pie Legend */
+.custom-pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    margin-top: var(--space-sm);
+}
+
+.legend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    display: inline-block;
+}
+
+.legend-name {
+    flex: 1;
+}
+
+.legend-val {
+    font-weight: 700;
+    color: #ffffff;
 }
 
 @media (max-width: 1024px) {
-    .charts-container {
-        grid-template-columns: 1fr;
+    .analytics-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
-}
 
-.chart-card {
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-}
-
-.chart-header {
-    margin-bottom: var(--space-lg);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.chart-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: var(--color-text);
-}
-
-/* Recharts overrides if needed */
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
-    stroke: var(--color-border);
-}
-
-.recharts-text {
-    fill: var(--color-text-secondary);
-}
-
-@media (max-width: 768px) {
-    .analytics-grid {
+    .analytics-charts-deck {
         grid-template-columns: 1fr;
     }
 
-    .charts-container {
+    .analytics-chart-panel.span-2,
+    .analytics-chart-panel.span-full {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 600px) {
+    .analytics-hero-banner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .analytics-kpi-grid {
         grid-template-columns: 1fr;
-    }
-
-    .chart-card {
-        padding: var(--space-md);
-        height: 300px;
-    }
-
-    /* Ensure pie chart legend wraps nicely */
-    .recharts-legend-wrapper {
-        position: static !important;
-        width: 100% !important;
-        height: auto !important;
     }
 }

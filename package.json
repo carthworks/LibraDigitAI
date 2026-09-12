@@ -1,6 +1,7 @@
 {
   "name": "libradigit-ai",
   "version": "1.2.0",
+  "type": "module",
   "description": "AI-Based Digitization & Digital Archive Builder for Libraries with Advanced OCR and Handwritten Text Recognition",
   "main": "electron/main.js",
   "scripts": {
@@ -39,14 +40,21 @@
     "react-pdf": "^10.3.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.20.0",
-    "recharts": "^3.7.0"
+    "recharts": "^3.7.0",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.6.0",
     "concurrently": "^8.2.2",
     "cross-env": "^10.1.0",
     "electron": "^28.0.0",
     "electron-builder": "^26.4.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.19",
+    "tailwindcss-animate": "^1.0.7",
+    "tailwindcss-elevation": "^2.0.0",
+    "tailwindcss-fluid-type": "^2.0.7",
     "vite": "^5.0.8",
     "wait-on": "^7.2.0"
   },

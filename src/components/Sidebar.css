@@ -1,113 +1,331 @@
-.sidebar-header {
-    padding: var(--space-xl);
-    border-bottom: 1px solid var(--color-border);
+/* ==========================================================================
+   LibraDigit AI - Modern Compact Left Navigation Sidebar
+   ========================================================================== */
+
+.app-sidebar {
+    width: 250px;
+    height: 100vh;
+    background: #14171b;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    user-select: none;
+    position: relative;
+    z-index: 40;
 }
 
-.sidebar-logo {
+/* --------------------------------------------------------------------------
+   Compact Header
+   -------------------------------------------------------------------------- */
+.sidebar-brand-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-border);
+    background: rgba(18, 20, 24, 0.95);
+}
+
+.brand-logo-wrap {
     display: flex;
     align-items: center;
-    gap: var(--space-md);
+    gap: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
 }
 
-.logo-icon {
-    color: var(--color-primary);
+.brand-logo-wrap:hover {
+    opacity: 0.9;
+}
+
+.brand-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #60a5fa;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
     flex-shrink: 0;
 }
 
-.logo-text {
-    flex: 1;
+.brand-titles {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
 }
 
-.logo-title {
-    font-size: 1.25rem;
+.brand-name {
+    font-size: 0.98rem;
     font-weight: 700;
-    color: var(--color-text-primary);
-    margin: 0;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    line-height: 1.15;
+}
+
+.brand-tagline {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
     line-height: 1.2;
+    margin-top: 1px;
 }
 
-.logo-subtitle {
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-    margin: 0;
-    line-height: 1.4;
-}
-
-.sidebar-nav {
+/* --------------------------------------------------------------------------
+   Scrollable / Compact Navigation Container
+   -------------------------------------------------------------------------- */
+.sidebar-nav-scroll {
     flex: 1;
-    padding: var(--space-lg);
+    padding: 10px 10px;
     display: flex;
     flex-direction: column;
-    gap: var(--space-xs);
+    gap: 4px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.nav-item {
+/* Custom Sleek Dark Scrollbar */
+.sidebar-nav-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   Navigation Items & Groups
+   -------------------------------------------------------------------------- */
+.nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.nav-group.solo-item {
+    margin-bottom: 2px;
+}
+
+/* Solo / Standalone Top Nav Button */
+.sidebar-nav-btn {
     display: flex;
     align-items: center;
-    gap: var(--space-md);
-    padding: 0.875rem var(--space-lg);
+    gap: 10px;
+    padding: 8px 12px;
+    width: 100%;
+    border-radius: 6px;
     background: transparent;
-    border: none;
-    border-radius: var(--radius-md);
+    border: 1px solid transparent;
     color: var(--color-text-secondary);
-    font-family: var(--font-sans);
-    font-size: 0.9375rem;
+    font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all var(--transition-base);
     text-align: left;
+    transition: all 0.15s ease;
+}
+
+.sidebar-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+}
+
+.sidebar-nav-btn.active {
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+    font-weight: 600;
+}
+
+.nav-icon {
+    flex-shrink: 0;
+    color: inherit;
+}
+
+/* Submenu Group Header Button */
+.group-header-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
+    padding: 7px 10px 7px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--color-text-tertiary);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-top: 4px;
 }
 
-.nav-item:hover {
-    background: var(--color-surface);
-    color: var(--color-text-primary);
+.group-header-btn:hover {
+    color: var(--color-text-secondary);
+    background: rgba(255, 255, 255, 0.03);
 }
 
-.nav-item.active {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
+.group-title-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
 }
 
-.nav-item svg {
+.group-icon {
+    color: var(--color-text-tertiary);
     flex-shrink: 0;
 }
 
-.sidebar-footer {
-    padding: var(--space-lg);
-    border-top: 1px solid var(--color-border);
+.chevron-indicator {
+    color: var(--color-text-tertiary);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sidebar-info {
-    padding: var(--space-md);
-    background: var(--color-surface);
-    border-radius: var(--radius-md);
+.chevron-indicator.rotated {
+    transform: rotate(0deg);
 }
 
-.info-label {
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-    margin: 0 0 var(--space-xs) 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.chevron-indicator:not(.rotated) {
+    transform: rotate(-90deg);
 }
 
-.info-value {
-    font-size: 0.875rem;
+/* Submenu Items List */
+.submenu-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 6px;
+    margin-left: 6px;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    animation: submenuFadeIn 0.2s ease-out;
+}
+
+@keyframes submenuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.submenu-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 10px;
+    width: 100%;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--color-text-secondary);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+.submenu-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+}
+
+.submenu-nav-btn.active {
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(59, 130, 246, 0.28);
+    color: #60a5fa;
     font-weight: 600;
-    color: var(--color-text-primary);
-    margin: 0;
+}
+
+.sub-icon {
+    flex-shrink: 0;
+    color: inherit;
+}
+
+.text-accent {
+    color: #38bdf8;
+}
+
+/* --------------------------------------------------------------------------
+   Compact Footer
+   -------------------------------------------------------------------------- */
+.sidebar-compact-footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--color-border);
+    background: rgba(18, 20, 24, 0.95);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footer-sovereign-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #34d399;
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+}
+
+.footer-actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.btn-sidebar-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.btn-sidebar-logout:hover {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.version-chip {
+    font-size: 0.7rem;
+    font-weight: 600;
     font-family: var(--font-mono);
-}
-
-.logout-btn {
-    margin-bottom: var(--space-md);
-    color: var(--color-error);
-}
-
-.logout-btn:hover {
-    background: var(--color-error-light);
-    color: var(--color-error);
+    color: var(--color-text-tertiary);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }

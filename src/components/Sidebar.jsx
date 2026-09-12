@@ -1,7 +1,23 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
-import { Home, Upload, Edit3, FileText, Archive, Settings, Layers, LogOut, Search, TrendingUp } from 'lucide-react'
+import {
+    LayoutDashboard,
+    UploadCloud,
+    Layers,
+    Search,
+    BarChart3,
+    Settings,
+    HelpCircle,
+    Sparkles,
+    LogOut,
+    ChevronDown,
+    Archive,
+    FolderKanban,
+    Database,
+    ShieldCheck,
+    Cpu
+} from 'lucide-react'
 import './Sidebar.css'
 
 const Sidebar = ({ onLogout }) => {
@@ -9,17 +25,36 @@ const Sidebar = ({ onLogout }) => {
     const navigate = useNavigate()
     const { fetchProjects } = useProject()
 
-    const menuItems = [
-        { path: '/', icon: Home, label: 'Dashboard' },
-        { path: '/upload', icon: Upload, label: 'Upload & OCR' },
-        { path: '/batch', icon: Layers, label: 'Batch Processing' },
-        { path: '/search', icon: Search, label: 'Archive Search' },
-        { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
-        { path: '/settings', icon: Settings, label: 'Settings' },
-        { path: '/help', icon: FileText, label: 'Help & Guide' },
-    ]
+    // Accordion state for submenus
+    const [openSections, setOpenSections] = useState({
+        digitization: true,
+        repository: true,
+        system: true
+    })
 
-    const isActive = (path) => location.pathname === path
+    // Automatically expand the section that contains the current active route
+    useEffect(() => {
+        const path = location.pathname
+        if (['/upload', '/batch'].includes(path) || path.startsWith('/cleanup') || path.startsWith('/metadata') || path.startsWith('/archive/')) {
+            setOpenSections(prev => ({ ...prev, digitization: true }))
+        } else if (['/search', '/analytics'].includes(path)) {
+            setOpenSections(prev => ({ ...prev, repository: true }))
+        } else if (['/settings', '/help', '/marketing'].includes(path)) {
+            setOpenSections(prev => ({ ...prev, system: true }))
+        }
+    }, [location.pathname])
+
+    const toggleSection = (sectionKey) => {
+        setOpenSections(prev => ({
+            ...prev,
+            [sectionKey]: !prev[sectionKey]
+        }))
+    }
+
+    const isActive = (path) => {
+        if (path === '/') return location.pathname === '/'
+        return location.pathname.startsWith(path)
+    }
 
     const handleNavigation = (path) => {
         if (path === '/') {
@@ -29,42 +64,189 @@ const Sidebar = ({ onLogout }) => {
     }
 
     return (
-        <div className="sidebar">
-            <div className="sidebar-header">
-                <div className="sidebar-logo">
-                    <Archive className="logo-icon" size={32} />
-                    <div className="logo-text">
-                        <div className="logo-title">LibraDigit AI</div>
-                        <p className="logo-subtitle">Digital Archive Builder</p>
+        <aside className="app-sidebar" aria-label="Main Application Sidebar">
+            {/* Compact Header */}
+            <div className="sidebar-brand-header">
+                <div className="brand-logo-wrap" onClick={() => handleNavigation('/')}>
+                    <div className="brand-icon-box">
+                        <Archive size={20} className="brand-icon" />
+                    </div>
+                    <div className="brand-titles">
+                        <span className="brand-name">LibraDigit AI</span>
+                        <span className="brand-tagline">Preservation Hub</span>
                     </div>
                 </div>
             </div>
 
-            <nav className="sidebar-nav" aria-label="Main Navigation">
-                {menuItems.map((item) => (
+            {/* Scrollable / Compact Navigation Container */}
+            <nav className="sidebar-nav-scroll" aria-label="Navigation Menu">
+                {/* Main Dashboard */}
+                <div className="nav-group solo-item">
                     <button
-                        key={item.path}
-                        onClick={() => handleNavigation(item.path)}
-                        className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-                        aria-current={isActive(item.path) ? 'page' : undefined}
+                        type="button"
+                        onClick={() => handleNavigation('/')}
+                        className={`sidebar-nav-btn ${isActive('/') ? 'active' : ''}`}
+                        aria-current={isActive('/') ? 'page' : undefined}
                     >
-                        <item.icon size={20} />
-                        <span>{item.label}</span>
+                        <LayoutDashboard size={18} className="nav-icon" />
+                        <span className="nav-label">Command Center</span>
                     </button>
-                ))}
+                </div>
+
+                {/* Section 1: Digitization Studio */}
+                <div className="nav-group">
+                    <button
+                        type="button"
+                        className={`group-header-btn ${openSections.digitization ? 'expanded' : ''}`}
+                        onClick={() => toggleSection('digitization')}
+                        aria-expanded={openSections.digitization}
+                    >
+                        <div className="group-title-left">
+                            <FolderKanban size={15} className="group-icon" />
+                            <span>Digitization Studio</span>
+                        </div>
+                        <ChevronDown size={14} className={`chevron-indicator ${openSections.digitization ? 'rotated' : ''}`} />
+                    </button>
+
+                    {openSections.digitization && (
+                        <div className="submenu-items-list">
+                            <button
+                                type="button"
+                                onClick={() => handleNavigation('/upload')}
+                                className={`submenu-nav-btn ${isActive('/upload') ? 'active' : ''}`}
+                                aria-current={isActive('/upload') ? 'page' : undefined}
+                            >
+                                <UploadCloud size={16} className="sub-icon" />
+                                <span>Single Document OCR</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => handleNavigation('/batch')}
+                                className={`submenu-nav-btn ${isActive('/batch') ? 'active' : ''}`}
+                                aria-current={isActive('/batch') ? 'page' : undefined}
+                            >
+                                <Layers size={16} className="sub-icon" />
+                                <span>Batch Ingest Queue</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Section 2: Repository & Discovery */}
+                <div className="nav-group">
+                    <button
+                        type="button"
+                        className={`group-header-btn ${openSections.repository ? 'expanded' : ''}`}
+                        onClick={() => toggleSection('repository')}
+                        aria-expanded={openSections.repository}
+                    >
+                        <div className="group-title-left">
+                            <Database size={15} className="group-icon" />
+                            <span>Archive & Intelligence</span>
+                        </div>
+                        <ChevronDown size={14} className={`chevron-indicator ${openSections.repository ? 'rotated' : ''}`} />
+                    </button>
+
+                    {openSections.repository && (
+                        <div className="submenu-items-list">
+                            <button
+                                type="button"
+                                onClick={() => handleNavigation('/search')}
+                                className={`submenu-nav-btn ${isActive('/search') ? 'active' : ''}`}
+                                aria-current={isActive('/search') ? 'page' : undefined}
+                            >
+                                <Search size={16} className="sub-icon" />
+                                <span>Archive Search</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => handleNavigation('/analytics')}
+                                className={`submenu-nav-btn ${isActive('/analytics') ? 'active' : ''}`}
+                                aria-current={isActive('/analytics') ? 'page' : undefined}
+                            >
+                                <BarChart3 size={16} className="sub-icon" />
+                                <span>Telemetry & Metrics</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Section 3: System & Resources */}
+                <div className="nav-group">
+                    <button
+                        type="button"
+                        className={`group-header-btn ${openSections.system ? 'expanded' : ''}`}
+                        onClick={() => toggleSection('system')}
+                        aria-expanded={openSections.system}
+                    >
+                        <div className="group-title-left">
+                            <Cpu size={15} className="group-icon" />
+                            <span>System & Resources</span>
+                        </div>
+                        <ChevronDown size={14} className={`chevron-indicator ${openSections.system ? 'rotated' : ''}`} />
+                    </button>
+
+                    {openSections.system && (
+                        <div className="submenu-items-list">
+                            <button
+                                type="button"
+                                onClick={() => handleNavigation('/settings')}
+                                className={`submenu-nav-btn ${isActive('/settings') ? 'active' : ''}`}
+                                aria-current={isActive('/settings') ? 'page' : undefined}
+                            >
+                                <Settings size={16} className="sub-icon" />
+                                <span>Engine Settings</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => handleNavigation('/help')}
+                                className={`submenu-nav-btn ${isActive('/help') ? 'active' : ''}`}
+                                aria-current={isActive('/help') ? 'page' : undefined}
+                            >
+                                <HelpCircle size={16} className="sub-icon" />
+                                <span>Help & Compliance</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => handleNavigation('/marketing')}
+                                className={`submenu-nav-btn ${isActive('/marketing') ? 'active' : ''}`}
+                                aria-current={isActive('/marketing') ? 'page' : undefined}
+                            >
+                                <Sparkles size={16} className="sub-icon text-accent" />
+                                <span>Product Showcase</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </nav>
 
-            <div className="sidebar-footer">
-                <button className="nav-item logout-btn" onClick={onLogout} aria-label="Log out of application">
-                    <LogOut size={20} />
-                    <span>Logout</span>
-                </button>
-                <div className="sidebar-info">
-                    <p className="info-label">Version</p>
-                    <p className="info-value">1.2.0</p>
+            {/* Compact Footer */}
+            <div className="sidebar-compact-footer">
+                <div className="footer-sovereign-pill">
+                    <span className="live-dot"></span>
+                    <span className="pill-text">Local Engine Active</span>
+                </div>
+
+                <div className="footer-actions-row">
+                    <button
+                        type="button"
+                        className="btn-sidebar-logout"
+                        onClick={onLogout}
+                        title="Sign out of sovereign workspace"
+                        aria-label="Sign out"
+                    >
+                        <LogOut size={15} />
+                        <span>Sign Out</span>
+                    </button>
+
+                    <span className="version-chip" title="LibraDigit AI Version">v1.2.0</span>
                 </div>
             </div>
-        </div>
+        </aside>
     )
 }
 

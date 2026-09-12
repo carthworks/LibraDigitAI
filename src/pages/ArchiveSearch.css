@@ -11,7 +11,7 @@
 }
 
 .search-header h1 {
-    font-size: 2.5rem;
+    font-size: var(--font-size-3xl);
     color: var(--color-text);
     margin-bottom: 0.5rem;
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
@@ -22,6 +22,7 @@
 
 .search-header p {
     color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
 }
 
 .search-box-wrapper {
