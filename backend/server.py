@@ -660,7 +660,7 @@ def get_project(project_id):
 
 @app.route('/api/projects/<int:project_id>/file', methods=['GET'])
 def get_project_file(project_id):
-    """Serve the project file (original or processed)"""
+    """Serve the project file (prioritizing converted searchable PDF / final archive)"""
     try:
         from flask import send_file
         
@@ -669,20 +669,36 @@ def get_project_file(project_id):
             return jsonify({'error': 'Project not found'}), 404
         
         files = project.get('files', {})
+        req_type = request.args.get('type') # 'pdf', 'original'
         
-        # Determine best file to serve
         file_path = None
-        if files.get('final_path') and os.path.exists(files['final_path']):
-            file_path = files['final_path']
-        elif files.get('ocr_path') and os.path.exists(files['ocr_path']):
-            file_path = files['ocr_path']
-        elif files.get('original_path') and os.path.exists(files['original_path']):
+        if req_type == 'original' and files.get('original_path') and os.path.exists(files['original_path']):
             file_path = files['original_path']
-            
+        elif req_type == 'pdf':
+            if files.get('final_path') and os.path.exists(files['final_path']):
+                file_path = files['final_path']
+            elif files.get('ocr_path') and os.path.exists(files['ocr_path']):
+                file_path = files['ocr_path']
+            elif files.get('original_path') and files['original_path'].lower().endswith('.pdf') and os.path.exists(files['original_path']):
+                file_path = files['original_path']
+                
+        # Default priority: final_path -> ocr_path -> original_path
         if not file_path:
+            if files.get('final_path') and os.path.exists(files['final_path']):
+                file_path = files['final_path']
+            elif files.get('ocr_path') and os.path.exists(files['ocr_path']):
+                file_path = files['ocr_path']
+            elif files.get('original_path') and os.path.exists(files['original_path']):
+                file_path = files['original_path']
+            
+        if not file_path or not os.path.exists(file_path):
             return jsonify({'error': 'File not found'}), 404
             
-        return send_file(file_path)
+        mimetype = None
+        if file_path.lower().endswith('.pdf'):
+            mimetype = 'application/pdf'
+            
+        return send_file(file_path, mimetype=mimetype, as_attachment=False)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -1060,10 +1076,99 @@ def run_advanced_ocr(project_id):
         
         file_ext = os.path.splitext(filepath)[1].lower()
         
-        # Only process images with advanced OCR
+        # ── PDF Handling for Advanced OCR ──────────────────────────────────────
+        if file_ext == '.pdf':
+            try:
+                doc = fitz.open(filepath)
+                structured_texts = []
+                combined_stats = {
+                    'total_words': 0,
+                    'tables_found': 0,
+                    'checkboxes_found': 0,
+                    'text_fields_found': 0,
+                    'stamps_found': 0,
+                    'signatures_found': 0
+                }
+                temp_image_paths = []
+                try:
+                    for page_idx, page in enumerate(doc):
+                        pix = page.get_pixmap(dpi=300)
+                        temp_img_path = os.path.join(UPLOAD_FOLDER, f"temp_adv_{project_id}_page_{page_idx}.png")
+                        pix.save(temp_img_path)
+                        temp_image_paths.append(temp_img_path)
+                        
+                        if ocr_engine == 'glm-ocr':
+                            glm = GlmOcrProcessor()
+                            t_res = glm.recognize_text(temp_img_path)
+                            tbl_res = glm.recognize_table(temp_img_path)
+                            p_text = f"=== Page {page_idx + 1} ===\n\n" + t_res
+                            if tbl_res.strip():
+                                p_text += "\n\n--- TABLES ---\n" + tbl_res
+                            structured_texts.append(p_text)
+                            combined_stats['total_words'] += len(t_res.split())
+                            if tbl_res.strip():
+                                combined_stats['tables_found'] += 1
+                        else:
+                            processor = AdvancedOCRProcessor()
+                            res = processor.process_document_with_layout(temp_img_path, lang)
+                            if res.get('success'):
+                                p_text = f"=== Page {page_idx + 1} ===\n\n" + processor.generate_structured_output(res)
+                                structured_texts.append(p_text)
+                                st = res.get('statistics', {})
+                                combined_stats['total_words'] += int(st.get('total_words', 0))
+                                combined_stats['tables_found'] += int(st.get('tables_found', 0))
+                                combined_stats['checkboxes_found'] += int(st.get('checkboxes_found', 0))
+                                combined_stats['text_fields_found'] += int(st.get('text_fields_found', 0))
+                                combined_stats['stamps_found'] += int(st.get('stamps_found', 0))
+                                combined_stats['signatures_found'] += int(st.get('signatures_found', 0))
+                            else:
+                                # Fallback to standard tesseract string extraction
+                                try:
+                                    img_pil = Image.open(temp_img_path)
+                                    raw_p = pytesseract.image_to_string(img_pil, lang=lang)
+                                    structured_texts.append(f"=== Page {page_idx + 1} ===\n\n" + raw_p)
+                                    combined_stats['total_words'] += len(raw_p.split())
+                                except Exception:
+                                    structured_texts.append(f"=== Page {page_idx + 1} ===\n\n[No text extracted]")
+                finally:
+                    doc.close()
+                    for p in temp_image_paths:
+                        if os.path.exists(p):
+                            try:
+                                os.remove(p)
+                            except Exception:
+                                pass
+                
+                final_text = "\n\n".join(structured_texts) if structured_texts else "No text extracted from PDF."
+                
+                conn = get_db()
+                cursor = conn.cursor()
+                cursor.execute('UPDATE ocr_text SET original_text = ? WHERE project_id = ?', (final_text, project_id))
+                cursor.execute('UPDATE projects SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', ('cleanup', project_id))
+                conn.commit()
+                conn.close()
+                update_search_index(project_id)
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Advanced OCR completed for PDF successfully',
+                    'statistics': combined_stats,
+                    'text_length': len(final_text),
+                    'total_pages': len(structured_texts),
+                    'main_text': final_text,
+                    'orientation': {'corrected': False, 'rotation_angle': 0},
+                    'page_structure': {'has_header': False, 'has_footer': False, 'stamps_count': combined_stats['stamps_found'], 'signatures_count': combined_stats['signatures_found']},
+                    'tables_found': combined_stats['tables_found'],
+                    'forms_found': {'checkboxes': combined_stats['checkboxes_found'], 'text_fields': combined_stats['text_fields_found']}
+                })
+            except Exception as pdf_err:
+                import traceback; traceback.print_exc()
+                return jsonify({'error': f'PDF Advanced OCR failed: {str(pdf_err)}', 'success': False}), 500
+        
+        # Only process supported images if not PDF
         if file_ext not in ['.png', '.jpg', '.jpeg', '.tiff', '.bmp']:
             return jsonify({
-                'error': 'Advanced OCR only supports image files (PNG, JPG, JPEG, TIFF, BMP)',
+                'error': f'Unsupported file format: {file_ext}. Supported formats: PDF, PNG, JPG, JPEG, TIFF, BMP',
                 'file_type': file_ext
             }), 400
         

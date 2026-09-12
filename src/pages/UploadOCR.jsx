@@ -131,7 +131,7 @@ const UploadOCR = () => {
 
         } catch (err) {
             setProcessing(false)
-            addToast('OCR processing encountered an issue. Please verify file and retry.', 'error')
+            addToast(err.message || 'OCR processing encountered an issue. Please verify file and retry.', 'error')
         }
     }
 

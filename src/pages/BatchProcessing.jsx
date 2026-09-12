@@ -223,159 +223,174 @@ function BatchProcessing() {
                     projects={batchProjects}
                     onClose={() => setShowBulkEditor(false)}
                     onSaveComplete={() => {
-                        // Refresh projects to show new metadata if we were displaying it
-                        fetchBatchProjects(batchStatus.items)
+                        fetchBatchProjects(batchStatus?.items)
                     }}
                 />
             )}
 
-            <div className="batch-header">
-                <div className="header-content">
-                    <h1>📦 Batch Manager</h1>
-                    <p>Streamline your workflow by processing multiple documents simultaneously.</p>
+            {/* Hero Header */}
+            <div className="batch-hero-banner">
+                <div className="batch-hero-left">
+                    <div className="hero-status-pill">
+                        <Clock size={14} className="icon-sapphire" />
+                        <span>High-Throughput Parallel OCR Pipeline</span>
+                    </div>
+                    <h1>Batch Ingestion & Processing Hub</h1>
+                    <p>Stage, queue, and process bulk archival manuscripts and multi-page PDFs simultaneously with dual-engine OCR and auto-metadata indexing.</p>
                 </div>
-                <div className="header-stats">
-                    <div className="stat-pill">
-                        <Clock size={16} />
-                        <span>Avg. Time: ~3s/page</span>
+                <div className="batch-hero-stats">
+                    <div className="stat-pill-badge">
+                        <Clock size={15} />
+                        <span>Avg. Speed: ~3s / page</span>
                     </div>
                 </div>
             </div>
 
-            <div className={`batch-workspace ${selectedFiles.length > 0 ? 'has-files' : ''}`}>
-                {/* Upload Section */}
-                <div className="upload-pane">
+            {/* Main Stage & Dropzone Workspace */}
+            <div className={`batch-workspace-deck ${selectedFiles.length > 0 ? 'has-staged-files' : ''}`}>
+                {/* Upload & Drop Card */}
+                <div className="batch-drop-card">
                     <div
-                        className={`drop-zone-premium ${dragActive ? 'active' : ''}`}
+                        className={`batch-drop-zone ${dragActive ? 'drag-active' : ''}`}
                         onDragEnter={handleDrag}
                         onDragLeave={handleDrag}
                         onDragOver={handleDrag}
                         onDrop={handleDrop}
                     >
-                        <div className="drop-content">
-                            <div className="icon-wrapper">
-                                <Upload className="upload-icon-large" />
-                            </div>
-                            <h3>Drag & Drop Files Here</h3>
-                            <p className="sub-text">PDFs, Images (PNG, JPG, TIFF)</p>
-                            <label className="browse-btn">
-                                Browse Files
-                                <input
-                                    type="file"
-                                    multiple
-                                    accept=".pdf,.png,.jpg,.jpeg,.tiff,.bmp"
-                                    onChange={handleFileInput}
-                                    className="hidden-input"
-                                />
-                            </label>
+                        <div className="drop-icon-circle">
+                            <Upload size={28} />
                         </div>
+                        <h3>Drag & Drop Archival Documents</h3>
+                        <p>Supports multi-page PDFs and High-Res Images (PNG, JPG, TIFF, BMP)</p>
+                        <label className="btn-browse-action">
+                            <Upload size={16} />
+                            <span>Browse Computer</span>
+                            <input
+                                type="file"
+                                multiple
+                                accept=".pdf,.png,.jpg,.jpeg,.tiff,.bmp"
+                                onChange={handleFileInput}
+                                className="hidden-file-input"
+                            />
+                        </label>
                     </div>
                 </div>
 
-                {/* Selected Files List */}
+                {/* Staged Files Queue Panel */}
                 {selectedFiles.length > 0 && (
-                    <div className="files-pane fade-in">
-                        <div className="pane-header">
-                            <h3>Queue ({selectedFiles.length})</h3>
-                            <button className="text-btn" onClick={() => setSelectedFiles([])}>Clear All</button>
+                    <div className="staged-files-panel fade-in">
+                        <div className="staged-header">
+                            <div>
+                                <h3>Staging Queue</h3>
+                                <span className="staged-count">{selectedFiles.length} files selected</span>
+                            </div>
+                            <button className="btn-clear-staged" onClick={() => setSelectedFiles([])}>
+                                Clear All
+                            </button>
                         </div>
 
-                        <div className="file-list-premium">
+                        <div className="staged-items-scroll">
                             {selectedFiles.map((file, index) => (
-                                <div key={index} className="file-row">
-                                    <div className="file-icon-container">
+                                <div key={index} className="staged-item-row">
+                                    <div className="item-left">
                                         {getFileIcon(file.name)}
+                                        <div className="item-text">
+                                            <span className="item-name" title={file.name}>{file.name}</span>
+                                            <span className="item-size">{formatFileSize(file.size)}</span>
+                                        </div>
                                     </div>
-                                    <div className="file-details">
-                                        <span className="name" title={file.name}>{file.name}</span>
-                                        <span className="size">{formatFileSize(file.size)}</span>
-                                    </div>
-                                    <button className="action-btn" onClick={() => removeFile(index)}>
-                                        <X size={16} />
+                                    <button className="btn-remove-item" onClick={() => removeFile(index)} title="Remove file">
+                                        <X size={15} />
                                     </button>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="batch-actions">
+                        <div className="batch-launch-footer">
                             <input
                                 type="text"
-                                placeholder="Name this batch (Optional)"
+                                placeholder="Batch label / accession title (Optional)"
                                 value={batchName}
                                 onChange={(e) => setBatchName(e.target.value)}
-                                className="batch-name-field"
+                                className="batch-input-field"
                             />
                             <button
-                                className="process-btn-premium"
+                                className="btn-start-batch"
                                 onClick={handleUploadAndProcess}
                                 disabled={uploading}
                             >
-                                {uploading ? <Loader size={20} className="spin" /> : <Play size={20} />}
-                                {uploading ? 'Uploading...' : 'Start Batch Processing'}
+                                {uploading ? <Loader size={18} className="spin" /> : <Play size={18} />}
+                                <span>{uploading ? 'Ingesting Batch...' : 'Start Batch Execution'}</span>
                             </button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Live Progress */}
+            {/* Live Progress Card */}
             {batchStatus && (
-                <div className="live-status-card fade-in">
-                    <div className="status-header">
-                        <div className="batch-title">
+                <div className="batch-status-panel fade-in">
+                    <div className="status-panel-header">
+                        <div className="status-title-group">
                             <h3>{batchStatus.name}</h3>
                             <span className={`status-badge ${batchStatus.status}`}>
                                 {batchStatus.status.replace('_', ' ')}
                             </span>
                         </div>
-                        <div className="header-actions" style={{ display: 'flex', gap: '10px' }}>
-                            {/* Bulk Edit Button (Visible only when completed) */}
+                        <div className="status-actions-group">
                             {params_has_completed_successfully(batchStatus.status) && (
                                 <button
-                                    className="btn btn-primary btn-sm"
+                                    className="btn-bulk-edit"
                                     onClick={() => setShowBulkEditor(true)}
                                     title="Edit metadata for all files in this batch"
                                 >
-                                    <Edit3 size={16} /> Bulk Edit Metadata
+                                    <Edit3 size={15} />
+                                    <span>Bulk Edit Metadata</span>
                                 </button>
                             )}
 
                             {batchStatus.status === 'processing' && (
-                                <button className="cancel-pill" onClick={() => cancelBatch(currentBatch)}>
-                                    <X size={14} /> Cancel
+                                <button className="btn-cancel-batch" onClick={() => cancelBatch(currentBatch)}>
+                                    <X size={14} /> Cancel Pipeline
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    <div className="premium-progress-bar">
-                        <div
-                            className={`premium-progress-fill ${batchStatus.status}`}
-                            style={{ width: `${batchStatus.progress_percent}%` }}
-                        />
-                    </div>
-
-                    <div className="progress-metrics">
-                        <div className="metric">
-                            <span className="label">Progress</span>
-                            <span className="value">{batchStatus.progress_percent}%</span>
+                    <div className="batch-progress-meter">
+                        <div className="meter-info-row">
+                            <span>Processing Pipeline</span>
+                            <span>{batchStatus.progress_percent || 0}% Complete</span>
                         </div>
-                        <div className="metric">
-                            <span className="label">Documents</span>
-                            <span className="value">{batchStatus.processed_files} / {batchStatus.total_files}</span>
-                        </div>
-                        <div className="metric-group">
-                            <span className="metric success"><CheckCircle size={14} /> {batchStatus.status_counts?.completed || 0}</span>
-                            <span className="metric error"><AlertCircle size={14} /> {batchStatus.status_counts?.failed || 0}</span>
+                        <div className="meter-track">
+                            <div
+                                className={`meter-fill ${batchStatus.status}`}
+                                style={{ width: `${batchStatus.progress_percent || 0}%` }}
+                            />
                         </div>
                     </div>
 
-                    <div className="processed-items-grid">
+                    <div className="status-metrics-row">
+                        <div className="metric-pill">
+                            <span className="metric-lbl">Total Documents</span>
+                            <span className="metric-val">{batchStatus.processed_files} / {batchStatus.total_files}</span>
+                        </div>
+                        <div className="metric-pill success">
+                            <CheckCircle size={15} />
+                            <span>{batchStatus.status_counts?.completed || 0} Successful</span>
+                        </div>
+                        <div className="metric-pill error">
+                            <AlertCircle size={15} />
+                            <span>{batchStatus.status_counts?.failed || 0} Failed</span>
+                        </div>
+                    </div>
+
+                    <div className="batch-items-grid">
                         {batchStatus.items?.map((item, index) => (
-                            <div key={index} className={`mini-item-card ${item.status}`}>
+                            <div key={index} className={`batch-mini-card ${item.status}`}>
                                 <div className="mini-icon">{getStatusIcon(item.status)}</div>
                                 <div className="mini-info">
-                                    <span className="mini-name">{item.filename}</span>
+                                    <span className="mini-name" title={item.filename}>{item.filename}</span>
                                     {item.error_message && <span className="mini-error">{item.error_message}</span>}
                                 </div>
                             </div>
@@ -385,42 +400,45 @@ function BatchProcessing() {
             )}
 
             {/* Recent Batches History */}
-            <div className="recent-batches-section">
-                <h2>Batch History</h2>
-                <div className="recent-grid">
+            <div className="recent-batches-card">
+                <div className="recent-batches-header">
+                    <h3>Recent Batch Runs</h3>
+                    <p>Historical log of multi-document ingestion jobs.</p>
+                </div>
+                <div className="recent-batches-grid">
                     {recentBatches.length === 0 ? (
-                        <div className="empty-history">
-                            <Clock size={48} />
-                            <p>No recent batches found.</p>
+                        <div className="empty-batches-state">
+                            <Clock size={40} className="empty-icon" />
+                            <p>No recent batch executions recorded.</p>
                         </div>
                     ) : (
                         recentBatches.map(batch => (
-                            <div key={batch.id} className="history-card">
-                                <div className="history-icon">
+                            <div key={batch.id} className="history-batch-item">
+                                <div className="history-icon-box">
                                     {getStatusIcon(batch.status)}
                                 </div>
-                                <div className="history-info">
+                                <div className="history-text-col">
                                     <h4>{batch.name}</h4>
-                                    <div className="meta">
-                                        <span>{batch.total_files} Files</span>
-                                        <span>•</span>
+                                    <div className="history-meta-sub">
+                                        <span>{batch.total_files} Documents</span>
+                                        <span className="sep">•</span>
                                         <span>{new Date(batch.created_at).toLocaleDateString()}</span>
                                     </div>
                                 </div>
-                                <div className="history-actions">
+                                <div className="history-actions-col">
                                     <button
-                                        className="icon-action-btn"
+                                        className="btn-history-action"
                                         onClick={() => { setCurrentBatch(batch.id); fetchBatchStatus(batch.id); }}
                                         title="View Details"
                                     >
-                                        <FileText size={18} />
+                                        <FileText size={16} />
                                     </button>
                                     <button
-                                        className="icon-action-btn danger"
+                                        className="btn-history-action danger"
                                         onClick={() => deleteBatch(batch.id)}
                                         title="Delete Log"
                                     >
-                                        <Trash2 size={18} />
+                                        <Trash2 size={16} />
                                     </button>
                                 </div>
                             </div>

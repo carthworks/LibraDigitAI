@@ -5,7 +5,7 @@ import './Modal.css'
 
 const modalRoot = document.getElementById('modal-root') || document.body
 
-const Modal = memo(({ isOpen, onClose, title, children, footer }) => {
+const Modal = memo(({ isOpen, onClose, title, children, footer, size = 'md', className = '' }) => {
     const modalRef = useRef(null)
 
     const handleEscape = useCallback((e) => {
@@ -36,7 +36,7 @@ const Modal = memo(({ isOpen, onClose, title, children, footer }) => {
             onMouseDown={onClose}
         >
             <div
-                className="modal-content modal-sm"
+                className={`modal-content modal-${size} ${className}`}
                 ref={modalRef}
                 tabIndex={-1}
                 onMouseDown={(e) => e.stopPropagation()}

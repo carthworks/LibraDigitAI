@@ -24,89 +24,20 @@ import {
     Eye
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import bcrypt from 'bcryptjs'
 import LogoLoader from '../components/LogoLoader'
+import LoginScreen from '../components/LoginScreen'
 import './LandingPage.css'
 
 const LandingPage = ({ onLogin, isLoggedIn }) => {
     const navigate = useNavigate()
     const [showLoginModal, setShowLoginModal] = useState(false)
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [isFirstRun, setIsFirstRun] = useState(false)
-    const [error, setError] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-    const [successMessage, setSuccessMessage] = useState('')
     const [activeTab, setActiveTab] = useState('overview')
+    const [isFirstRun, setIsFirstRun] = useState(false)
 
     useEffect(() => {
-        const hash = localStorage.getItem('auth_hash')
-        if (!hash) {
-            setIsFirstRun(true)
-        }
+        const storedHash = localStorage.getItem('auth_hash')
+        setIsFirstRun(!storedHash)
     }, [])
-
-    const handleRegister = (e) => {
-        e.preventDefault()
-        setError('')
-        setSuccessMessage('')
-
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters')
-            return
-        }
-
-        if (password !== confirmPassword) {
-            setError('Passwords do not match')
-            return
-        }
-
-        setIsLoading(true)
-
-        setTimeout(() => {
-            try {
-                const salt = bcrypt.genSaltSync(10)
-                const hash = bcrypt.hashSync(password, salt)
-                localStorage.setItem('auth_hash', hash)
-
-                setSuccessMessage('Security setup complete! Logging you in...')
-
-                setTimeout(() => {
-                    if (onLogin) onLogin()
-                    setShowLoginModal(false)
-                    navigate('/')
-                }, 1000)
-            } catch (err) {
-                setError('Failed to secure password. Please try again.')
-                setIsLoading(false)
-            }
-        }, 800)
-    }
-
-    const handleLoginSubmit = (e) => {
-        e.preventDefault()
-        setError('')
-        setIsLoading(true)
-
-        setTimeout(() => {
-            const storedHash = localStorage.getItem('auth_hash')
-            if (!storedHash) {
-                setError('Security error: No password found. Please set a password first.')
-                setIsLoading(false)
-                return
-            }
-
-            const isValid = bcrypt.compareSync(password, storedHash)
-            if (isValid) {
-                if (onLogin) onLogin()
-                setShowLoginModal(false)
-                navigate('/')
-            } else {
-                setIsLoading(false)
-                setError('Invalid password. Access denied.')
-            }
-        }, 800)
-    }
 
     const handleLaunchWorkspace = () => {
         if (isLoggedIn) {
@@ -566,93 +497,17 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                 </div>
             </footer>
 
-            {/* Interactive Login / Registration Modal */}
+            {/* Interactive Login, Registration & Password Reset Modal */}
             {showLoginModal && (
-                <div className="landing-modal-overlay" onClick={() => setShowLoginModal(false)}>
-                    <div className="landing-modal-card" onClick={(e) => e.stopPropagation()}>
-                        <button
-                            className="modal-close-btn"
-                            onClick={() => setShowLoginModal(false)}
-                            aria-label="Close modal"
-                        >
-                            <X size={20} />
-                        </button>
-
-                        <div className="modal-header">
-                            <LogoLoader size="md" />
-                            <h2>{isFirstRun ? 'Initialize Secure Archive' : 'Welcome to LibraDigit AI'}</h2>
-                            <p>
-                                {isFirstRun
-                                    ? 'Set a master password to encrypt and secure your local archive database.'
-                                    : 'Enter your credentials to access your local digitization workspace.'}
-                            </p>
-                        </div>
-
-                        <form onSubmit={isFirstRun ? handleRegister : handleLoginSubmit} className="modal-form">
-                            <div className="input-group">
-                                <Lock className="input-icon" size={18} />
-                                <input
-                                    type="password"
-                                    placeholder={isFirstRun ? "Create Password (min. 6 chars)" : "Enter Password"}
-                                    aria-label={isFirstRun ? "Create password" : "Enter password"}
-                                    autoComplete={isFirstRun ? "new-password" : "current-password"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className={error ? 'error' : ''}
-                                    autoFocus
-                                />
-                            </div>
-
-                            {isFirstRun && (
-                                <div className="input-group">
-                                    <Lock className="input-icon" size={18} />
-                                    <input
-                                        type="password"
-                                        placeholder="Confirm Password"
-                                        aria-label="Confirm password"
-                                        autoComplete="new-password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className={error ? 'error' : ''}
-                                    />
-                                </div>
-                            )}
-
-                            {error && (
-                                <div className="modal-error-box" role="alert">
-                                    <span>{error}</span>
-                                </div>
-                            )}
-
-                            {successMessage && (
-                                <div className="modal-success-box" role="status">
-                                    <CheckCircle2 size={16} />
-                                    <span>{successMessage}</span>
-                                </div>
-                            )}
-
-                            <button
-                                type="submit"
-                                className="btn-modal-submit"
-                                disabled={isLoading || !password}
-                            >
-                                {isLoading ? (
-                                    <span>{isFirstRun ? 'Securing Local Database...' : 'Verifying Credentials...'}</span>
-                                ) : (
-                                    <>
-                                        <span>{isFirstRun ? 'Complete Setup & Launch' : 'Enter Workspace'}</span>
-                                        <ArrowRight size={18} />
-                                    </>
-                                )}
-                            </button>
-                        </form>
-
-                        <div className="modal-footer-note">
-                            <ShieldCheck size={14} />
-                            <span>100% On-Device Processing • Encrypted with Bcrypt</span>
-                        </div>
-                    </div>
-                </div>
+                <LoginScreen
+                    isModal={true}
+                    onClose={() => setShowLoginModal(false)}
+                    onLogin={() => {
+                        if (onLogin) onLogin()
+                        setShowLoginModal(false)
+                        navigate('/')
+                    }}
+                />
             )}
         </div>
     )

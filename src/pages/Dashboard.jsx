@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import Modal from '../components/Modal'
 import { useToast } from '../context/ToastContext'
+import { API_URL } from '../config'
 import './Dashboard.css'
 
 const Dashboard = () => {
@@ -627,7 +628,7 @@ const Dashboard = () => {
                 <Modal
                     isOpen={!!previewProject}
                     onClose={closePreview}
-                    title={`Document Preview • ${previewProject.filename}`}
+                    title={`Converted PDF Document Preview • ${previewProject.filename}`}
                     size="xl"
                 >
                     <div className="preview-modal-body">
@@ -635,23 +636,35 @@ const Dashboard = () => {
                             <div className="preview-tag-group">
                                 <span className="tag-chip">Status: {previewProject.status}</span>
                                 <span className="tag-chip">Created: {new Date(previewProject.created_at).toLocaleDateString()}</span>
+                                <span className="tag-chip" style={{ color: '#93c5fd', borderColor: 'rgba(59, 130, 246, 0.3)' }}>Searchable PDF</span>
                             </div>
-                            <button
-                                className="btn-dash-primary btn-sm"
-                                onClick={() => {
-                                    closePreview()
-                                    handleProjectClick(previewProject)
-                                }}
-                            >
-                                <span>Continue Editing</span>
-                                <ArrowRight size={14} />
-                            </button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <a
+                                    href={`${API_URL}/projects/${previewProject.id}/file?type=pdf`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="btn-dash-secondary btn-sm"
+                                    style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                                >
+                                    <span>Open in Tab</span>
+                                </a>
+                                <button
+                                    className="btn-dash-primary btn-sm"
+                                    onClick={() => {
+                                        closePreview()
+                                        handleProjectClick(previewProject)
+                                    }}
+                                >
+                                    <span>Continue Editing</span>
+                                    <ArrowRight size={14} />
+                                </button>
+                            </div>
                         </div>
 
                         <div className="preview-iframe-box">
                             <iframe
-                                src={`/api/preview/${previewProject.id}`}
-                                title="Document Preview"
+                                src={`${API_URL}/projects/${previewProject.id}/file?type=pdf`}
+                                title={`Converted PDF Preview • ${previewProject.filename}`}
                                 className="preview-frame"
                             />
                         </div>

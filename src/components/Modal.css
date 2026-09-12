@@ -35,7 +35,7 @@
    Size Variants
 ========================= */
 .modal-sm {
-    --modal-width: 400px;
+    --modal-width: 420px;
 }
 
 .modal-md {
@@ -43,7 +43,15 @@
 }
 
 .modal-lg {
-    --modal-width: 900px;
+    --modal-width: 880px;
+}
+
+.modal-xl {
+    --modal-width: 1150px;
+}
+
+.modal-full {
+    --modal-width: 95vw;
 }
 
 /* =========================

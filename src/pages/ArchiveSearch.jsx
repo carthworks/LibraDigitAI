@@ -113,9 +113,14 @@ export default function ArchiveSearch() {
 
     return (
         <div className="archive-search-container">
-            <div className="search-header">
-                <h1>Archive Search</h1>
-                <p>Instantly find documents across your archive.</p>
+            {/* Hero Header */}
+            <div className="search-hero-banner">
+                <div className="hero-status-pill">
+                    <Search size={13} />
+                    <span>Instant Full-Text Retrieval Engine</span>
+                </div>
+                <h1>Archive Search & Discovery</h1>
+                <p>Query OCR text, Dublin Core metadata, and author citations across all indexed archival collections with smart fuzzy ranking.</p>
             </div>
 
             <div className="search-box-wrapper">
@@ -248,14 +253,14 @@ export default function ArchiveSearch() {
                                 </div>
                                 <div className="grid-cell grid-cell-action">
                                     <button
-                                        className="btn btn-sm btn-primary"
+                                        className="btn-view-search"
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             openPdfViewer(r)
                                         }}
                                     >
-                                        <ZoomIn size={16} />
-                                        View
+                                        <ZoomIn size={15} />
+                                        <span>View</span>
                                     </button>
                                 </div>
                             </div>

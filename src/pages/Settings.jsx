@@ -96,9 +96,16 @@ export default function Settings() {
 
     return (
         <div className="settings-page">
-            <div className="settings-header">
-                <h2><SettingsIcon size={26} /> System Configuration</h2>
-                <p>Control storage, formats, OCR, and archival standards.</p>
+            {/* Header Banner */}
+            <div className="settings-header-banner">
+                <div className="settings-header-left">
+                    <div className="hero-status-pill">
+                        <SettingsIcon size={13} />
+                        <span>System & Engine Preferences</span>
+                    </div>
+                    <h1>System Configuration</h1>
+                    <p>Control archival repository storage, ISO formatting, local OCR engines, and Dublin Core standards.</p>
+                </div>
             </div>
 
             <div className="settings-layout">
