@@ -26,6 +26,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom'
 import LogoLoader from '../components/LogoLoader'
 import LoginScreen from '../components/LoginScreen'
+import ArchivalFlowVisualizer from '../components/ArchivalFlowVisualizer'
 import './LandingPage.css'
 
 const LandingPage = ({ onLogin, isLoggedIn }) => {
@@ -133,58 +134,9 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                     </div>
                 </div>
 
-                {/* Hero Interactive Preview Card */}
-                <div className="hero-preview-wrapper">
-                    <div className="preview-glass-card">
-                        <div className="preview-card-header">
-                            <div className="card-dots">
-                                <span className="dot red"></span>
-                                <span className="dot yellow"></span>
-                                <span className="dot green"></span>
-                            </div>
-                            <span className="card-filename">MS-1842-Charter-Preservation.tif</span>
-                            <span className="card-status-badge">AI Processed • 99.8% Conf.</span>
-                        </div>
-
-                        <div className="preview-split">
-                            <div className="preview-pane-original">
-                                <div className="pane-header">
-                                    <Eye size={14} />
-                                    <span>Archival Document Scan</span>
-                                </div>
-                                <div className="manuscript-mock">
-                                    <div className="mock-seal"></div>
-                                    <div className="mock-line title"></div>
-                                    <div className="mock-line"></div>
-                                    <div className="mock-line"></div>
-                                    <div className="mock-line short"></div>
-                                    <div className="mock-stamp">VERIFIED 1842</div>
-                                </div>
-                            </div>
-
-                            <div className="preview-pane-extracted">
-                                <div className="pane-header">
-                                    <Sparkles size={14} />
-                                    <span>Dual-Layer OCR & Metadata</span>
-                                </div>
-                                <div className="extracted-text-box">
-                                    <code>
-                                        <span className="token-keyword">title:</span> "Municipal Charter of Royal Registry"<br />
-                                        <span className="token-keyword">creator:</span> "Archival Guild of Record Keepers"<br />
-                                        <span className="token-keyword">date:</span> "1842-10-14" (Validated ISO-8601)<br />
-                                        <span className="token-keyword">language:</span> "Latin / Early English (lat, eng)"<br />
-                                        <span className="token-keyword">format:</span> "application/pdf+a (Dual-Layer)"
-                                    </code>
-                                </div>
-                                <div className="preview-tag-list">
-                                    <span className="chip-tag">Dublin Core</span>
-                                    <span className="chip-tag">Auto-Deskewed</span>
-                                    <span className="chip-tag">Binarized</span>
-                                    <span className="chip-tag">Fuzzy Indexed</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {/* Hero 3D Purpose Flow Visualization */}
+                <div className="hero-preview-wrapper hero-flow-3d-wrapper">
+                    <ArchivalFlowVisualizer />
                 </div>
             </section>
 

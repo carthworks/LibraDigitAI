@@ -1,0 +1,222 @@
+/* ==========================================================================
+   LibraDigit AI - Three.js Archival Purpose Flow Visualizer Stylesheet
+   ========================================================================== */
+
+.archival-flow-container {
+    position: relative;
+    width: 100%;
+    height: 490px;
+    background: radial-gradient(circle at 50% 45%, rgba(30, 41, 59, 0.6) 0%, rgba(10, 12, 16, 0.95) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 30px rgba(59, 130, 246, 0.12);
+    display: flex;
+    flex-direction: column;
+}
+
+.archival-flow-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+}
+
+.archival-flow-canvas:active {
+    cursor: grabbing;
+}
+
+/* --------------------------------------------------------------------------
+   Top HUD Bar (Clean & Streamlined)
+   -------------------------------------------------------------------------- */
+.flow-hud-header {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.flow-title-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    background: rgba(15, 17, 21, 0.88);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: 9999px;
+    backdrop-filter: blur(12px);
+    pointer-events: auto;
+}
+
+.flow-title-badge .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.flow-title-badge span {
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #ffffff;
+}
+
+.flow-controls-quick {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    pointer-events: auto;
+}
+
+.flow-btn-hud {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: rgba(15, 17, 21, 0.85);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+}
+
+.flow-btn-hud:hover {
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(59, 130, 246, 0.12);
+}
+
+.flow-btn-hud.active {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   Stage Node Labels (Clean Top Alignment)
+   -------------------------------------------------------------------------- */
+.flow-stage-labels-row {
+    position: absolute;
+    top: 48px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 9;
+}
+
+.stage-label-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(15, 17, 21, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    backdrop-filter: blur(8px);
+}
+
+.stage-label-chip.left {
+    border-color: rgba(245, 158, 11, 0.35);
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.stage-label-chip.center {
+    border-color: rgba(59, 130, 246, 0.35);
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.stage-label-chip.right {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.08);
+}
+
+.stage-label-chip svg.text-amber-400 {
+    color: #fbbf24;
+}
+
+.stage-label-chip svg.text-blue-400 {
+    color: #60a5fa;
+}
+
+.stage-label-chip svg.text-emerald-400 {
+    color: #34d399;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Feature Summary Badges
+   -------------------------------------------------------------------------- */
+.flow-bottom-summary {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    z-index: 10;
+    pointer-events: none;
+    flex-wrap: wrap;
+}
+
+.flow-summary-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(15, 17, 21, 0.85);
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    backdrop-filter: blur(10px);
+}
+
+.flow-summary-tag svg {
+    color: #60a5fa;
+}
+
+/* --------------------------------------------------------------------------
+   Animations & Responsiveness
+   -------------------------------------------------------------------------- */
+@keyframes pulseGlow {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.85);
+    }
+}
+
+@media (max-width: 768px) {
+    .archival-flow-container {
+        height: 380px;
+    }
+    .flow-stage-labels-row {
+        display: none;
+    }
+    .flow-bottom-summary {
+        display: none;
+    }
+}

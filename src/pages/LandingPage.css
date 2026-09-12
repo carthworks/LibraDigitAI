@@ -118,12 +118,12 @@
 
 /* ---------------- Hero Section ---------------- */
 .landing-hero {
-    max-width: 1280px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: var(--space-12) var(--space-6) var(--space-16) var(--space-6);
+    padding: var(--space-10) var(--space-6) var(--space-16) var(--space-6);
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: var(--space-10);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
     align-items: center;
 }
 
@@ -242,7 +242,14 @@
 .trust-icon.primary { color: var(--color-primary); }
 .trust-icon.accent { color: var(--color-accent); }
 
-/* ---------------- Hero Preview Card ---------------- */
+/* ---------------- Hero Flow Visualizer ---------------- */
+.hero-flow-3d-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 480px;
+    display: flex;
+}
+
 .hero-preview-wrapper {
     position: relative;
 }
