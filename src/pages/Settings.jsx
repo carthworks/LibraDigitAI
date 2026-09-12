@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react"
 import axios from "axios"
 import {
     Save, Folder, RefreshCw, Settings as SettingsIcon, Calendar,
-    FileArchive, Building2, Languages, Sliders, FileText
+    FileArchive, Building2, Languages, Sliders, FileText, Cpu, CheckCircle, AlertTriangle, XCircle
 } from "lucide-react"
 import { useToast } from "../context/ToastContext"
 import { API_URL } from "../config"
@@ -15,7 +15,8 @@ const DEFAULT_SETTINGS = {
     institution_name: "",
     file_naming_convention: "{title}_{year}",
     default_ocr_language: "eng",
-    pdf_quality: "high"
+    pdf_quality: "high",
+    ocr_engine: "tesseract"
 }
 
 export default function Settings() {
@@ -23,6 +24,7 @@ export default function Settings() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [settings, setSettings] = useState(DEFAULT_SETTINGS)
+    const [ollamaStatus, setOllamaStatus] = useState(null) // null | { available, model_pulled }
 
     /* ------------------ Fetch Settings ------------------ */
     const fetchSettings = useCallback(async (signal) => {
@@ -45,6 +47,20 @@ export default function Settings() {
         fetchSettings(controller.signal)
         return () => controller.abort()
     }, [fetchSettings])
+
+    // Fetch Ollama status whenever GLM-OCR is selected
+    const fetchOllamaStatus = useCallback(async () => {
+        try {
+            const { data } = await axios.get(`${API_URL}/glmocr/status`, { timeout: 6000 })
+            setOllamaStatus(data)
+        } catch {
+            setOllamaStatus({ available: false, model_pulled: false })
+        }
+    }, [])
+
+    useEffect(() => {
+        if (settings.ocr_engine === 'glm-ocr') fetchOllamaStatus()
+    }, [settings.ocr_engine, fetchOllamaStatus])
 
     /* ------------------ Handlers ------------------ */
     const handleChange = useCallback((e) => {
@@ -177,6 +193,50 @@ export default function Settings() {
                             <span className="slider"></span>
                             <span className="switch-label">Auto-create ZIP archive</span>
                         </label>
+                    </SettingsCard>
+
+                    <SettingsCard icon={<Cpu />} title="OCR Engine">
+                        <select
+                            name="ocr_engine"
+                            value={settings.ocr_engine}
+                            onChange={handleChange}
+                            className="form-select"
+                        >
+                            <option value="tesseract">Tesseract (Default — offline)</option>
+                            <option value="glm-ocr">GLM-OCR via Ollama (AI — state-of-the-art)</option>
+                        </select>
+                        {settings.ocr_engine === 'glm-ocr' && (
+                            <div style={{ marginTop: '10px' }}>
+                                {ollamaStatus === null ? (
+                                    <p className="form-hint" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <RefreshCw size={13} className="spinner" /> Checking Ollama…
+                                    </p>
+                                ) : ollamaStatus.available && ollamaStatus.model_pulled ? (
+                                    <p className="form-hint" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--success, #4caf50)' }}>
+                                        <CheckCircle size={14} /> Ollama running &amp; glm-ocr model ready
+                                    </p>
+                                ) : ollamaStatus.available && !ollamaStatus.model_pulled ? (
+                                    <p className="form-hint" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f59e0b' }}>
+                                        <AlertTriangle size={14} /> Ollama running but model not pulled — run: <code>ollama pull glm-ocr</code>
+                                    </p>
+                                ) : (
+                                    <p className="form-hint" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--error, #ef4444)' }}>
+                                        <XCircle size={14} /> Ollama not running — start it with: <code>ollama serve</code>
+                                    </p>
+                                )}
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    style={{ marginTop: '8px', fontSize: '0.8rem', padding: '4px 10px' }}
+                                    onClick={fetchOllamaStatus}
+                                >
+                                    <RefreshCw size={12} /> Recheck
+                                </button>
+                            </div>
+                        )}
+                        {settings.ocr_engine === 'tesseract' && (
+                            <p className="form-hint">Uses local Tesseract OCR — no internet or GPU required.</p>
+                        )}
                     </SettingsCard>
 
                     <SettingsCard icon={<Languages />} title="OCR Language">

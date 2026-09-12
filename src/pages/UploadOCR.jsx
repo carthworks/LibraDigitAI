@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { useToast } from '../context/ToastContext'
-import { Upload, FileText, AlertCircle, CheckCircle, Loader, X, Sparkles, FileDown } from 'lucide-react'
+import { Upload, FileText, AlertCircle, CheckCircle, Loader, X, Sparkles, FileDown, Cpu, Zap } from 'lucide-react'
 import AdvancedOCRResults from '../components/AdvancedOCRResults'
+import { API_URL } from '../config'
 import './UploadOCR.css'
 
 const UploadOCR = () => {
@@ -21,6 +22,15 @@ const UploadOCR = () => {
     const [pdfResult, setPdfResult] = useState(null)
     const [language, setLanguage] = useState('eng')
     const [useAdvancedOCR, setUseAdvancedOCR] = useState(false)
+    const [activeEngine, setActiveEngine] = useState('tesseract') // 'tesseract' | 'glm-ocr'
+
+    // Read active engine from settings once on mount
+    useEffect(() => {
+        fetch(`${API_URL}/settings`)
+            .then(r => r.json())
+            .then(s => { if (s.ocr_engine) setActiveEngine(s.ocr_engine) })
+            .catch(() => { })
+    }, [])
 
     const handleDrag = (e) => {
         e.preventDefault()
@@ -315,22 +325,29 @@ const UploadOCR = () => {
                                     <p className="form-hint">Note: Ensure corresponding language pack is installed in Tesseract.</p>
                                 </div>
 
-                                {/* Advanced OCR Toggle */}
+                                {/* Advanced OCR Toggle — disabled for GLM-OCR */}
                                 <div className="advanced-ocr-toggle mb-lg">
                                     <div className="toggle-header">
                                         <div className="toggle-info">
                                             <Sparkles size={20} className="sparkles-icon" />
                                             <div>
                                                 <label className="form-label">Advanced OCR Analysis</label>
-                                                <p className="form-hint">
-                                                    Detect tables, forms, signatures, page structure, and auto-correct orientation
-                                                </p>
+                                                {activeEngine === 'glm-ocr' ? (
+                                                    <p className="form-hint" style={{ color: '#f59e0b' }}>
+                                                        GLM-OCR already performs advanced analysis automatically.
+                                                    </p>
+                                                ) : (
+                                                    <p className="form-hint">
+                                                        Detect tables, forms, signatures, page structure, and auto-correct orientation
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                         <label className="switch">
                                             <input
                                                 type="checkbox"
                                                 checked={useAdvancedOCR}
+                                                disabled={activeEngine === 'glm-ocr'}
                                                 onChange={(e) => setUseAdvancedOCR(e.target.checked)}
                                             />
                                             <span className="slider"></span>
@@ -354,13 +371,18 @@ const UploadOCR = () => {
                                     className="btn btn-primary btn-lg w-full"
                                     onClick={() => handleRunOCR(currentProject.id)}
                                 >
-                                    {useAdvancedOCR ? (
+                                    {activeEngine === 'glm-ocr' ? (
+                                        <>
+                                            <Cpu size={20} />
+                                            Run OCR <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '6px' }}>✨ GLM-OCR</span>
+                                        </>
+                                    ) : useAdvancedOCR ? (
                                         <>
                                             <Sparkles size={20} />
-                                            Run Advanced OCR
+                                            Run Advanced OCR <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '6px' }}>⚡ Tesseract</span>
                                         </>
                                     ) : (
-                                        'Run OCR'
+                                        <>Run OCR <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '6px' }}>⚡ Tesseract</span></>
                                     )}
                                 </button>
 

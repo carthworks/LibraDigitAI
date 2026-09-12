@@ -16,6 +16,7 @@ from metadata_extractor import extract_metadata
 from batch_processor import BatchProcessor
 from advanced_ocr_processor import AdvancedOCRProcessor
 from handwritten_to_pdf import HandwrittenToPDFConverter
+from glm_ocr_processor import GlmOcrProcessor, check_ollama_status
 
 
 app = Flask(__name__)
@@ -500,7 +501,8 @@ def get_settings():
             'institution_name': get_config_value('institution_name', ''),
             'file_naming_convention': get_config_value('file_naming_convention', '{title}_{year}'),
             'default_ocr_language': get_config_value('default_ocr_language', 'eng'),
-            'pdf_quality': get_config_value('pdf_quality', 'high')
+            'pdf_quality': get_config_value('pdf_quality', 'high'),
+            'ocr_engine': get_config_value('ocr_engine', 'tesseract'),
         }
         return jsonify(settings)
     except Exception as e:
@@ -538,10 +540,26 @@ def update_settings():
             
         if 'pdf_quality' in data:
             set_config_value('pdf_quality', data['pdf_quality'])
+
+        if 'ocr_engine' in data:
+            engine = data['ocr_engine']
+            if engine not in ('tesseract', 'glm-ocr'):
+                return jsonify({'error': f'Unknown OCR engine: {engine}'}), 400
+            set_config_value('ocr_engine', engine)
             
         return jsonify({'message': 'Settings updated successfully', 'settings': data})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/glmocr/status', methods=['GET'])
+def glmocr_status():
+    """Check whether Ollama is running and glm-ocr model is available."""
+    try:
+        status = check_ollama_status()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({'available': False, 'model_pulled': False, 'error': str(e)}), 500
 
 @app.route('/api/projects', methods=['POST'])
 def create_project():
@@ -762,10 +780,10 @@ Note: To extract real text, please upload a PDF or image file."""
                 'message': 'Sample OCR text generated (file not found)'
             })
         
-        # Get language preference (default to 'eng')
-        # Check both JSON body and query args to be safe
+        # Get language preference and OCR engine setting
         req_data = request.get_json(silent=True) or {}
         lang = req_data.get('language', 'eng')
+        ocr_engine = get_config_value('ocr_engine', 'tesseract')
         
         # Extract text based on file type
         extracted_text = ""
@@ -924,53 +942,54 @@ Note: To extract real text, please upload a PDF or image file."""
                     file_type_msg = "PDF (Error)"
         
         elif file_ext in ['.png', '.jpg', '.jpeg', '.tiff', '.bmp']:
-            # Extract text from image using Tesseract
-            try:
-                if check_tesseract():
-                    image = Image.open(filepath)
-                    
-                    # 1. Get plain text for UI editing
-                    extracted_text = pytesseract.image_to_string(image, lang=lang)
-                    
-                    # 2. Extract Confidence
-                    confidence_data = extract_confidence_from_image(image, lang=lang)
-                    
-                    if not extracted_text.strip():
-                        extracted_text = "No text detected in image. Please ensure the image contains readable text."
-                    
-                    # 2. Generate Searchable PDF (HOCR/Image-over-Text)
-                    # This preserves layout, images, and makes it searchable/traceable
-                    try:
-                        pdf_bytes = pytesseract.image_to_pdf_or_hocr(image, extension='pdf', lang=lang)
+            # ── GLM-OCR path ──────────────────────────────────────────────────────
+            if ocr_engine == 'glm-ocr':
+                try:
+                    print("🤖 Using GLM-OCR engine (Ollama)")
+                    glm = GlmOcrProcessor()
+                    glm_result = glm.process_image(filepath)
+                    if glm_result.get('success'):
+                        extracted_text = glm_result.get('main_text', '')
+                        file_type_msg = "image (GLM-OCR)"
+                    else:
+                        raise RuntimeError(glm_result.get('error', 'GLM-OCR failed'))
+                except Exception as e:
+                    extracted_text = f"GLM-OCR error: {str(e)}"
+                    file_type_msg = "image (GLM-OCR error)"
+            # ── Tesseract path ────────────────────────────────────────────────────
+            else:
+                try:
+                    if check_tesseract():
+                        image = Image.open(filepath)
                         
-                        # Save OCR PDF
-                        filename_base = os.path.splitext(os.path.basename(filepath))[0]
-                        ocr_filename = f"ocr_{filename_base}.pdf"
-                        ocr_pdf_path = os.path.join(UPLOAD_FOLDER, ocr_filename)
+                        # 1. Get plain text for UI editing
+                        extracted_text = pytesseract.image_to_string(image, lang=lang)
                         
-                        with open(ocr_pdf_path, 'wb') as f:
-                            f.write(pdf_bytes)
+                        # 2. Extract Confidence
+                        confidence_data = extract_confidence_from_image(image, lang=lang)
+                        
+                        if not extracted_text.strip():
+                            extracted_text = "No text detected in image. Please ensure the image contains readable text."
+                        
+                        # 3. Generate Searchable PDF (HOCR/Image-over-Text)
+                        try:
+                            pdf_bytes = pytesseract.image_to_pdf_or_hocr(image, extension='pdf', lang=lang)
+                            filename_base = os.path.splitext(os.path.basename(filepath))[0]
+                            ocr_filename = f"ocr_{filename_base}.pdf"
+                            ocr_pdf_path = os.path.join(UPLOAD_FOLDER, ocr_filename)
+                            with open(ocr_pdf_path, 'wb') as f:
+                                f.write(pdf_bytes)
                             print(f"✅ Generated searchable PDF: {ocr_pdf_path}")
-                            
-                    except Exception as e:
-                        print(f"⚠️ Failed to generate searchable PDF: {e}")
-                        
-                else:
-                    extracted_text = """Tesseract OCR is not installed.
-                    
-                    To extract text from images, please install Tesseract OCR:
-                    - Windows: https://github.com/UB-Mannheim/tesseract/wiki
-                    - macOS: brew install tesseract
-                    - Linux: sudo apt-get install tesseract-ocr
-                    
-                    For now, here's sample text to demonstrate the workflow."""
-                
-                file_type_msg = "image"
-            except Exception as e:
-                extracted_text = f"Error extracting text from image: {str(e)}"
-                if "tessdata" in str(e) or "traineddata" in str(e):
-                     extracted_text += f"\n\nError: The '{lang}' language pack might be missing. Please install it for Tesseract."
-                file_type_msg = "image (error)"
+                        except Exception as e:
+                            print(f"⚠️ Failed to generate searchable PDF: {e}")
+                    else:
+                        extracted_text = """Tesseract OCR is not installed.\n\nTo extract text from images, please install Tesseract OCR:\n- Windows: https://github.com/UB-Mannheim/tesseract/wiki\n- macOS: brew install tesseract\n- Linux: sudo apt-get install tesseract-ocr"""
+                    file_type_msg = "image"
+                except Exception as e:
+                    extracted_text = f"Error extracting text from image: {str(e)}"
+                    if "tessdata" in str(e) or "traineddata" in str(e):
+                        extracted_text += f"\n\nError: The '{lang}' language pack might be missing. Please install it for Tesseract."
+                    file_type_msg = "image (error)"
         
         else:
             extracted_text = f"Unsupported file type: {file_ext}\\n\\nSupported formats: PDF, PNG, JPG, JPEG, TIFF, BMP"
@@ -1033,10 +1052,11 @@ def run_advanced_ocr(project_id):
         if not filepath or not os.path.exists(filepath):
             return jsonify({'error': 'File not found'}), 404
         
-        # Get language preference
+        # Get language preference and engine setting
         req_data = request.get_json(silent=True) or {}
         lang = req_data.get('language', 'eng')
         use_advanced = req_data.get('advanced', True)
+        ocr_engine = get_config_value('ocr_engine', 'tesseract')
         
         file_ext = os.path.splitext(filepath)[1].lower()
         
@@ -1047,6 +1067,47 @@ def run_advanced_ocr(project_id):
                 'file_type': file_ext
             }), 400
         
+        # ── GLM-OCR advanced path ─────────────────────────────────────────────
+        if ocr_engine == 'glm-ocr':
+            try:
+                print("🤖 Advanced OCR: Using GLM-OCR engine (Ollama)")
+                glm = GlmOcrProcessor()
+                text_result = glm.recognize_text(filepath)
+                table_result = glm.recognize_table(filepath)
+
+                extracted_text = text_result
+                if table_result.strip():
+                    extracted_text += "\n\n--- TABLES ---\n" + table_result
+
+                conn = get_db()
+                cursor = conn.cursor()
+                cursor.execute('UPDATE ocr_text SET original_text = ? WHERE project_id = ?',
+                               (extracted_text, project_id))
+                cursor.execute('UPDATE projects SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                               ('cleanup', project_id))
+                conn.commit()
+                conn.close()
+                update_search_index(project_id)
+
+                return jsonify({
+                    'success': True,
+                    'main_text': extracted_text,
+                    'text_length': len(extracted_text),
+                    'engine': 'glm-ocr',
+                    'statistics': {
+                        'total_words': len(extracted_text.split()),
+                        'tables_found': 1 if table_result.strip() else 0,
+                        'checkboxes_found': 0,
+                        'text_fields_found': 0,
+                        'stamps_found': 0,
+                        'signatures_found': 0,
+                    }
+                })
+            except Exception as e:
+                import traceback; traceback.print_exc()
+                return jsonify({'error': f'GLM-OCR advanced error: {str(e)}', 'success': False}), 500
+
+        # ── Tesseract advanced path ───────────────────────────────────────────
         # Initialize advanced OCR processor
         processor = AdvancedOCRProcessor()
         
@@ -2553,8 +2614,8 @@ if __name__ == '__main__':
     print("🚀 LibraDigit AI Backend Server")
     print("📊 Database initialized")
     print("🔍 Tesseract OCR:", "✓ Available" if check_tesseract() else "✗ Not found")
-    print("🌐 Server running on http://localhost:5000")
+    print("🌐 Server running on http://localhost:5001")
     print("📅 Date:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("---")
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)
 

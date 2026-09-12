@@ -8,7 +8,7 @@ const Help = () => {
             <div className="help-header">
                 <h1>LibraDigit AI Help & Guide</h1>
                 <p>Welcome to your personal digital archive assistant. Here is how to get the most out of it.</p>
-                <img src="/libradigit_ai_poster2.png" className="help-image" alt="Help" />
+                <img src="/libradigit_ai_poster2.png" className="help-image" alt="LibraDigit AI workflow and system architecture diagram" />
             </div>
 
             <div className="help-section">
@@ -120,22 +120,40 @@ const Help = () => {
                 </div>
             </div>
 
+            <div className="help-section trust-compliance-section">
+                <h2><Shield size={24} /> Privacy, Trust & Legal Compliance</h2>
+                <div className="capabilities-grid">
+                    <div className="cap-card">
+                        <h3><Lock size={20} /> 100% Offline Privacy Guarantee</h3>
+                        <p>LibraDigit AI operates completely locally on your device. Zero telemetry, zero cloud sync, and zero tracking cookies. Your document data never leaves your environment.</p>
+                    </div>
+                    <div className="cap-card">
+                        <h3><Book size={20} /> Terms & Open Source Licensing</h3>
+                        <p>Licensed under the permissive <strong>MIT License</strong>. Free for academic, institutional, and commercial archival usage without hidden subscriptions or vendor lock-in.</p>
+                    </div>
+                    <div className="cap-card">
+                        <h3><Box size={20} /> International Archival Standards</h3>
+                        <p>Full compliance with <strong>ISO BagIt (RFC 8493)</strong> preservation packaging, <strong>PDF/A</strong> standards, MD5 manifest integrity, and Dublin Core embedded XMP metadata.</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="help-section about-section">
-                <h2><User size={24} /> About the Developer</h2>
+                <h2><User size={24} /> About & Direct Support</h2>
                 <div className="author-card">
                     <img src="/welcome_screen.png" alt="LibraDigit AI Welcome" className="author-logo" />
                     <div className="author-details">
-                        <h3>KarthikeyanT</h3>
-                        <p>Full Stack Developer & AI Specialist</p>
-                        <p><strong>Email:</strong> <a href="mailto:tkarthikeyan@gmail.com">tkarthikeyan@gmail.com</a></p>
-                        <p><strong>GitHub:</strong> <a href="https://github.com/carthworks" target="_blank" rel="noopener noreferrer">github.com/carthworks</a></p>
-                        <p className="author-note">"Built with ❤️ for librarians and archivists worldwide"</p>
+                        <h3>Karthikeyan T</h3>
+                        <p>Lead Engineer & Archival Systems Specialist</p>
+                        <p><strong>Direct Support:</strong> <a href="mailto:tkarthikeyan@gmail.com">tkarthikeyan@gmail.com</a></p>
+                        <p><strong>GitHub Repository:</strong> <a href="https://github.com/carthworks" target="_blank" rel="noopener noreferrer">github.com/carthworks</a></p>
+                        <p className="author-note">"Built with ❤️ for librarians, archivists, and preservation teams worldwide"</p>
                     </div>
                 </div>
             </div>
 
             <div className="help-footer">
-                <p>Version 1.0.0 • Offline-First Digital Archival System</p>
+                <p>Version 1.2.0 • Offline-First Digital Archival System • MIT Licensed</p>
             </div>
         </div>
     )

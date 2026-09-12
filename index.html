@@ -5,15 +5,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LibraDigit AI - Digital Archive Builder</title>
-  <meta name="description" content="AI-Based Digitization & Digital Archive Builder for Libraries">
+  <meta name="description" content="AI-Based Digitization & Digital Archive Builder for Libraries with Advanced OCR and Preservation Standards">
+  <meta name="theme-color" content="#0a0a0f">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="LibraDigit AI - Digital Archive Builder">
+  <meta property="og:description" content="AI-Based Digitization & Digital Archive Builder for Libraries with Advanced OCR, Handwritten Text Recognition, and ISO BagIt Preservation.">
+  <meta property="og:image" content="/libradigit_ai_poster2.png">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LibraDigit AI - Digital Archive Builder">
+  <meta name="twitter:description" content="AI-Based Digitization & Digital Archive Builder for Libraries with Advanced OCR and BagIt Archival Export.">
+  <meta name="twitter:image" content="/libradigit_ai_poster2.png">
+
+  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg">
+
+  <!-- Content Security Policy -->
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; worker-src 'self' blob: https://unpkg.com; connect-src 'self' http://localhost:5000 https://unpkg.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' http://localhost:5000;">
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; worker-src 'self' blob: https://unpkg.com; connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 http://localhost:5001 http://127.0.0.1:5001 ws: wss: https://unpkg.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' http://localhost:5000 http://127.0.0.1:5000 http://localhost:5001 http://127.0.0.1:5001;">
 </head>
 
 <body>
@@ -21,4 +39,4 @@
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
-</html>
+</html>

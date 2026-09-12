@@ -27,6 +27,16 @@ const Header = () => {
                 return 'Dashboard'
             case '/upload':
                 return 'Upload & OCR'
+            case '/batch':
+                return 'Batch Processing'
+            case '/search':
+                return 'Archive Search'
+            case '/analytics':
+                return 'Analytics & Reports'
+            case '/settings':
+                return 'System Settings'
+            case '/help':
+                return 'Help & Documentation'
             case location.pathname.match(/\/cleanup/)?.input:
                 return 'OCR Cleanup'
             case location.pathname.match(/\/metadata/)?.input:
@@ -44,6 +54,16 @@ const Header = () => {
                 return 'Manage your digitization projects'
             case '/upload':
                 return 'Upload documents and run OCR processing'
+            case '/batch':
+                return 'Process multiple documents in bulk'
+            case '/search':
+                return 'Full-text search across your digital archive'
+            case '/analytics':
+                return 'Archive statistics, storage usage, and growth'
+            case '/settings':
+                return 'Configure storage paths, OCR engines, and defaults'
+            case '/help':
+                return 'User manual, workflows, and troubleshooting'
             case location.pathname.match(/\/cleanup/)?.input:
                 return 'Review and improve OCR text accuracy'
             case location.pathname.match(/\/metadata/)?.input:
@@ -51,7 +71,7 @@ const Header = () => {
             case location.pathname.match(/\/archive/)?.input:
                 return 'Generate structured digital archive'
             default:
-                return ''
+                return 'Digital Archive Builder'
         }
     }
 
@@ -67,6 +87,7 @@ const Header = () => {
                         <button
                             className="header-btn"
                             title="Help & Guide"
+                            aria-label="Open help and documentation dialog"
                             onClick={() => setShowHelp(true)}
                         >
                             <HelpCircle size={20} />

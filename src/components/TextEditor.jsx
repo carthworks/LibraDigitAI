@@ -32,16 +32,20 @@ const TextEditor = ({ value, onChange, placeholder = "Text will appear here..." 
 
     // Update stats when value changes
     useEffect(() => {
-        // Strip HTML to count actual text
-        const tempDiv = document.createElement('div')
-        tempDiv.innerHTML = value
-        const text = tempDiv.textContent || tempDiv.innerText || ''
+        // Strip HTML safely to count actual text
+        try {
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(value || '', 'text/html')
+            const text = doc.body.textContent || ''
 
-        const chars = text.length
-        const words = text.trim() ? text.trim().split(/\s+/).length : 0
-        const lines = text.split(/\r\n|\r|\n/).length
+            const chars = text.length
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0
+            const lines = text.split(/\r\n|\r|\n/).length
 
-        setStats({ chars, words, lines })
+            setStats({ chars, words, lines })
+        } catch {
+            setStats({ chars: (value || '').length, words: 0, lines: 1 })
+        }
     }, [value])
 
     const handleChange = (content, delta, source, editor) => {

@@ -107,20 +107,43 @@ cd ..
 
 ## 🎮 Running the Application
 
-### Development Mode
+### ⚡ Quick Launch (Windows 1-Click)
 
-The easiest way to run the application is using the combined dev script:
+Double-click `run-app.bat` or run in terminal:
+
+```cmd
+run-app.bat
+```
+
+This will automatically:
+- Detect virtual environment or system Python
+- Start the Flask backend server on `http://localhost:5001`
+- Launch the Vite frontend dev server on `http://localhost:3000`
+- Open your default web browser to the application (`http://localhost:3000`)
+
+### Manual Development Mode
+
+Alternatively, run the services separately:
 
 ```bash
+# Terminal 1 - Backend Server
+npm run dev:backend
+
+# Terminal 2 - Frontend Web App
 npm run dev
 ```
 
-This will:
-- Start the React frontend (Vite)
-- Start the Python backend (Flask)
-- Launch the Electron desktop window
+## 📚 Documentation
 
-## 📖 Usage Guide
+Detailed technical guides, architectural diagrams, and feature walkthroughs have been organized in the [`docs/`](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs) directory:
+
+- [System Architecture](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/ARCHITECTURE_DIAGRAM.md)
+- [Backend Guide](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/BACKEND_GUIDE.md)
+- [Advanced OCR Documentation](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/ADVANCED_OCR_DOCUMENTATION.md)
+- [Handwritten Text Processing Guide](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/HANDWRITTEN_TEXT_PROCESSING_GUIDE.md)
+- [Export System Documentation](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/EXPORT_SYSTEM_DOCUMENTATION.md)
+- [Tesseract Setup Guide](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/TESSERACT_SETUP.md)
+
 
 ### Creating Your First Project
 

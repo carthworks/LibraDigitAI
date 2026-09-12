@@ -1,0 +1,5 @@
+# robots.txt for LibraDigit AI
+User-agent: *
+Allow: /
+
+Sitemap: /sitemap.xml

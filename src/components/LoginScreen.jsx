@@ -98,6 +98,8 @@ const LoginScreen = ({ onLogin }) => {
                         <input
                             type="password"
                             placeholder={isFirstRun ? "Create Password" : "Password"}
+                            aria-label={isFirstRun ? "Create password" : "Enter password"}
+                            autoComplete={isFirstRun ? "new-password" : "current-password"}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className={error ? 'error' : ''}
@@ -111,6 +113,8 @@ const LoginScreen = ({ onLogin }) => {
                             <input
                                 type="password"
                                 placeholder="Confirm Password"
+                                aria-label="Confirm password"
+                                autoComplete="new-password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 className={error ? 'error' : ''}
@@ -119,14 +123,14 @@ const LoginScreen = ({ onLogin }) => {
                     )}
 
                     {error && (
-                        <div className="error-message">
+                        <div className="error-message" role="alert">
                             <AlertCircle size={16} />
                             <span>{error}</span>
                         </div>
                     )}
 
                     {successMessage && (
-                        <div className="success-message" style={{ color: 'green', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+                        <div className="success-message" role="status" style={{ color: 'green', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
                             <CheckCircle size={16} />
                             <span>{successMessage}</span>
                         </div>
@@ -135,6 +139,7 @@ const LoginScreen = ({ onLogin }) => {
                     <button
                         type="submit"
                         className="btn-login"
+                        aria-label={isFirstRun ? "Set password and login" : "Access system"}
                         disabled={isLoading || !password}
                     >
                         {isLoading ? (
