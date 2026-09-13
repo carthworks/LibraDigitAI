@@ -109,7 +109,7 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
 
                     <div className="hero-cta-group">
                         <button className="btn-hero-primary" onClick={handleLaunchWorkspace}>
-                            <span>{isLoggedIn ? 'Launch Workspace' : (isFirstRun ? 'Initialize Secure Setup' : 'Access Archive System')}</span>
+                            <span>Access Archive System</span>
                             <ArrowRight size={18} />
                         </button>
                         <Link to="/marketing" className="btn-hero-secondary">
@@ -120,16 +120,25 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
 
                     <div className="hero-trust-row">
                         <div className="trust-item">
-                            <ShieldCheck size={16} className="trust-icon success" />
-                            <span>100% Offline & Private</span>
+                            <ShieldCheck size={20} className="trust-icon success" />
+                            <div className="trust-text-stack">
+                                <span className="trust-title">100% Offline & Private</span>
+                                <span className="trust-sub">Your data stays yours</span>
+                            </div>
                         </div>
                         <div className="trust-item">
-                            <Cpu size={16} className="trust-icon primary" />
-                            <span>Tesseract + AI Clean Engines</span>
+                            <Cpu size={20} className="trust-icon primary" />
+                            <div className="trust-text-stack">
+                                <span className="trust-title">Local AI Engines</span>
+                                <span className="trust-sub">No cloud, no tracking</span>
+                            </div>
                         </div>
                         <div className="trust-item">
-                            <Database size={16} className="trust-icon accent" />
-                            <span>Dublin Core & MARC21 Ready</span>
+                            <Database size={20} className="trust-icon accent" />
+                            <div className="trust-text-stack">
+                                <span className="trust-title">Dublin Core & MARC21</span>
+                                <span className="trust-sub">Library standards ready</span>
+                            </div>
                         </div>
                     </div>
                 </div>

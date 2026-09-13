@@ -118,11 +118,11 @@
 
 /* ---------------- Hero Section ---------------- */
 .landing-hero {
-    max-width: 1320px;
+    max-width: 1480px;
     margin: 0 auto;
-    padding: var(--space-10) var(--space-6) var(--space-16) var(--space-6);
+    padding: var(--space-8) var(--space-6) var(--space-16) var(--space-6);
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 0.82fr 1.18fr;
     gap: var(--space-8);
     align-items: center;
 }
@@ -228,25 +228,41 @@
     align-items: center;
     gap: var(--space-6);
     flex-wrap: wrap;
+    margin-top: var(--space-2);
 }
 
 .trust-item {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    font-size: var(--font-size-xs);
-    color: var(--color-text-tertiary);
+    gap: var(--space-3);
 }
 
-.trust-icon.success { color: var(--color-success); }
-.trust-icon.primary { color: var(--color-primary); }
-.trust-icon.accent { color: var(--color-accent); }
+.trust-text-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.trust-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.trust-sub {
+    font-size: 0.68rem;
+    color: var(--color-text-tertiary);
+    line-height: 1.2;
+}
+
+.trust-icon.success { color: #34d399; }
+.trust-icon.primary { color: #818cf8; }
+.trust-icon.accent { color: #38bdf8; }
 
 /* ---------------- Hero Flow Visualizer ---------------- */
 .hero-flow-3d-wrapper {
     position: relative;
     width: 100%;
-    min-height: 480px;
     display: flex;
 }
 
