@@ -8,11 +8,10 @@ Prerequisites:
 """
 
 import base64
-import json
 import os
-import requests
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
+import requests
 
 OLLAMA_BASE_URL = "http://localhost:11434"
 GLM_OCR_MODEL = "glm-ocr"

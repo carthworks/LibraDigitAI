@@ -135,7 +135,7 @@ def apply_bulk_metadata():
     try:
         project_ids = [int(pid) for pid in project_ids]
     except (TypeError, ValueError):
-        raise ValidationError('project_ids must be integers')
+        raise ValidationError('project_ids must be integers') from None
     year = metadata.get('year')
     if year not in (None, '') and not str(year).isdigit():
         return jsonify({'error': 'Year must be numeric'}), 400

@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
     BookOpen, ShieldCheck, Layers, Search, FileText, Cpu, Lock,
-    HelpCircle, ChevronDown, Sparkles, CheckCircle2, ArrowRight,
-    Terminal, ExternalLink, Mail, Github, Heart, Server
+    HelpCircle, ChevronDown, Sparkles, CheckCircle2, ExternalLink, Mail, Github, Server
 } from 'lucide-react'
 import './Help.css'
 

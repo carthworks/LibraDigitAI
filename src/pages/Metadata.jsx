@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { Save, AlertCircle, ArrowRight, X } from 'lucide-react'

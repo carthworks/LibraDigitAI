@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { useToast } from '../context/ToastContext'
@@ -13,8 +13,6 @@ import {
     Cpu,
     ShieldCheck,
     ArrowRight,
-    Layers,
-    Sliders,
     Globe,
     FileCheck
 } from 'lucide-react'

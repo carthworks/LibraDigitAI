@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Upload, Play, Pause, X, CheckCircle, AlertCircle, Loader, FileText, Image as ImageIcon, Trash2, Clock, Calendar, Edit3 } from 'lucide-react'
+import { Upload, Play, X, CheckCircle, AlertCircle, Loader, FileText, Image as ImageIcon, Trash2, Clock, Edit3 } from 'lucide-react'
 import { API_URL } from '../config'
 import './BatchProcessing.css'
 import BulkMetadataEditor from '../components/BulkMetadataEditor'
 
 function BatchProcessing() {
-    const navigate = useNavigate()
     const [selectedFiles, setSelectedFiles] = useState([])
     const [batchName, setBatchName] = useState('')
     const [uploading, setUploading] = useState(false)

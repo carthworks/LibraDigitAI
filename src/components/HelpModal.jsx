@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { X, BookOpen, Zap, HelpCircle, Mail, Github } from 'lucide-react'
+import { useEffect } from 'react'
+import { X, BookOpen, Zap, HelpCircle, Mail } from 'lucide-react'
 import './HelpModal.css'
 
 const HelpModal = ({ isOpen, onClose }) => {

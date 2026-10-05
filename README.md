@@ -133,6 +133,17 @@ npm run dev:backend
 npm run dev
 ```
 
+### Linting
+
+```bash
+npm run lint                      # ESLint (frontend + Electron)
+cd backend && ruff check .        # Python
+```
+
+CI (`.github/workflows/ci.yml`) runs lint, the backend tests, the frontend build and a
+Windows packaging smoke test on every pull request. See [docs/RELEASING.md](docs/RELEASING.md)
+for building and signing the Windows installer.
+
 ### Running the Tests
 
 ```bash

@@ -39,6 +39,11 @@ class Config:
     UPLOAD_FOLDER = os.environ.get('LIBRADIGIT_UPLOAD_FOLDER', os.path.join(BASE_DIR, 'uploads'))
     ARCHIVE_FOLDER = os.environ.get('LIBRADIGIT_ARCHIVE_FOLDER', os.path.join(BASE_DIR, 'Archive'))
 
+    # Explicit tesseract executable (the desktop build bundles its own copy).
+    TESSERACT_CMD = os.environ.get('LIBRADIGIT_TESSERACT_CMD') or None
+    # Folder of a pre-1.3 install whose data should be moved into the paths above.
+    LEGACY_DATA_DIR = os.environ.get('LIBRADIGIT_LEGACY_DATA_DIR') or None
+
     HOST = os.environ.get('LIBRADIGIT_HOST', '127.0.0.1')
     PORT = int(os.environ.get('LIBRADIGIT_PORT', '5001'))
     DEBUG = _env_bool('LIBRADIGIT_DEBUG', False)

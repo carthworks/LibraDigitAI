@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef, memo } from "react"
+import { useState, useEffect, memo } from "react"
 import axios from "axios"
-import debounce from "lodash.debounce"
 import DOMPurify from "dompurify"
 import {
     Search, Loader, AlertCircle, X,

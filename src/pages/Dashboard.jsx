@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import {
@@ -17,13 +17,9 @@ import {
     X,
     Layers,
     Sparkles,
-    Database,
     ShieldCheck,
-    TrendingUp,
     FolderOpen,
     ArrowRight,
-    Filter,
-    HardDrive,
     SlidersHorizontal
 } from 'lucide-react'
 import Modal from '../components/Modal'

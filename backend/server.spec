@@ -1,16 +1,21 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Build: cd backend && pyinstaller --noconfirm server.spec  ->  dist/server/
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+
+datas = collect_data_files('reportlab')
+hiddenimports = collect_submodules('app')
 
 
 a = Analysis(
     ['server.py'],
     pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=datas,
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['tkinter', 'matplotlib', 'IPython', 'pytest'],
     noarchive=False,
     optimize=0,
 )

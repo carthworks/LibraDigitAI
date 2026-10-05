@@ -257,6 +257,12 @@ export default function Settings() {
                             <option value="spa">Spanish</option>
                             <option value="fra">French</option>
                             <option value="deu">German</option>
+                            <option value="ita">Italian</option>
+                            <option value="por">Portuguese</option>
+                            <option value="hin">Hindi</option>
+                            <option value="chi_sim">Chinese (Simplified)</option>
+                            <option value="jpn">Japanese</option>
+                            <option value="rus">Russian</option>
                         </select>
                     </SettingsCard>
 

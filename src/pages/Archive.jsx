@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
-import { Archive as ArchiveIcon, AlertCircle, CheckCircle, Download, Home } from 'lucide-react'
+import { Archive as ArchiveIcon, AlertCircle, CheckCircle, Home } from 'lucide-react'
 import WorkflowTracker from '../components/WorkflowTracker'
 import './Archive.css'
 

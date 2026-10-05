@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import {
@@ -15,7 +15,6 @@ import {
     Archive,
     FolderKanban,
     Database,
-    ShieldCheck,
     Cpu
 } from 'lucide-react'
 import './Sidebar.css'
