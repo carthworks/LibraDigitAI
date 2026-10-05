@@ -43,10 +43,12 @@ def _load_project_file(project_id):
     return project
 
 
-def _save_ocr_result(project_id, text, confidence=None, ocr_pdf_path=None):
+def _save_ocr_result(project_id, text, confidence=None, ocr_pdf_path=None, mean_confidence=None):
+    """mean_confidence is Tesseract's average word confidence (0-100), None when not measured."""
     with transaction() as conn:
-        conn.execute('UPDATE ocr_text SET original_text = ?, confidence_data = ? WHERE project_id = ?',
-                     (text, json.dumps(confidence) if confidence else None, project_id))
+        conn.execute('UPDATE ocr_text SET original_text = ?, confidence_data = ?, mean_confidence = ? '
+                     'WHERE project_id = ?',
+                     (text, json.dumps(confidence) if confidence else None, mean_confidence, project_id))
         if ocr_pdf_path:
             conn.execute('UPDATE files SET ocr_path = ? WHERE project_id = ?', (ocr_pdf_path, project_id))
         set_status(conn, project_id, 'cleanup')
@@ -60,7 +62,8 @@ def run_ocr(project_id, params, progress=no_progress):
 
     result = extract_document_text(project['filepath'], lang, engine, progress)
     progress(1, 1, 'Saving results')
-    _save_ocr_result(project_id, result['text'], result.get('confidence'), result.get('ocr_pdf_path'))
+    _save_ocr_result(project_id, result['text'], result.get('confidence'), result.get('ocr_pdf_path'),
+                     result.get('mean_confidence'))
     return {
         'success': True,
         'pages': 1,

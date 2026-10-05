@@ -1111,3 +1111,260 @@
         grid-template-columns: 1fr;
     }
 }
+/* ============================================
+   Compact header (replaces the large hero banner)
+   ============================================ */
+.dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.dash-header-text h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 2px 0;
+    letter-spacing: -0.02em;
+}
+
+.dash-header-text .dash-summary {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.dash-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.btn-dash-secondary.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.82rem;
+}
+
+.btn-dash-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Export dropdown built on <details>, so it works without extra JS */
+.dash-menu {
+    position: relative;
+}
+
+.dash-menu > summary {
+    list-style: none;
+}
+
+.dash-menu > summary::-webkit-details-marker {
+    display: none;
+}
+
+.dash-menu-list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 30;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    background: #1b1e24;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-md);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.dash-menu-list a {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 0.88rem;
+}
+
+.dash-menu-list a span {
+    font-size: 0.78rem;
+    color: var(--color-text-tertiary);
+}
+
+.dash-menu-list a:hover,
+.dash-menu-list a:focus-visible {
+    background: rgba(59, 130, 246, 0.15);
+    outline: none;
+}
+
+/* ============================================
+   "Needs your attention" panel
+   ============================================ */
+.attention-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: var(--space-lg);
+    background: rgba(25, 27, 31, 0.85);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+}
+
+.attention-panel.attention-clear {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    color: var(--color-text-secondary);
+    font-size: 0.92rem;
+}
+
+.attention-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 var(--space-sm) 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+}
+
+.attention-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.attention-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: 10px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.attention-row:first-child {
+    border-top: none;
+}
+
+.attention-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.attention-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.attention-hint {
+    font-size: 0.8rem;
+    color: var(--color-text-tertiary);
+}
+
+.attention-progress {
+    height: 5px;
+    margin-top: 4px;
+    background: rgba(148, 163, 184, 0.18);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.attention-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: inherit;
+    transition: width 0.4s ease;
+}
+
+.attention-pct {
+    min-width: 3ch;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-secondary);
+    text-align: right;
+}
+
+.attention-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #60a5fa;
+}
+
+.attention-dot.step-cleanup { background: #f59e0b; }
+.attention-dot.step-metadata { background: #06b6d4; }
+.attention-dot.step-archive { background: #10b981; }
+
+.link-like {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+}
+
+.attention-title.link-like:hover {
+    text-decoration: underline;
+}
+
+.attention-more {
+    margin-top: var(--space-sm);
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #60a5fa;
+}
+
+/* Always-visible next step on each document card */
+.card-next-step {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: var(--space-sm);
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+}
+
+.card-job-status {
+    font-size: 0.82rem;
+    color: #93c5fd;
+}
+
+/* Empty state steps */
+.empty-hub-steps {
+    margin: 0 auto var(--space-md);
+    padding-left: 1.4em;
+    max-width: 520px;
+    text-align: left;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+}
+
+@media (max-width: 720px) {
+    .attention-panel {
+        grid-template-columns: 1fr;
+    }
+    .dash-header-actions {
+        width: 100%;
+    }
+}

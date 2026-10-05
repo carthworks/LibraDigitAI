@@ -81,7 +81,8 @@ def start_batch_processing(batch_id):
             if result.get('unsupported'):
                 return False, result['text']
             with transaction() as conn:
-                conn.execute('UPDATE ocr_text SET original_text = ? WHERE project_id = ?', (result['text'], project_id))
+                conn.execute('UPDATE ocr_text SET original_text = ?, mean_confidence = ? WHERE project_id = ?',
+                             (result['text'], result.get('mean_confidence'), project_id))
                 if result.get('ocr_pdf_path'):
                     conn.execute('UPDATE files SET ocr_path = ? WHERE project_id = ?',
                                  (result['ocr_pdf_path'], project_id))

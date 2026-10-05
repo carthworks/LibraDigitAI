@@ -28,9 +28,23 @@ def _first_existing(*paths):
 
 @bp.get('')
 def list_projects():
+    # Includes what the dashboard needs to suggest each document's next step.
     with transaction() as conn:
-        rows = conn.execute('SELECT * FROM projects ORDER BY created_at DESC').fetchall()
-    return jsonify({'projects': [dict(r) for r in rows]})
+        rows = conn.execute('''
+            SELECT p.*, m.title,
+                   f.final_path IS NOT NULL AS has_archive, f.archive_format,
+                   o.mean_confidence
+            FROM projects p
+            LEFT JOIN metadata m ON m.project_id = p.id
+            LEFT JOIN files f ON f.project_id = p.id
+            LEFT JOIN ocr_text o ON o.project_id = p.id
+            ORDER BY p.created_at DESC''').fetchall()
+    projects = []
+    for row in rows:
+        project = dict(row)
+        project['has_archive'] = bool(project['has_archive'])
+        projects.append(project)
+    return jsonify({'projects': projects})
 
 
 @bp.post('')
