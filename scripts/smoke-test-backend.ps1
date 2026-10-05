@@ -25,10 +25,16 @@ try {
     $health = $null
     for ($i = 0; $i -lt 90 -and -not $health; $i++) {
         Start-Sleep -Seconds 1
+        # A crashed backend will never answer; stop waiting and show why.
+        if ($proc.HasExited) { break }
         try { $health = Invoke-RestMethod 'http://127.0.0.1:5001/api/health' } catch { }
     }
     if (-not $health) {
+        Write-Host '--- backend stdout ---'
+        Get-Content (Join-Path $env:TEMP 'backend-out.txt') -ErrorAction SilentlyContinue | Select-Object -Last 40
+        Write-Host '--- backend stderr ---'
         Get-Content (Join-Path $env:TEMP 'backend-err.txt') -ErrorAction SilentlyContinue | Select-Object -Last 40
+        if ($proc.HasExited) { throw "Backend exited with code $($proc.ExitCode) before becoming healthy" }
         throw 'Backend did not become healthy'
     }
     Write-Host "Health: $($health | ConvertTo-Json -Compress)"
