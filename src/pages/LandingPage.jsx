@@ -442,7 +442,7 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                 </div>
 
                 <div className="footer-bottom">
-                    <p>© 2026 LibraDigit AI. All rights reserved. Crafted for archival sovereignty.</p>
+                    <p>© 2026 LibraDigit AI. Created by Karthikeyan T (<a href="mailto:tkarthikeyan@gmail.com" style={{ color: '#f08418', textDecoration: 'none' }}>tkarthikeyan@gmail.com</a>). All rights reserved.</p>
                     <div className="footer-bottom-links">
                         <Link to="/marketing">Product Tour</Link>
                         <span className="dot-sep">•</span>

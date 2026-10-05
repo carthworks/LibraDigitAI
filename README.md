@@ -1,27 +1,43 @@
 # LibraDigit AI
 
-**AI-Based Digitization & Digital Archive Builder for Libraries**
+**Smart Digitization for Libraries • From Scans to Searchable Digital Archives**
 
-A production-grade desktop application that converts scanned documents into searchable, metadata-rich digital archives using a guided workflow.
+A production-grade, local-first application that converts physical books, scanned PDFs, and image collections into searchable, metadata-rich digital archives using a guided 5-step workflow.
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+<p align="center">
+  <img src="public/libradigit_ai_poster2.png" alt="LibraDigit AI - Smart Digitization for Libraries" width="520" />
+</p>
 
-![LibraDigit AI Poster](assets/marketing/ad_librDigitIT_2026.png)
+<p align="center">
+  <a href="mailto:tkarthikeyan@gmail.com"><img src="https://img.shields.io/badge/Created%20By-tkarthikeyan%40gmail.com-blue?style=flat-square&logo=gmail&logoColor=white" alt="Created By tkarthikeyan@gmail.com" /></a>
+  <img src="https://img.shields.io/badge/version-1.3.0-orange?style=flat-square" alt="Version 1.3.0" />
+  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License MIT" />
+  <img src="https://img.shields.io/badge/offline--first-100%25-00d084?style=flat-square" alt="Offline First" />
+  <img src="https://img.shields.io/badge/standards-BagIt%20%7C%20PDF%2FA-purple?style=flat-square" alt="Standards" />
+</p>
+
+---
+
+## 🏛️ Sovereign 5-Step Digitization Pipeline
+
+```
+┌──────────┐     ┌──────────┐     ┌───────────┐     ┌────────────┐     ┌─────────────┐
+│ 1 Upload │ ──▶ │  2 OCR   │ ──▶ │ 3 Cleanup │ ──▶ │ 4 Metadata │ ──▶ │  5 Archive  │
+└──────────┘     └──────────┘     └───────────┘     └────────────┘     └─────────────┘
+                                                                              │
+                                                                              ▼
+                                      /Archive ──▶ - Subject ──▶ - Year ──▶ [OFFLINE]
+```
 
 ## 🎯 Overview
 
-LibraDigit AI is an offline-first desktop application designed for librarians, archivists, and digitization teams to:
+LibraDigit AI is built for librarians, archivists, researchers, and digitization teams to:
 
-- ✅ Convert scanned PDFs/images to searchable documents using OCR.
-- ✅ **Automatic Scanned PDF Detection** - Intelligently detects image-based PDFs and applies OCR automatically.
-- ✅ **Advanced OCR with AI-powered layout analysis** - Detect tables, forms, signatures, and page structure.
-- ✅ **Handwritten text to PDF conversion** - Transform handwritten notes into formatted, searchable PDFs.
-- ✅ Clean and improve OCR text accuracy.
-- ✅ Add comprehensive metadata (title, author, year, subject, keywords).
-- ✅ Generate structured digital archives with organized folder hierarchies.
-- ✅ **Search** across an entire archive using a dedicated Full-Text Search engine.
-- ✅ **Analyze** digitization progress with a built-in statistics dashboard.
+- 🔍 **OCR Accuracy Control**: Optical character recognition with word-by-word confidence scoring and layout analysis.
+- 📄 **Searchable & Selectable PDFs**: Automatically generates dual-layer sandwich PDFs with pixel-aligned selectable text.
+- 🏷️ **Rich Dublin Core Metadata**: Embedded XMP tags, auto-suggested Title, Author, Year, Subject, and Keywords.
+- 🗄️ **Auto Archive Structure**: ISO BagIt (RFC 8493) preservation packaging with SHA-256 and MD5 checksum manifests.
+- 🔒 **100% Data Sovereignty**: All processing runs locally with zero telemetry and complete privacy (`#LibraryDigitization #OCR #DataPrivacy`).
 
 ## 🚀 Key Features
 
@@ -369,4 +385,12 @@ LibraDigitAI/
 
 ---
 
-**Built with ❤️ for librarians and archivists worldwide | github.com/carthworks**
+## 👨‍💻 Creator & Maintainer
+
+**Created by**: Karthikeyan T  
+**Email**: [tkarthikeyan@gmail.com](mailto:tkarthikeyan@gmail.com)  
+**GitHub**: [github.com/carthworks](https://github.com/carthworks)  
+**LinkedIn**: [linkedin.com/in/carthworks](https://www.linkedin.com/in/carthworks)  
+
+Built with ❤️ for librarians, archivists, and researchers worldwide.
+

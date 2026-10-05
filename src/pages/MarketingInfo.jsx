@@ -122,6 +122,21 @@ const MarketingInfo = ({ isLoggedIn, onOpenLogin }) => {
                             <span>Institutional Inquiries</span>
                         </a>
                     </div>
+
+                    <div className="mkt-poster-container" style={{ marginTop: '3rem', textAlign: 'center' }}>
+                        <img
+                            src="/libradigit_ai_poster2.png"
+                            alt="LibraDigit AI - Smart Digitization for Libraries"
+                            style={{
+                                maxWidth: '100%',
+                                width: '560px',
+                                borderRadius: '16px',
+                                border: '1px solid rgba(240, 132, 24, 0.35)',
+                                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(240, 132, 24, 0.25)',
+                                display: 'inline-block'
+                            }}
+                        />
+                    </div>
                 </div>
             </section>
 
@@ -435,7 +450,7 @@ const MarketingInfo = ({ isLoggedIn, onOpenLogin }) => {
                 <div className="footer-inner-clean">
                     <div className="footer-left">
                         <LogoLoader size="sm" />
-                        <span>LibraDigit AI • Sovereign Archival Intelligence</span>
+                        <span>LibraDigit AI • Created by Karthikeyan T (<a href="mailto:tkarthikeyan@gmail.com" style={{ color: '#f08418', textDecoration: 'none' }}>tkarthikeyan@gmail.com</a>)</span>
                     </div>
                     <div className="footer-right">
                         <Link to="/landing">Home</Link>
