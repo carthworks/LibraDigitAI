@@ -6,6 +6,7 @@
  * depends on load order. Keep every stylesheet listed here, not imported from
  * its component, so lazy-loaded pages cannot change the order.
  */
+@import '../index.css';
 @import '../components/Sidebar.css';
 @import '../components/HelpModal.css';
 @import '../components/Header.css';
@@ -36,4 +37,4 @@
 @import '../pages/Analytics.css';
 @import '../pages/Settings.css';
 @import '../pages/ConvertedEbooks.css';
-@import '../index.css';
+

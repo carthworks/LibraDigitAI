@@ -1,19 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ============================================
    LibraDigit AI - Design System & UI Specifications
    ============================================ */
 
 :root {
-  /* Brand Palette & Hex Tokens */
+  /* Design System Brand Palette & Hex Tokens */
+  --white: #ffffff;
   --color-white: #ffffff;
-  --color-neutral-50: #eff1f6;
-  --color-neutral-100: #e3e5eb;
-  --color-neutral-200: #dddddd;
-  --color-neutral-300: #cccccc;
-  --color-neutral-600: #767676;
-  --color-neutral-800: #555555;
-  --color-neutral-950: #212327;
-  --color-neutral-950-2: #333333;
-  --color-black: #000000;
+  --orange-400: #f08418;
+  --color-orange-400: #f08418;
+  --blue-950: #16324f;
+  --color-blue-950: #16324f;
+  --neutral-100: #e2e8f0;
+  --color-neutral-100: #e2e8f0;
+  --slate-600: #64748b;
+  --color-slate-600: #64748b;
+  --green-600: #138808;
+  --color-green-600: #138808;
+  --slate-950: #1f2933;
+  --color-slate-950: #1f2933;
+  --orange-300: #ff9933;
+  --color-orange-300: #ff9933;
+  --slate-900: #3a4753;
+  --color-slate-900: #3a4753;
+  --slate-800: #42505c;
+  --color-slate-800: #42505c;
+  --lime-500: #7a9e2e;
+  --color-lime-500: #7a9e2e;
+
+  /* Semantic UI Roles */
+  --background: #ffffff;
+  --foreground: #1f2933;
+  --muted-foreground: #64748b;
+  --primary: #f08418;
+  --accent: #16324f;
+  --border: #e2e8f0;
+  --warning: #f08418;
+  --success: #138808;
+
+  /* Typography Families & Scale */
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-sans-2: Sora, "IBM Plex Sans", system-ui, sans-serif;
+  --font-sans-3: Sora, sans-serif;
+  --text-xs: .8rem;
+  --text-sm: .88rem;
+  --text-base: .95rem;
+  --text-lg: 1.15rem;
+  --text-xl: 1.35rem;
+
+  /* Border Radii & Elevation */
+  --radius-lg: 8px;
+  --radius-xl: 14px;
+  --radius-3xl: 99px;
+  --shadow-brand-xs: 0 2px 10px rgba(240, 132, 24, 0.35);
+
+  /* Legacy Neutral & Color Scales */
 
   --color-red-500: #f15a24;
   --color-red-600: #cf2e2e;
@@ -124,7 +170,9 @@
   --radius-full: 50%;
 
   /* Typography Tokens */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-sans-2: Sora, "IBM Plex Sans", system-ui, sans-serif;
+  --font-sans-3: Sora, sans-serif;
   --font-serif: 'Alegreya', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'Courier Prime', 'DM Mono', monospace;
 
@@ -210,6 +258,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
 /* ============================================
    Typography
    ============================================ */
@@ -220,6 +275,7 @@ h3,
 h4,
 h5,
 h6 {
+  font-family: var(--font-sans-2);
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
 }
@@ -917,4 +973,32 @@ textarea:focus-visible,
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
+}
+
+/* ============================================
+   Design System Utility Classes (Vibe Coding)
+   ============================================ */
+
+.font-sans { font-family: var(--font-sans) !important; }
+.font-sans-2 { font-family: var(--font-sans-2) !important; }
+.font-sans-3 { font-family: var(--font-sans-3) !important; }
+
+.bg-primary { background-color: var(--primary) !important; }
+.text-primary { color: var(--primary) !important; }
+.border-primary { border-color: var(--primary) !important; }
+
+.bg-accent { background-color: var(--accent) !important; }
+.text-accent { color: var(--accent) !important; }
+.border-accent { border-color: var(--accent) !important; }
+
+.bg-surface-white { background-color: var(--white) !important; }
+.text-foreground { color: var(--foreground) !important; }
+.text-muted { color: var(--muted-foreground) !important; }
+.border-subtle { border-color: var(--border) !important; }
+
+.rounded-lg { border-radius: var(--radius-lg) !important; }
+.rounded-xl { border-radius: var(--radius-xl) !important; }
+.rounded-3xl { border-radius: var(--radius-3xl) !important; }
+
+.shadow-brand-xs { box-shadow: var(--shadow-brand-xs) !important; }
+
