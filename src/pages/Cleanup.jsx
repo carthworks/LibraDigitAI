@@ -7,7 +7,6 @@ import TextEditor from '../components/TextEditor'
 import Modal from '../components/Modal'
 import { API_URL } from '../config'
 import { useToast } from '../context/ToastContext'
-import './Cleanup.css'
 
 const Cleanup = () => {
     const { projectId } = useParams()

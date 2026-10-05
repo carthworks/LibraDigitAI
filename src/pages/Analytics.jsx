@@ -9,7 +9,6 @@ import {
     ShieldCheck, CheckCircle2, PieChart as PieIcon, BarChart2
 } from "lucide-react"
 import { API_URL } from "../config"
-import "./Analytics.css"
 
 const CHART_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#38bdf8", "#8b5cf6", "#ec4899"]
 

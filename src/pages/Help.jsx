@@ -3,7 +3,6 @@ import {
     BookOpen, ShieldCheck, Layers, Search, FileText, Cpu, Lock,
     HelpCircle, ChevronDown, Sparkles, CheckCircle2, ExternalLink, Mail, Github, Server
 } from 'lucide-react'
-import './Help.css'
 
 const Help = () => {
     const [activeTab, setActiveTab] = useState('workflow')

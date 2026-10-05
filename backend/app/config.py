@@ -68,3 +68,7 @@ class Config:
     MAX_TRANSLATE_CHARS = 100_000
 
     SEARCH_MAX_LIMIT = 100
+
+    # Background OCR workers. OCR is CPU-bound and Tesseract is itself
+    # multi-threaded, so one or two workers is usually best.
+    JOB_WORKERS = max(1, int(os.environ.get('LIBRADIGIT_JOB_WORKERS', '1')))

@@ -4,7 +4,6 @@ import { useProject } from '../context/ProjectContext'
 import { Save, AlertCircle, ArrowRight, X } from 'lucide-react'
 import WorkflowTracker from '../components/WorkflowTracker'
 import MetadataSuggestions from '../components/MetadataSuggestions'
-import './Metadata.css'
 
 const Metadata = () => {
     const { projectId } = useParams()

@@ -113,6 +113,23 @@ CREATE TABLE IF NOT EXISTS app_config (
     value TEXT
 );
 
+CREATE TABLE IF NOT EXISTS jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kind TEXT NOT NULL,
+    project_id INTEGER,
+    status TEXT NOT NULL DEFAULT 'queued',
+    progress REAL NOT NULL DEFAULT 0,
+    current INTEGER NOT NULL DEFAULT 0,
+    total INTEGER NOT NULL DEFAULT 0,
+    message TEXT,
+    params TEXT,
+    result TEXT,
+    error TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    started_at TIMESTAMP,
+    finished_at TIMESTAMP
+);
+
 CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5(
     project_id UNINDEXED, title, author, content, keywords, tokenize = 'porter'
 );
@@ -125,6 +142,8 @@ CREATE INDEX IF NOT EXISTS idx_files_project_id ON files(project_id);
 CREATE INDEX IF NOT EXISTS idx_metadata_project_id ON metadata(project_id);
 CREATE INDEX IF NOT EXISTS idx_ocr_text_project_id ON ocr_text(project_id);
 CREATE INDEX IF NOT EXISTS idx_projects_created_at ON projects(created_at);
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+CREATE INDEX IF NOT EXISTS idx_jobs_project_id ON jobs(project_id);
 '''
 
 

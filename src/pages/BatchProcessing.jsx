@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Upload, Play, X, CheckCircle, AlertCircle, Loader, FileText, Image as ImageIcon, Trash2, Clock, Edit3 } from 'lucide-react'
 import { API_URL } from '../config'
-import './BatchProcessing.css'
 import BulkMetadataEditor from '../components/BulkMetadataEditor'
 
 function BatchProcessing() {

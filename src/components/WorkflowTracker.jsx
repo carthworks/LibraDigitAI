@@ -1,6 +1,5 @@
 import React from 'react'
 import { Check, Circle, AlertCircle } from 'lucide-react'
-import './WorkflowTracker.css'
 
 const WorkflowTracker = ({ currentStep, projectStatus }) => {
     const steps = [

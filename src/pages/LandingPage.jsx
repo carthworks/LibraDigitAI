@@ -22,7 +22,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import LogoLoader from '../components/LogoLoader'
 import LoginScreen from '../components/LoginScreen'
 import ArchivalFlowVisualizer from '../components/ArchivalFlowVisualizer'
-import './LandingPage.css'
 
 const LandingPage = ({ onLogin, isLoggedIn }) => {
     const navigate = useNavigate()

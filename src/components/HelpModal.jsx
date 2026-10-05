@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { X, BookOpen, Zap, HelpCircle, Mail } from 'lucide-react'
-import './HelpModal.css'
 
 const HelpModal = ({ isOpen, onClose }) => {
     // Handle Escape key

@@ -17,7 +17,6 @@ import {
     Database,
     Cpu
 } from 'lucide-react'
-import './Sidebar.css'
 
 const Sidebar = ({ onLogout }) => {
     const location = useLocation()

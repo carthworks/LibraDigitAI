@@ -18,7 +18,6 @@ import {
     LogIn
 } from 'lucide-react'
 import bcrypt from 'bcryptjs'
-import './LoginScreen.css'
 
 const LoginScreen = ({ onLogin, isModal = false, onClose = null }) => {
     // Mode: 'login' | 'register' | 'reset'

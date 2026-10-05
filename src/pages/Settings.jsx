@@ -6,7 +6,6 @@ import {
 } from "lucide-react"
 import { useToast } from "../context/ToastContext"
 import { API_URL } from "../config"
-import "./Settings.css"
 
 const DEFAULT_SETTINGS = {
     archive_storage_path: "",

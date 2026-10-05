@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Sparkles, Check, Loader, AlertCircle } from 'lucide-react'
 import { API_URL } from '../config'
-import './MetadataSuggestions.css'
 
 function MetadataSuggestions({ projectId, onAccept }) {
     const [suggestions, setSuggestions] = useState(null)

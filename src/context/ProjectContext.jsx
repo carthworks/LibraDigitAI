@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
 import { API_URL as API_BASE } from '../config'
+import { runJob, JobCancelledError } from '../api/jobs'
 
 const ProjectContext = createContext()
 
@@ -101,68 +102,38 @@ export const ProjectProvider = ({ children }) => {
         }
     }
 
-    // Run OCR on project
-    const runOCR = async (projectId, language = 'eng') => {
+    // OCR runs as a background job on the server; options.onProgress(job)
+    // receives page-level progress and options.onStart(job) the job id.
+    const runProcessingJob = async (kind, projectId, params, options, fallbackError) => {
         try {
             setLoading(true)
-            const response = await axios.post(`${API_BASE}/ocr/${projectId}`, { language })
+            const result = await runJob(kind, projectId, params, options)
             await getProject(projectId)
             notifyOtherTabs('REFRESH')
             setError(null)
-            return response.data
+            return result
         } catch (err) {
-            const errorMsg = err.response?.data?.error || 'OCR processing failed. Please check if Tesseract is installed.'
+            if (err instanceof JobCancelledError) throw err
+            const errorMsg = err.message || fallbackError
             setError(errorMsg)
-            console.error('Error running OCR:', err)
+            console.error(`Error running ${kind}:`, err)
             throw new Error(errorMsg)
         } finally {
             setLoading(false)
         }
     }
 
-    // Run Advanced OCR with layout analysis
-    const runAdvancedOCR = async (projectId, language = 'eng') => {
-        try {
-            setLoading(true)
-            const response = await axios.post(`${API_BASE}/ocr/advanced/${projectId}`, {
-                language,
-                advanced: true
-            })
-            await getProject(projectId)
-            notifyOtherTabs('REFRESH')
-            setError(null)
-            return response.data
-        } catch (err) {
-            const errorMsg = err.response?.data?.error || 'Advanced OCR processing failed. Please check if OpenCV and Tesseract are installed.'
-            setError(errorMsg)
-            console.error('Error running advanced OCR:', err)
-            throw new Error(errorMsg)
-        } finally {
-            setLoading(false)
-        }
-    }
+    const runOCR = (projectId, language = 'eng', options = {}) =>
+        runProcessingJob('ocr', projectId, { language }, options,
+            'OCR processing failed. Please check if Tesseract is installed.')
 
-    // Convert handwritten text to PDF
-    const convertHandwrittenToPDF = async (projectId, title, language = 'eng') => {
-        try {
-            setLoading(true)
-            const response = await axios.post(`${API_BASE}/handwritten-to-pdf/${projectId}`, {
-                title,
-                language
-            })
-            await getProject(projectId)
-            notifyOtherTabs('REFRESH')
-            setError(null)
-            return response.data
-        } catch (err) {
-            const errorMsg = err.response?.data?.error || 'Handwritten to PDF conversion failed.'
-            setError(errorMsg)
-            console.error('Error converting handwritten to PDF:', err)
-            throw new Error(errorMsg)
-        } finally {
-            setLoading(false)
-        }
-    }
+    const runAdvancedOCR = (projectId, language = 'eng', options = {}) =>
+        runProcessingJob('advanced_ocr', projectId, { language }, options,
+            'Advanced OCR processing failed. Please check if OpenCV and Tesseract are installed.')
+
+    const convertHandwrittenToPDF = (projectId, title, language = 'eng', options = {}) =>
+        runProcessingJob('handwritten_to_pdf', projectId, { title, language }, options,
+            'Handwritten to PDF conversion failed.')
 
     // Save cleaned text
     const saveCleanedText = async (projectId, cleanedText) => {

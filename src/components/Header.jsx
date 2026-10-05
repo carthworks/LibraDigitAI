@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { HelpCircle } from 'lucide-react'
 import HelpModal from './HelpModal'
-import './Header.css'
 
 const Header = () => {
     const location = useLocation()

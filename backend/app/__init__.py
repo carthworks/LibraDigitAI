@@ -47,13 +47,19 @@ def create_app(overrides=None):
     app.before_request(api_guard)
     _register_error_handlers(app)
 
-    from .routes import batch, documents, ocr, projects, system
-    for module in (projects, ocr, documents, batch, system):
+    from .routes import batch, documents, jobs, ocr, projects, system
+    for module in (projects, ocr, jobs, documents, batch, system):
         app.register_blueprint(module.bp)
 
     with app.app_context():
         init_db()
         search_index.ensure_built()
+
+    from .jobs import JobManager
+    from .services.ocr_tasks import TASKS
+    manager = JobManager(app, TASKS, workers=app.config['JOB_WORKERS'])
+    app.extensions['jobs'] = manager
+    manager.start()
 
     if not app.debug:
         logging.basicConfig(level=logging.INFO)

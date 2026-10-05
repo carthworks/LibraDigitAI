@@ -9,7 +9,6 @@ import {
     Tag,
     ArrowRight
 } from 'lucide-react'
-import './ArchivalFlowVisualizer.css'
 
 const ArchivalFlowVisualizer = () => {
     const [isPlaying, setIsPlaying] = useState(true)

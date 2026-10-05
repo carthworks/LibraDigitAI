@@ -1,8 +1,8 @@
+import './styles/app.css'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import initConsoleSignature from './utils/consoleSignature'
-import './index.css'
 
 // Initialize styled developer signature & DevTools helper
 initConsoleSignature()

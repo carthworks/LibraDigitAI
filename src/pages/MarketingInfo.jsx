@@ -18,7 +18,6 @@ import {
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import LogoLoader from '../components/LogoLoader'
-import './MarketingInfo.css'
 
 const MarketingInfo = ({ isLoggedIn, onOpenLogin }) => {
     const navigate = useNavigate()

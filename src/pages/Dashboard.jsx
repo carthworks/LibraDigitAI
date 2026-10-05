@@ -25,7 +25,6 @@ import {
 import Modal from '../components/Modal'
 import { useToast } from '../context/ToastContext'
 import { API_URL } from '../config'
-import './Dashboard.css'
 
 const Dashboard = () => {
     const navigate = useNavigate()

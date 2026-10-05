@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback, memo } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
-import './Modal.css'
 
 const modalRoot = document.getElementById('modal-root') || document.body
 

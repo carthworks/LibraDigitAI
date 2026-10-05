@@ -1,5 +1,4 @@
 import { Archive, Brain, ScanLine } from 'lucide-react'
-import './LogoLoader.css'
 
 const LogoLoader = ({ size = 'md', className = '' }) => {
     const getSize = () => {
