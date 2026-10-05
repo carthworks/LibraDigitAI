@@ -42,7 +42,7 @@
 .batch-hero-left h1 {
     font-size: 1.55rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
     letter-spacing: -0.02em;
 }
@@ -146,7 +146,7 @@
 .batch-drop-zone h3 {
     font-size: 1.15rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
 }
 
@@ -204,7 +204,7 @@
 .staged-header h3 {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -269,7 +269,7 @@
 
 .item-name {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -311,10 +311,10 @@
     width: 100%;
     padding: 9px 12px;
     font-size: 0.85rem;
-    background: rgba(15, 17, 21, 0.9);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    color: #ffffff;
+    color: var(--color-text-primary);
     outline: none;
 }
 
@@ -380,7 +380,7 @@
 .status-title-group h3 {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -549,7 +549,7 @@
 }
 
 .mini-name {
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
@@ -581,7 +581,7 @@
 .recent-batches-header h3 {
     font-size: 1.15rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 2px 0;
 }
 
@@ -622,7 +622,7 @@
 .history-text-col h4 {
     font-size: 0.88rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 2px 0;
     white-space: nowrap;
     overflow: hidden;
@@ -681,4 +681,30 @@
     .batch-workspace-deck.has-staged-files {
         grid-template-columns: 1fr;
     }
+}
+
+/* ==========================================================================
+   Light Mode Overrides for BatchProcessing
+   ========================================================================== */
+[data-theme="light"] .batch-hero-banner,
+[data-theme="light"] .batch-drop-card,
+[data-theme="light"] .staged-files-panel,
+[data-theme="light"] .batch-active-panel,
+[data-theme="light"] .recent-batches-card,
+[data-theme="light"] .history-batch-item,
+[data-theme="light"] .staged-file-item,
+[data-theme="light"] .batch-mini-card {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .batch-drop-zone {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .batch-drop-zone:hover {
+    background: rgba(240, 132, 24, 0.04);
+    border-color: #f08418;
 }

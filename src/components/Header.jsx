@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { HelpCircle } from 'lucide-react'
+import { HelpCircle, Sun, Moon } from 'lucide-react'
+import { useTheme } from '../context/ThemeContext'
 import HelpModal from './HelpModal'
 
 const Header = () => {
@@ -74,6 +75,8 @@ const Header = () => {
         }
     }
 
+    const { theme, toggleTheme } = useTheme()
+
     return (
         <>
             <header className="header">
@@ -84,12 +87,20 @@ const Header = () => {
                     </div>
                     <div className="header-actions">
                         <button
+                            className="header-btn theme-toggle-btn"
+                            title={theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme'}
+                            aria-label="Toggle visual theme"
+                            onClick={toggleTheme}
+                        >
+                            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                        </button>
+                        <button
                             className="header-btn"
                             title="Help & Guide"
                             aria-label="Open help and documentation dialog"
                             onClick={() => setShowHelp(true)}
                         >
-                            <HelpCircle size={20} />
+                            <HelpCircle size={18} />
                         </button>
                     </div>
                 </div>

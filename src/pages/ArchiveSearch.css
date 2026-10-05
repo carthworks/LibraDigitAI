@@ -43,7 +43,7 @@
 .search-hero-banner h1 {
     font-size: 1.6rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
     letter-spacing: -0.02em;
 }
@@ -84,10 +84,10 @@
     font-size: 0.98rem;
     border: 1px solid var(--color-border);
     border-radius: 9999px;
-    background: rgba(15, 17, 21, 0.95);
-    color: #ffffff;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
     transition: all 0.25s ease;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-sm);
     outline: none;
 }
 
@@ -190,11 +190,11 @@
 
 .filter-select,
 .filter-input {
-    background: rgba(15, 17, 21, 0.9);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: 6px 12px;
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 0.82rem;
     outline: none;
 }
@@ -287,7 +287,7 @@
 
 .cell-title {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -400,7 +400,7 @@
 .pdf-header h2 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 2px 0;
 }
 
@@ -459,7 +459,7 @@
 
 .pdf-captions-panel h3 {
     font-size: 0.9rem;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 10px 0;
 }
 
@@ -479,9 +479,9 @@
     align-items: center;
     gap: 4px;
     padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
-    color: #ffffff;
+    color: var(--color-text-primary);
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.8rem;
@@ -490,4 +490,49 @@
 .pdf-footer button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Light Mode Overrides for ArchiveSearch
+   ========================================================================== */
+[data-theme="light"] .search-hero-banner,
+[data-theme="light"] .advanced-filter-panel,
+[data-theme="light"] .results-table-card,
+[data-theme="light"] .pdf-modal-container {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .search-input {
+    background: #ffffff;
+    border-color: var(--color-border);
+    color: #1f2933;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .search-results-table th {
+    background: #f8fafc;
+    color: #475569;
+    border-bottom: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .search-results-table td {
+    color: #1f2933;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+[data-theme="light"] .search-results-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+[data-theme="light"] .pdf-header,
+[data-theme="light"] .pdf-footer,
+[data-theme="light"] .pdf-captions-panel {
+    background: #f8fafc;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .pdf-viewer-container {
+    background: #f1f5f9;
 }

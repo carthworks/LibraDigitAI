@@ -113,7 +113,7 @@
     font-size: 2.5rem;
     font-weight: var(--font-weight-extrabold);
     line-height: 1.2;
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-4);
     letter-spacing: -0.02em;
     max-width: 900px;
@@ -193,7 +193,7 @@
 .section-header-centered h2 {
     font-size: 1.875rem;
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-2);
 }
 
@@ -303,7 +303,7 @@
 .spec-card h3 {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-4);
 }
 
@@ -363,7 +363,7 @@
 .usecase-item h4 {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
 }
 
 .usecase-item p {
@@ -424,7 +424,7 @@
 .faq-question h3 {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -464,7 +464,7 @@
 .inquiry-header h2 {
     font-size: 1.75rem;
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-2);
 }
 
@@ -558,7 +558,7 @@
 .inquiry-success h3 {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
 }
 
 .inquiry-success p {
@@ -622,4 +622,78 @@
         gap: var(--space-3);
         text-align: center;
     }
+}
+
+/* ==========================================================================
+   Light Mode Overrides for Marketing Info
+   ========================================================================== */
+[data-theme="light"] .marketing-container {
+    background-color: #f8fafc;
+    color: #1f2933;
+}
+
+[data-theme="light"] .marketing-nav {
+    background: #ffffff;
+    border-bottom: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .marketing-headline {
+    color: #1f2933;
+}
+
+[data-theme="light"] .marketing-subheadline {
+    color: #42505c;
+}
+
+[data-theme="light"] .section-header-centered h2 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .section-header-centered p {
+    color: #42505c;
+}
+
+[data-theme="light"] .table-responsive-wrapper {
+    background: #ffffff;
+    border-color: var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .comparison-table th {
+    background: #f1f5f9;
+    color: #1f2933;
+}
+
+[data-theme="light"] .comparison-table td {
+    color: #42505c;
+    border-bottom-color: var(--color-border);
+}
+
+[data-theme="light"] .spec-card,
+[data-theme="light"] .usecase-item,
+[data-theme="light"] .faq-item,
+[data-theme="light"] .inquiry-card {
+    background: #ffffff;
+    border-color: var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .spec-card h3,
+[data-theme="light"] .usecase-item h4,
+[data-theme="light"] .faq-question h3,
+[data-theme="light"] .inquiry-header h2,
+[data-theme="light"] .inquiry-success h3 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .spec-card li,
+[data-theme="light"] .usecase-item p,
+[data-theme="light"] .faq-answer p,
+[data-theme="light"] .inquiry-header p {
+    color: #42505c;
+}
+
+[data-theme="light"] .marketing-footer {
+    background: #ffffff;
+    border-top-color: var(--color-border);
 }

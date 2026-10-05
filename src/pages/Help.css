@@ -41,7 +41,7 @@
 .help-hero-banner h1 {
     font-size: 1.55rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
     letter-spacing: -0.02em;
 }
@@ -107,7 +107,7 @@
 .section-title-box h2 {
     font-size: 1.35rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
 }
 
@@ -193,7 +193,7 @@
 .pipeline-step-card h3 {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 4px 0 0 0;
 }
 
@@ -265,7 +265,7 @@
 .help-feature-card h3 {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -292,11 +292,11 @@
 
 .faq-search-wrapper input {
     width: 100%;
-    background: rgba(25, 27, 31, 0.85);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     padding: 12px 18px 12px 42px;
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 0.9rem;
     outline: none;
     transition: all 0.2s ease;
@@ -332,7 +332,7 @@
     justify-content: space-between;
     cursor: pointer;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 0.92rem;
     list-style: none;
     user-select: none;
@@ -412,7 +412,7 @@
 .privacy-detail-card h3 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -459,7 +459,7 @@
 .creator-text h3 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 2px 0;
 }
 
@@ -490,10 +490,10 @@
     align-items: center;
     gap: 8px;
     padding: 8px 14px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 0.85rem;
     font-weight: 500;
     text-decoration: none;
@@ -511,4 +511,46 @@
     .privacy-cards-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ==========================================================================
+   Light Mode Overrides for Help
+   ========================================================================== */
+[data-theme="light"] .help-hero-banner,
+[data-theme="light"] .help-tabs-bar,
+[data-theme="light"] .pipeline-step-card,
+[data-theme="light"] .help-feature-card,
+[data-theme="light"] .modern-faq-item,
+[data-theme="light"] .privacy-detail-card,
+[data-theme="light"] .about-creator-card {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .help-tab {
+    color: #64748b;
+}
+
+[data-theme="light"] .help-tab:hover {
+    color: #1f2933;
+    background: #f1f5f9;
+}
+
+[data-theme="light"] .help-tab.active {
+    background: #f1f5f9;
+    color: #f08418;
+    border-color: rgba(240, 132, 24, 0.3);
+}
+
+[data-theme="light"] .contact-link-pill {
+    background: #f8fafc;
+    border-color: var(--color-border);
+    color: #1f2933;
+}
+
+[data-theme="light"] .contact-link-pill:hover {
+    background: #f1f5f9;
+    color: #f08418;
+    border-color: #f08418;
 }

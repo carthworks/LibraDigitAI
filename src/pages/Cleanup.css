@@ -100,7 +100,7 @@
     font-family: 'Sora', sans-serif;
     font-size: 1.15rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
     line-height: 1.25;
     white-space: nowrap;
@@ -448,7 +448,7 @@
 .preview-fallback-card h4 {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-text-primary);
     margin: 0 0 6px 0;
     word-break: break-all;
 }
@@ -604,4 +604,90 @@
     padding: 0 14px;
     background: rgba(18, 22, 29, 0.95);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   Light Mode Overrides for Cleanup Studio
+   ========================================================================== */
+[data-theme="light"] .cleanup-container {
+    background: #ffffff;
+    border-color: var(--color-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .cleanup-header-bar {
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .doc-filename {
+    color: #1f2933;
+}
+
+[data-theme="light"] .cleanup-preview-pane,
+[data-theme="light"] .cleanup-editor-pane {
+    background: #ffffff;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .cleanup-preview-pane .pane-header,
+[data-theme="light"] .cleanup-editor-pane .pane-header {
+    background: #f8fafc;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .pane-title {
+    color: #42505c;
+}
+
+[data-theme="light"] .preview-pane-body {
+    background: #f1f5f9;
+}
+
+[data-theme="light"] .preview-pane-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+[data-theme="light"] .preview-pane-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+}
+
+[data-theme="light"] .cleanup-editor-pane .ql-toolbar {
+    background: #f8fafc !important;
+    border-color: var(--color-border) !important;
+}
+
+[data-theme="light"] .cleanup-editor-pane .ql-container {
+    background: #ffffff !important;
+}
+
+[data-theme="light"] .cleanup-editor-pane .ql-editor {
+    color: #1f2933 !important;
+}
+
+[data-theme="light"] .cleanup-editor-pane .editor-footer {
+    background: #f8fafc !important;
+    border-color: var(--color-border) !important;
+}
+
+[data-theme="light"] .btn-studio-action,
+[data-theme="light"] .btn-zoom,
+[data-theme="light"] .btn-zoom-fit,
+[data-theme="light"] .btn-open-ext,
+[data-theme="light"] .btn-collapse-pane {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+[data-theme="light"] .btn-studio-action:hover:not(:disabled),
+[data-theme="light"] .btn-zoom:hover,
+[data-theme="light"] .btn-zoom-fit:hover,
+[data-theme="light"] .btn-open-ext:hover,
+[data-theme="light"] .btn-collapse-pane:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+[data-theme="light"] .cleanup-page .stat-value {
+    color: #475569 !important;
 }

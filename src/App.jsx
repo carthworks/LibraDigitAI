@@ -6,6 +6,7 @@ import WelcomeScreen from './components/WelcomeScreen'
 import LogoLoader from './components/LogoLoader'
 import { ProjectProvider } from './context/ProjectContext'
 import { ToastProvider } from './context/ToastContext'
+import { ThemeProvider } from './context/ThemeContext'
 
 // Each page is its own chunk, so heavy libraries (charts, PDF rendering, the
 // rich-text editor, bcrypt) only download when the page that needs them opens.
@@ -59,8 +60,9 @@ function App() {
     }
 
     return (
-        <ToastProvider>
-            <ProjectProvider>
+        <ThemeProvider>
+            <ToastProvider>
+                <ProjectProvider>
                 {showWelcome && (
                     <WelcomeScreen onComplete={() => setShowWelcome(false)} />
                 )}
@@ -131,6 +133,7 @@ function App() {
                 </Router>
             </ProjectProvider>
         </ToastProvider>
+        </ThemeProvider>
     )
 }
 

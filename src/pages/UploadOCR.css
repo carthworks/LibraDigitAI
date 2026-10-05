@@ -60,7 +60,7 @@
 .upload-header-banner h1 {
     font-size: 1.55rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
     letter-spacing: -0.02em;
 }
@@ -142,7 +142,7 @@
 .dropzone-idle-content h3 {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -207,7 +207,7 @@
 .file-details h3 {
     font-size: 1.05rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 6px 0;
     white-space: nowrap;
     overflow: hidden;
@@ -265,7 +265,7 @@
 .ocr-card-header h2 {
     font-size: 1.35rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
 }
 
@@ -305,11 +305,11 @@
 }
 
 .dash-select-input {
-    background: rgba(15, 17, 21, 0.85);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: 10px 14px;
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 0.88rem;
     outline: none;
     cursor: pointer;
@@ -326,12 +326,12 @@
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    background: rgba(15, 17, 21, 0.85);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     font-size: 0.88rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
 }
 
 .engine-dot {
@@ -382,7 +382,7 @@
 .toggle-copy h4 {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 2px 0;
 }
 
@@ -483,7 +483,7 @@
 
 .pdf-generated-notice strong {
     display: block;
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 0.92rem;
 }
 
@@ -507,7 +507,7 @@
 .ocr-processing-active-box h3 {
     font-size: 1.35rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: var(--space-xs) 0 0 0;
 }
 
@@ -577,7 +577,7 @@
 .ocr-success-box h3 {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -618,7 +618,7 @@
 .ocr-stat-val {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
 }
 
 @media (max-width: 768px) {
@@ -635,3 +635,29 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================================================
+   Light Mode Overrides for UploadOCR
+   ========================================================================== */
+[data-theme="light"] .upload-header-banner,
+[data-theme="light"] .upload-main-card,
+[data-theme="light"] .ocr-configuration-card,
+[data-theme="light"] .ocr-stat-card {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .modern-dropzone {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .modern-dropzone:hover {
+    background: rgba(240, 132, 24, 0.04);
+    border-color: #f08418;
+}
+
+[data-theme="light"] .ocr-option-row {
+    border-color: var(--color-border);
+}

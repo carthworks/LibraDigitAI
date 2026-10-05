@@ -16,9 +16,12 @@ import {
     Building2,
     Scale,
     GraduationCap,
-    Landmark
+    Landmark,
+    Sun,
+    Moon
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTheme } from '../context/ThemeContext'
 import LogoLoader from '../components/LogoLoader'
 import LoginScreen from '../components/LoginScreen'
 import ArchivalFlowVisualizer from '../components/ArchivalFlowVisualizer'
@@ -32,6 +35,8 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
         const storedHash = localStorage.getItem('auth_hash')
         setIsFirstRun(!storedHash)
     }, [])
+
+    const { theme, toggleTheme } = useTheme()
 
     const handleLaunchWorkspace = () => {
         if (isLoggedIn) {
@@ -63,6 +68,15 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                     </nav>
 
                     <div className="landing-nav-actions">
+                        <button
+                            type="button"
+                            className="btn-theme-nav"
+                            onClick={toggleTheme}
+                            title={theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme'}
+                            aria-label="Toggle visual theme"
+                        >
+                            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                        </button>
                         {isLoggedIn ? (
                             <button
                                 className="btn-primary-action"

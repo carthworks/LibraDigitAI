@@ -48,7 +48,7 @@
 .brand-title {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     letter-spacing: -0.01em;
 }
 
@@ -93,6 +93,26 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
+}
+
+.btn-theme-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-theme-nav:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .btn-primary-action {
@@ -151,7 +171,7 @@
     font-size: 2.5rem;
     font-weight: var(--font-weight-extrabold);
     line-height: 1.18;
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-4);
     letter-spacing: -0.02em;
 }
@@ -245,7 +265,7 @@
 .trust-title {
     font-size: 0.78rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     line-height: 1.2;
 }
 
@@ -467,7 +487,7 @@
 .metric-number {
     font-size: 1.875rem;
     font-weight: var(--font-weight-extrabold);
-    color: var(--color-white);
+    color: var(--color-primary);
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     background-clip: text;
@@ -512,7 +532,7 @@
 .landing-section-title {
     font-size: 1.875rem;
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-3);
     letter-spacing: -0.01em;
     text-align: center;
@@ -578,7 +598,7 @@
 .landing-feature-card h3 {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin: 0 0 var(--space-2) 0;
     text-align: left;
 }
@@ -639,7 +659,7 @@
 .landing-pipeline-card h4 {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin: 0 0 var(--space-2) 0;
     text-align: left;
 }
@@ -698,7 +718,7 @@
 .landing-solution-card h3 {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin: 0 0 var(--space-2) 0;
     text-align: left;
 }
@@ -783,7 +803,7 @@
 .landing-security-card h3 {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin: 0 0 var(--space-2) 0;
     text-align: left;
 }
@@ -828,7 +848,7 @@
 .cta-banner-content h2 {
     font-size: 2rem;
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-3);
 }
 
@@ -867,7 +887,7 @@
     gap: var(--space-3);
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-3);
 }
 
@@ -893,7 +913,7 @@
 .footer-col h4 {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin-bottom: var(--space-3);
 }
 
@@ -1006,7 +1026,7 @@
 .modal-header h2 {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     margin: var(--space-3) 0 var(--space-1) 0;
 }
 
@@ -1168,4 +1188,133 @@
         gap: var(--space-3);
         text-align: center;
     }
+}
+
+/* ==========================================================================
+   Light Mode Overrides for Landing Page
+   ========================================================================== */
+[data-theme="light"] .landing-container {
+    background-color: #f8fafc;
+    color: #1f2933;
+}
+
+[data-theme="light"] .landing-nav {
+    background: #ffffff;
+    border-bottom: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .brand-title {
+    color: #1f2933;
+}
+
+[data-theme="light"] .landing-nav-links a {
+    color: #42505c;
+}
+
+[data-theme="light"] .landing-nav-links a:hover {
+    color: #f08418;
+}
+
+[data-theme="light"] .hero-headline {
+    color: #1f2933;
+}
+
+[data-theme="light"] .hero-subheadline {
+    color: #42505c;
+}
+
+[data-theme="light"] .trust-title {
+    color: #1f2933;
+}
+
+[data-theme="light"] .trust-sub {
+    color: #64748b;
+}
+
+[data-theme="light"] .btn-hero-secondary {
+    background: #ffffff;
+    color: #1f2933;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .btn-hero-secondary:hover {
+    background: #f1f5f9;
+    color: #f08418;
+    border-color: #f08418;
+}
+
+[data-theme="light"] .metric-card {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .metric-label {
+    color: #1f2933;
+}
+
+[data-theme="light"] .metric-desc {
+    color: #64748b;
+}
+
+[data-theme="light"] .landing-section-title {
+    color: #1f2933;
+}
+
+[data-theme="light"] .landing-section-subtitle {
+    color: #42505c;
+}
+
+[data-theme="light"] .landing-feature-card,
+[data-theme="light"] .landing-solution-card,
+[data-theme="light"] .landing-pipeline-card,
+[data-theme="light"] .landing-security-card {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .landing-feature-card h3,
+[data-theme="light"] .landing-solution-card h3,
+[data-theme="light"] .landing-pipeline-card h4,
+[data-theme="light"] .landing-security-card h3 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .landing-feature-card p,
+[data-theme="light"] .landing-solution-card p,
+[data-theme="light"] .landing-pipeline-card p,
+[data-theme="light"] .landing-security-card p {
+    color: #42505c;
+}
+
+[data-theme="light"] .cta-banner-content {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .cta-banner-content h2 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .cta-banner-content p {
+    color: #42505c;
+}
+
+[data-theme="light"] .landing-footer {
+    background: #ffffff;
+    border-top: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .footer-col h4 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .footer-col a {
+    color: #64748b;
+}
+
+[data-theme="light"] .footer-col a:hover {
+    color: #f08418;
 }

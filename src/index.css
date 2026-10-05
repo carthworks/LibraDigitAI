@@ -214,6 +214,106 @@
   --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ============================================
+   Light Theme Tokens [data-theme="light"]
+   ============================================ */
+[data-theme="light"],
+body.light-theme {
+  --background: #ffffff;
+  --foreground: #1f2933;
+  --muted-foreground: #64748b;
+  --primary: #f08418;
+  --accent: #16324f;
+  --border: #e2e8f0;
+  --warning: #f08418;
+  --success: #138808;
+
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f1f5f9;
+  --color-bg-elevated: #ffffff;
+
+  --color-surface: #ffffff;
+  --color-surface-hover: #f8fafc;
+  --color-surface-active: #e2e8f0;
+
+  --color-primary: #f08418;
+  --color-primary-hover: #ff9933;
+  --color-primary-light: rgba(240, 132, 24, 0.12);
+
+  --color-accent: #16324f;
+  --color-accent-hover: #1e4268;
+  --color-accent-light: rgba(22, 50, 79, 0.1);
+
+  --color-warning: #f08418;
+  --color-warning-light: rgba(240, 132, 24, 0.12);
+
+  --color-error: #ef4444;
+  --color-error-light: rgba(239, 68, 68, 0.1);
+  --color-error-bg: rgba(239, 68, 68, 0.06);
+
+  --color-success: #138808;
+  --color-success-light: rgba(19, 136, 8, 0.12);
+  --color-success-bg: rgba(19, 136, 8, 0.06);
+
+  --color-info: #0284c7;
+  --color-info-light: rgba(2, 132, 199, 0.12);
+
+  --color-white: #1f2933;
+
+  --color-text-primary: #1f2933;
+  --color-text-secondary: #42505c;
+  --color-text-tertiary: #64748b;
+  --color-text-muted: #64748b;
+
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e1;
+
+  --gradient-primary: linear-gradient(135deg, #f08418 0%, #ff9933 100%);
+  --gradient-accent: linear-gradient(135deg, #16324f 0%, #2a4768 100%);
+  --gradient-surface: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  --gradient-hero: linear-gradient(135deg, #f08418 0%, #16324f 100%);
+
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Universal Light Theme High-Contrast Typography & Forms */
+[data-theme="light"] h1:not(.btn *):not(.badge *),
+[data-theme="light"] h2:not(.btn *):not(.badge *),
+[data-theme="light"] h3:not(.btn *):not(.badge *),
+[data-theme="light"] h4:not(.btn *):not(.badge *),
+[data-theme="light"] h5:not(.btn *):not(.badge *),
+[data-theme="light"] h6:not(.btn *):not(.badge *) {
+  color: var(--color-text-primary);
+}
+
+[data-theme="light"] input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  color: var(--color-text-primary);
+  background-color: #ffffff;
+  border-color: var(--color-border);
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Always ensure buttons with brand backgrounds retain white text in both themes */
+.btn-primary,
+.btn-hero-primary,
+.btn-action-primary,
+.btn-dash-primary,
+.btn-primary-action,
+.btn-start-batch,
+.btn-submit-inquiry {
+  color: #ffffff !important;
+}
+
 
 /* ============================================
    Reset & Base Styles

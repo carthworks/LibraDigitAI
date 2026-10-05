@@ -90,7 +90,7 @@
     font-family: 'Sora', sans-serif;
     font-size: 1.15rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
     line-height: 1.25;
     white-space: nowrap;
@@ -585,11 +585,11 @@
 }
 
 .modern-input {
-    background: rgba(11, 14, 19, 0.95) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: var(--color-surface) !important;
+    border: 1px solid var(--color-border) !important;
     border-radius: 6px !important;
     padding: 9px 12px !important;
-    color: #ffffff !important;
+    color: var(--color-text-primary) !important;
     font-family: 'IBM Plex Sans', sans-serif !important;
     font-size: 0.9rem !important;
     width: 100% !important;
@@ -741,7 +741,7 @@
     background: transparent;
     border: none;
     outline: none;
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 0.85rem;
     padding: 3px 4px;
@@ -910,4 +910,141 @@
     padding: 1px 5px;
     border-radius: 3px;
     margin-left: 4px;
+}
+
+/* ==========================================================================
+   Light Mode Overrides for Metadata Studio
+   ========================================================================== */
+[data-theme="light"] .metadata-container {
+    background: #ffffff;
+    border-color: var(--color-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .metadata-header-bar {
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .doc-filename {
+    color: #1f2933;
+}
+
+[data-theme="light"] .doc-reference-pane,
+[data-theme="light"] .metadata-form-pane {
+    background: #ffffff;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .doc-reference-pane .pane-header,
+[data-theme="light"] .metadata-form-pane .pane-header {
+    background: #f8fafc;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .pane-title {
+    color: #42505c;
+}
+
+[data-theme="light"] .reference-thumbnail-box {
+    background: #f1f5f9;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .reference-text-box {
+    background: #f8fafc;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .text-box-header {
+    background: #f1f5f9;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .ocr-snippet-scroll pre {
+    color: #334155;
+}
+
+[data-theme="light"] .ai-discovery-banner {
+    background: linear-gradient(90deg, rgba(240, 132, 24, 0.1) 0%, rgba(22, 50, 79, 0.06) 100%);
+    border-color: rgba(240, 132, 24, 0.3);
+}
+
+[data-theme="light"] .banner-text strong {
+    color: #1f2933;
+}
+
+[data-theme="light"] .banner-text p {
+    color: #64748b;
+}
+
+[data-theme="light"] .form-group-card {
+    background: #f8fafc;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .form-label {
+    color: #1f2933;
+}
+
+[data-theme="light"] .modern-input {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #1f2933 !important;
+}
+
+[data-theme="light"] .modern-input:focus {
+    border-color: #f08418 !important;
+    box-shadow: 0 0 0 3px rgba(240, 132, 24, 0.15) !important;
+}
+
+[data-theme="light"] .interactive-tags-container {
+    background: #ffffff;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .tag-inline-input {
+    color: #1f2933;
+}
+
+[data-theme="light"] .preset-category-pill {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+[data-theme="light"] .preset-category-pill:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+[data-theme="light"] .preset-category-pill.active-pill {
+    background: rgba(240, 132, 24, 0.15);
+    border-color: rgba(240, 132, 24, 0.4);
+    color: #c25e00;
+}
+
+[data-theme="light"] .archive-visual-preview-card {
+    background: #f8fafc;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .node-name {
+    color: #1f2933;
+}
+
+[data-theme="light"] .btn-open-ext,
+[data-theme="light"] .btn-toggle-pane,
+[data-theme="light"] .btn-show-ref,
+[data-theme="light"] .chip-btn {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+[data-theme="light"] .btn-open-ext:hover,
+[data-theme="light"] .btn-toggle-pane:hover,
+[data-theme="light"] .btn-show-ref:hover,
+[data-theme="light"] .chip-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
 }

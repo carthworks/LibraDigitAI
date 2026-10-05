@@ -117,7 +117,7 @@
     font-size: 1.65rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 var(--space-xs) 0;
 }
 
@@ -290,7 +290,7 @@
     font-size: 2rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: #ffffff;
+    color: var(--color-text-primary);
     line-height: 1;
 }
 
@@ -405,11 +405,11 @@
 }
 
 .dash-search-box input {
-    background: rgba(15, 17, 21, 0.85);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: 7px 30px 7px 32px;
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 0.85rem;
     width: 210px;
     outline: none;
@@ -593,7 +593,7 @@
 .card-filename {
     font-size: 1.05rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -681,7 +681,7 @@
 }
 
 .progress-num {
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-weight: 600;
 }
 
@@ -785,7 +785,7 @@
 
 .doc-title {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     max-width: 320px;
     white-space: nowrap;
     overflow: hidden;
@@ -973,7 +973,7 @@
 .dashboard-empty-hub h3 {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -1126,7 +1126,7 @@
 .dash-header-text h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 2px 0;
     letter-spacing: -0.02em;
 }
@@ -1135,7 +1135,7 @@
     margin: 0;
     font-size: 1.15rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
 }
 
 .dash-header-actions {
@@ -1271,7 +1271,7 @@
 .attention-title {
     font-size: 0.92rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1369,3 +1369,46 @@
         width: 100%;
     }
 }
+
+/* ==========================================================================
+   Light Mode Overrides for Dashboard
+   ========================================================================== */
+[data-theme="light"] .dashboard-hero-banner,
+[data-theme="light"] .metric-stat-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .dash-controls-deck,
+[data-theme="light"] .doc-card,
+[data-theme="light"] .dash-table-wrap,
+[data-theme="light"] .attention-panel,
+[data-theme="light"] .dashboard-empty-hub {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .doc-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+[data-theme="light"] .btn-dash-secondary {
+    background: #ffffff;
+    color: #1f2933;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .btn-dash-secondary:hover {
+    background: #f1f5f9;
+    color: #f08418;
+    border-color: #f08418;
+}
+
+[data-theme="light"] .funnel-tab {
+    color: #64748b;
+}
+
+[data-theme="light"] .funnel-tab:hover,
+[data-theme="light"] .funnel-tab.active {
+    color: #1f2933;
+    background: #f1f5f9;
+}
+

@@ -51,7 +51,7 @@
 .settings-header-banner h1 {
     font-size: 1.55rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
     letter-spacing: -0.02em;
 }
@@ -128,7 +128,7 @@
 .settings-card-header h3 {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -156,11 +156,11 @@
 .form-input,
 .form-select {
     width: 100%;
-    background: rgba(15, 17, 21, 0.9);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: 10px 14px;
-    color: #ffffff;
+    color: var(--color-text-primary);
     font-size: 0.88rem;
     outline: none;
     transition: all 0.2s ease;
@@ -281,9 +281,9 @@
     align-items: center;
     gap: 6px;
     padding: 9px 16px;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
-    color: #ffffff;
+    color: var(--color-text-primary);
     border-radius: var(--radius-md);
     font-size: 0.85rem;
     font-weight: 500;
@@ -304,4 +304,33 @@
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Light Mode Overrides for Settings
+   ========================================================================== */
+[data-theme="light"] .settings-header-banner,
+[data-theme="light"] .settings-card {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .form-input,
+[data-theme="light"] .form-select {
+    background: #f8fafc;
+    border-color: var(--color-border);
+    color: #1f2933;
+}
+
+[data-theme="light"] .btn-secondary {
+    background: #f8fafc;
+    color: #1f2933;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .btn-secondary:hover {
+    background: #f1f5f9;
+    color: #f08418;
+    border-color: #f08418;
 }
