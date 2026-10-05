@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef, memo } from "react"
+import { useState, useEffect, memo } from "react"
 import axios from "axios"
-import debounce from "lodash.debounce"
 import DOMPurify from "dompurify"
 import {
     Search, Loader, AlertCircle, X,
@@ -10,9 +9,6 @@ import {
 import { Document, Page, pdfjs } from "react-pdf"
 import { useToast } from "../context/ToastContext"
 import { API_URL } from "../config"
-import "./ArchiveSearch.css"
-import "react-pdf/dist/Page/AnnotationLayer.css"
-import "react-pdf/dist/Page/TextLayer.css"
 
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url"
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker

@@ -1,14 +1,14 @@
 """
 Test script to verify LibraDigit AI backend API is working
 """
+
 import requests
-import json
 
 BASE_URL = "http://localhost:5001"
 
 def test_api():
     print("🧪 Testing LibraDigit AI Backend API\n")
-    
+
     # Test 1: Root endpoint
     print("1. Testing root endpoint (/)...")
     try:
@@ -20,9 +20,9 @@ def test_api():
             print(f"   ❌ Root endpoint failed: {response.status_code}")
     except Exception as e:
         print(f"   ❌ Error: {e}")
-    
+
     print()
-    
+
     # Test 2: Health check
     print("2. Testing health check (/api/health)...")
     try:
@@ -34,9 +34,9 @@ def test_api():
             print(f"   ❌ Health check failed: {response.status_code}")
     except Exception as e:
         print(f"   ❌ Error: {e}")
-    
+
     print()
-    
+
     # Test 3: Get projects
     print("3. Testing get projects (/api/projects)...")
     try:
@@ -49,9 +49,9 @@ def test_api():
             print(f"   ❌ Get projects failed: {response.status_code}")
     except Exception as e:
         print(f"   ❌ Error: {e}")
-    
+
     print()
-    
+
     # Test 4: Create a test project
     print("4. Testing create project (POST /api/projects)...")
     try:
@@ -70,7 +70,7 @@ def test_api():
             print(f"   Response: {response.text}")
     except Exception as e:
         print(f"   ❌ Error: {e}")
-    
+
     return None
 
 if __name__ == "__main__":
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     print("LibraDigit AI - Backend API Test")
     print("=" * 60)
     print()
-    
+
     try:
         project_id = test_api()
         print()

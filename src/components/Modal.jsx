@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useCallback, memo } from 'react'
+import { useEffect, useRef, useCallback, memo } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
-import './Modal.css'
 
 const modalRoot = document.getElementById('modal-root') || document.body
 
@@ -66,5 +65,7 @@ const Modal = memo(({ isOpen, onClose, title, children, footer, size = 'md', cla
         modalRoot
     )
 })
+
+Modal.displayName = 'Modal'
 
 export default Modal

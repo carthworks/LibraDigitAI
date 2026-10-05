@@ -1,33 +1,23 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
     ShieldCheck,
     Lock,
-    Sparkles,
-    Layers,
     FileText,
-    Search,
     Cpu,
     ArrowRight,
     CheckCircle2,
     XCircle,
     Database,
-    Zap,
-    BookOpen,
     Landmark,
     GraduationCap,
     Scale,
-    Building2,
     ChevronDown,
     ChevronUp,
     Send,
-    HelpCircle,
-    Download,
-    ExternalLink,
     ArrowLeft
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import LogoLoader from '../components/LogoLoader'
-import './MarketingInfo.css'
 
 const MarketingInfo = ({ isLoggedIn, onOpenLogin }) => {
     const navigate = useNavigate()

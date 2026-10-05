@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { Save, AlertCircle, ArrowRight, X, Download, Globe, AlertTriangle } from 'lucide-react'
@@ -7,7 +7,6 @@ import TextEditor from '../components/TextEditor'
 import Modal from '../components/Modal'
 import { API_URL } from '../config'
 import { useToast } from '../context/ToastContext'
-import './Cleanup.css'
 
 const Cleanup = () => {
     const { projectId } = useParams()
@@ -94,9 +93,7 @@ const Cleanup = () => {
         confidenceData.forEach(item => {
             const escaped = item.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
             const regex = new RegExp(`\\b${escaped}\\b`, 'g')
-            if (!newText.includes(`background-color: #fff9c4`)) {
-            }
-            newText = newText.replace(regex, `<span style="background-color: #fff9c4" title="Confidence: ${item.conf}%">${item.word}</span>`)
+            newText = newText.replace(regex, `<span style="background-color: #fff9c4" title="Confidence: ${Number(item.conf)}%">${escapeHtml(item.word)}</span>`)
             count++
         })
         if (count > 0) {
@@ -340,6 +337,10 @@ const Cleanup = () => {
             </Modal>
         </div>
     )
+}
+
+function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]))
 }
 
 export default Cleanup

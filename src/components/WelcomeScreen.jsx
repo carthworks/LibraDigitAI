@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import LogoLoader from './LogoLoader'
-import './WelcomeScreen.css'
 
 const WelcomeScreen = ({ onComplete }) => {
     const [status, setStatus] = useState('Initializing...')

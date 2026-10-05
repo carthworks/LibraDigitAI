@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import {
@@ -15,10 +15,8 @@ import {
     Archive,
     FolderKanban,
     Database,
-    ShieldCheck,
     Cpu
 } from 'lucide-react'
-import './Sidebar.css'
 
 const Sidebar = ({ onLogout }) => {
     const location = useLocation()
@@ -243,7 +241,7 @@ const Sidebar = ({ onLogout }) => {
                         <span>Sign Out</span>
                     </button>
 
-                    <span className="version-chip" title="LibraDigit AI Version">v1.2.0</span>
+                    <span className="version-chip" title="LibraDigit AI Version">v{__APP_VERSION__}</span>
                 </div>
             </div>
         </aside>

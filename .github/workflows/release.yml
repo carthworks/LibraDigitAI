@@ -1,0 +1,76 @@
+name: Release
+
+# Push a tag such as v1.3.0 (matching package.json "version") to build the
+# Windows installer and attach it to a draft GitHub release. Installed apps
+# pick the release up through electron-updater once it is published.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag matches package.json version
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          if ("v$version" -ne "${{ github.ref_name }}") { throw "Tag ${{ github.ref_name }} does not match package.json version $version" }
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r backend/requirements-dev.txt
+      - name: Build backend executable
+        working-directory: backend
+        run: pyinstaller --noconfirm server.spec
+
+      - name: Bundle Tesseract
+        shell: pwsh
+        run: ./scripts/bundle-tesseract.ps1
+      - name: Smoke test packaged backend
+        shell: pwsh
+        run: ./scripts/smoke-test-backend.ps1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      # Signing is used when the WIN_CSC_LINK (base64 .pfx) and WIN_CSC_KEY_PASSWORD
+      # secrets exist; otherwise an unsigned installer is built.
+      - name: Configure code signing
+        shell: bash
+        env:
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        run: |
+          if [ -n "$WIN_CSC_LINK" ]; then
+            echo "CSC_LINK=$WIN_CSC_LINK" >> "$GITHUB_ENV"
+            echo "CSC_KEY_PASSWORD=$WIN_CSC_KEY_PASSWORD" >> "$GITHUB_ENV"
+            echo "Code signing enabled"
+          else
+            echo "::warning::WIN_CSC_LINK not set - building an UNSIGNED installer (SmartScreen will warn users)"
+            echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build and publish installer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ELECTRON_BUILD: 'true'
+        run: |
+          npm run build
+          npx electron-builder --win --publish always
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: release/*.exe

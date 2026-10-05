@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react'
-import { X, BookOpen, Zap, HelpCircle, Mail, Github } from 'lucide-react'
-import './HelpModal.css'
+import { useEffect } from 'react'
+import { X, BookOpen, Zap, HelpCircle, Mail } from 'lucide-react'
 
 const HelpModal = ({ isOpen, onClose }) => {
     // Handle Escape key
@@ -173,7 +172,7 @@ const HelpModal = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="modal-footer">
-                    <p className="version-info">LibraDigit AI v1.2.0 • Offline & MIT Licensed • Built for Librarians & Archivists</p>
+                    <p className="version-info">LibraDigit AI v{__APP_VERSION__} • Offline & MIT Licensed • Built for Librarians & Archivists</p>
                     <button className="btn btn-primary" onClick={onClose} aria-label="Close help dialog">
                         Got it, thanks!
                     </button>

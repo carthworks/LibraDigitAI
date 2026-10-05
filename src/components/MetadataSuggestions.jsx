@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Sparkles, Check, X, Loader, AlertCircle } from 'lucide-react'
+import { Sparkles, Check, Loader, AlertCircle } from 'lucide-react'
 import { API_URL } from '../config'
-import './MetadataSuggestions.css'
 
 function MetadataSuggestions({ projectId, onAccept }) {
     const [suggestions, setSuggestions] = useState(null)
-    const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [extracting, setExtracting] = useState(false)
 

@@ -82,8 +82,9 @@ The original backend had several issues that could be chained into **remote file
 | Area | Before | After |
 |---|---|---|
 | Initial JS (gzip) | 451 KB, one chunk | **~100 KB** (app + React + landing). Pages and heavy libraries (charts, PDF, editor) load on demand. |
-| Initial CSS | 195 KB | 30 KB |
+| Initial CSS | 195 KB | 195 KB (31 KB gzip). *Correction:* the 30 KB figure first reported here came from per-page CSS splitting, which broke shared styles (unstyled buttons on directly-opened pages). CSS is one ordered stylesheet again (`src/styles/app.css`), verified identical to the original. |
 | Web build / installer payload | ~38 MB (`public/` held 33 MB of unused posters/PDFs) | 5.5 MB |
+| Long OCR | Blocking HTTP request (minutes for large PDFs) | Background jobs with per-page progress, cancel, restart recovery (`/api/jobs`) |
 | Tesseract passes per page | 3 (`image_to_pdf`, `image_to_string`, `image_to_data`) | 2 — text is rebuilt from `image_to_data` (output verified identical). |
 | PDF text extraction | PyPDF2 | PyMuPDF (much faster, better text) |
 | SQLite | Default journal; no index on `project_id` FKs | WAL + busy timeout (the batch worker no longer blocks the UI); indexes on every `project_id` and `created_at`. |

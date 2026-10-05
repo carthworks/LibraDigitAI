@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     FileText,
     Table,
@@ -10,7 +9,6 @@ import {
     AlignLeft,
     AlignRight
 } from 'lucide-react';
-import './AdvancedOCRResults.css';
 
 const AdvancedOCRResults = ({ results }) => {
     if (!results) return null;

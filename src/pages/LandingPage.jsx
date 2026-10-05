@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
     ShieldCheck,
     Lock,
@@ -13,26 +13,19 @@ import {
     Zap,
     BookOpen,
     FolderCheck,
-    ChevronRight,
-    ExternalLink,
-    HelpCircle,
     Building2,
     Scale,
     GraduationCap,
-    Landmark,
-    X,
-    Eye
+    Landmark
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import LogoLoader from '../components/LogoLoader'
 import LoginScreen from '../components/LoginScreen'
 import ArchivalFlowVisualizer from '../components/ArchivalFlowVisualizer'
-import './LandingPage.css'
 
 const LandingPage = ({ onLogin, isLoggedIn }) => {
     const navigate = useNavigate()
     const [showLoginModal, setShowLoginModal] = useState(false)
-    const [activeTab, setActiveTab] = useState('overview')
     const [isFirstRun, setIsFirstRun] = useState(false)
 
     useEffect(() => {
@@ -57,7 +50,7 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                         <LogoLoader size="sm" />
                         <div className="brand-text">
                             <span className="brand-title">LibraDigit AI</span>
-                            <span className="brand-tag">v1.2.0 • Local Archival AI</span>
+                            <span className="brand-tag">v{__APP_VERSION__} • Local Archival AI</span>
                         </div>
                     </div>
 

@@ -1,6 +1,4 @@
-import React from 'react'
 import { Archive, Brain, ScanLine } from 'lucide-react'
-import './LogoLoader.css'
 
 const LogoLoader = ({ size = 'md', className = '' }) => {
     const getSize = () => {
@@ -13,7 +11,6 @@ const LogoLoader = ({ size = 'md', className = '' }) => {
     }
 
     const iconSize = getSize()
-    const padding = size === 'sm' ? 'p-2' : 'p-4'
 
     return (
         <div className={`logo-loader ${className}`}>
