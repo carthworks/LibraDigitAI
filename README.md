@@ -239,12 +239,30 @@ Archive/
       └── Year/
           └── Author_Year_Title/
               ├── data/
-              │   └── Author_Year_Title.pdf   (Final PDF with embedded metadata)
+              │   └── Author_Year_Title.pdf   (PDF/A-2b with XMP Dublin Core metadata)
+              ├── dublin-core.xml             (oai_dc record)
               ├── bagit.txt                   (BagIt declaration)
-              ├── bag-info.txt                (Archive package metadata)
+              ├── bag-info.txt                (Package metadata incl. Archival-Format)
               ├── manifest-md5.txt            (MD5 checksums)
-              └── manifest-sha256.txt         (SHA-256 checksums for long-term integrity)
+              ├── manifest-sha256.txt         (SHA-256 checksums)
+              └── tagmanifest-sha256.txt      (Checksums of the metadata files)
 ```
+
+**PDF/A-2b.** Every PDF LibraDigit generates (OCR output, image conversions, placeholders)
+is written as PDF/A-2b and validated with [veraPDF](https://verapdf.org) in the test suite.
+Imported born-digital PDFs are archived as standard PDFs with the same metadata, because they
+can break PDF/A rules that cannot be checked without a full validator. The Archive page and
+`bag-info.txt` (`Archival-Format`) show which format each document received.
+
+**Dublin Core export.** Download a single record from the Archive page, or the whole catalogue
+from the Dashboard (**Export Catalogue**: CSV with `dc.*` columns for DSpace / Omeka / Excel, or
+oai_dc XML). API: `GET /api/projects/<id>/dublin-core`, `GET /api/export/metadata?format=csv|xml&scope=archived|all`.
+
+### Background processing
+OCR runs as background jobs with page-level progress and cancellation:
+`POST /api/jobs {kind: ocr|advanced_ocr|handwritten_to_pdf, project_id, params}` returns a job
+to poll at `GET /api/jobs/<id>`; `POST /api/jobs/<id>/cancel` stops it between pages. Jobs
+survive navigation; after a restart, queued jobs resume and interrupted ones are marked failed.
 
 ## 🔧 Technology Stack
 
@@ -266,6 +284,7 @@ Archive/
 - **OpenCV** (Advanced image processing & computer vision)
 - **NumPy** (Numerical operations for image analysis)
 - **ReportLab** (PDF generation)
+- **pikepdf** (PDF/A-2b conversion and XMP metadata)
 
 ## 🎨 Project Structure
 
@@ -279,6 +298,8 @@ LibraDigitAI/
 │   │   ├── db.py               # SQLite connection (WAL), schema, app_config
 │   │   ├── security.py         # API guard, upload/path safety, validation
 │   │   ├── search_index.py     # FTS5 index + safe query building
+│   │   ├── jobs.py             # Background job queue (progress, cancel, recovery)
+│   │   ├── migrations.py       # Moves pre-1.3 desktop data into the user profile
 │   │   ├── routes/             # Blueprints: projects, ocr, documents, batch, system
 │   │   ├── services/           # OCR pipeline, archive (BagIt), projects, text files
 │   │   └── processors/         # Advanced OCR, handwriting, GLM-OCR, metadata, batch

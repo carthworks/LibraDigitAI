@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
-import { Archive as ArchiveIcon, AlertCircle, CheckCircle, Home } from 'lucide-react'
+import { Archive as ArchiveIcon, AlertCircle, CheckCircle, Home, FileDown, ShieldCheck, ShieldAlert } from 'lucide-react'
+import { API_URL } from '../config'
 import WorkflowTracker from '../components/WorkflowTracker'
 
 const Archive = () => {
@@ -36,6 +37,13 @@ const Archive = () => {
         } finally {
             setGenerating(false)
         }
+    }
+
+    const formatBytes = (bytes) => {
+        if (!bytes) return 'N/A'
+        const units = ['B', 'KB', 'MB', 'GB']
+        const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+        return `${(bytes / 1024 ** i).toFixed(i ? 1 : 0)} ${units[i]}`
     }
 
     // Sanitize filename - remove special characters and spaces
@@ -103,13 +111,31 @@ const Archive = () => {
                                     <span>{sanitizeFilename(metadata.year) || 'Year'}/</span>
                                 </div>
                                 <div className="folder-item indent-3">
+                                    <span className="folder-icon">📁</span>
+                                    <span>
+                                        {metadata.author ? `${sanitizeFilename(metadata.author)}_` : ''}
+                                        {metadata.year ? `${sanitizeFilename(metadata.year)}_` : ''}
+                                        {sanitizeFilename(metadata.title) || 'Title'}/
+                                    </span>
+                                </div>
+                                <div className="folder-item indent-4">
+                                    <span className="folder-icon">📁</span>
+                                    <span>data/</span>
+                                </div>
+                                <div className="folder-item indent-5">
                                     <span className="file-icon">📄</span>
                                     <span>
                                         {metadata.author ? `${sanitizeFilename(metadata.author)}_` : ''}
                                         {metadata.year ? `${sanitizeFilename(metadata.year)}_` : ''}
-                                        {sanitizeFilename(metadata.title) || 'Title'}.pdf
+                                        {sanitizeFilename(metadata.title) || 'Title'}.pdf <em className="text-secondary">(PDF/A-2b where possible)</em>
                                     </span>
                                 </div>
+                                {['dublin-core.xml', 'bag-info.txt', 'bagit.txt', 'manifest-sha256.txt', 'tagmanifest-sha256.txt'].map(name => (
+                                    <div className="folder-item indent-4" key={name}>
+                                        <span className="file-icon">📄</span>
+                                        <span>{name}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
@@ -171,8 +197,25 @@ const Archive = () => {
                             </div>
                             <div className="info-item">
                                 <span className="info-label">File Size:</span>
-                                <span className="info-value">{archiveResult.file_size || 'N/A'}</span>
+                                <span className="info-value">{formatBytes(archiveResult.file_size)}</span>
                             </div>
+                            <div className="info-item">
+                                <span className="info-label">Format:</span>
+                                {archiveResult.pdfa?.pdfa ? (
+                                    <span className="badge badge-success archive-format-badge">
+                                        <ShieldCheck size={14} /> {archiveResult.pdfa.conformance}
+                                    </span>
+                                ) : (
+                                    <span className="badge badge-warning archive-format-badge">
+                                        <ShieldAlert size={14} /> {archiveResult.pdfa?.conformance || 'PDF'} (not PDF/A)
+                                    </span>
+                                )}
+                            </div>
+                            {archiveResult.pdfa && !archiveResult.pdfa.pdfa && archiveResult.pdfa.issues?.length > 0 && (
+                                <ul className="archive-pdfa-issues">
+                                    {archiveResult.pdfa.issues.map(issue => <li key={issue}>{issue}</li>)}
+                                </ul>
+                            )}
                             <div className="info-item">
                                 <span className="info-label">Status:</span>
                                 <span className="badge badge-accent">Archived</span>
@@ -180,6 +223,14 @@ const Archive = () => {
                         </div>
 
                         <div className="archive-actions">
+                            <a
+                                className="btn btn-secondary btn-lg"
+                                href={`${API_URL}/projects/${projectId}/dublin-core`}
+                                download
+                            >
+                                <FileDown size={20} />
+                                Dublin Core XML
+                            </a>
                             <button className="btn btn-secondary btn-lg" onClick={() => navigate('/')}>
                                 <Home size={20} />
                                 Back to Dashboard

@@ -20,7 +20,8 @@ import {
     ShieldCheck,
     FolderOpen,
     ArrowRight,
-    SlidersHorizontal
+    SlidersHorizontal,
+    Download
 } from 'lucide-react'
 import Modal from '../components/Modal'
 import { useToast } from '../context/ToastContext'
@@ -206,7 +207,7 @@ const Dashboard = () => {
                         <span>100% Local Sovereignty • Air-Gapped Engine Active</span>
                     </div>
                     <h1>Archival Digitization Command Center</h1>
-                    <p>Ingest physical records, run neural OCR, generate Dublin Core & MARC21 metadata, and preserve historical documents locally.</p>
+                    <p>Ingest physical records, run neural OCR, generate Dublin Core metadata, and preserve historical documents locally.</p>
                 </div>
 
                 <div className="hero-quick-actions">
@@ -218,6 +219,23 @@ const Dashboard = () => {
                         <Layers size={18} />
                         <span>Batch Queue</span>
                     </button>
+                    <a
+                        className="btn-dash-secondary"
+                        href={`${API_URL}/export/metadata?format=csv`}
+                        download
+                        title="Dublin Core catalogue of all archived documents (CSV, opens in Excel)"
+                    >
+                        <Download size={18} />
+                        <span>Export Catalogue</span>
+                    </a>
+                    <a
+                        className="btn-dash-secondary"
+                        href={`${API_URL}/export/metadata?format=xml`}
+                        download
+                        title="Dublin Core catalogue of all archived documents (oai_dc XML)"
+                    >
+                        <span>XML</span>
+                    </a>
                 </div>
             </div>
 

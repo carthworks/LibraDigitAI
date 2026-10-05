@@ -157,3 +157,34 @@
     justify-content: center;
     margin-top: var(--space-2xl);
 }
+.folder-item.indent-4 {
+    padding-left: calc(var(--space-xl) * 4);
+}
+
+.folder-item.indent-5 {
+    padding-left: calc(var(--space-xl) * 5);
+}
+
+.archive-format-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.archive-pdfa-issues {
+    margin: 0 0 var(--space-md) 0;
+    padding-left: var(--space-lg);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.badge-success {
+    background: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.archive-info-card code.info-value {
+    word-break: break-all;
+    text-align: right;
+}

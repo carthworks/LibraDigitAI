@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS files (
     ocr_path TEXT,
     cleaned_path TEXT,
     final_path TEXT,
+    archive_format TEXT,
     FOREIGN KEY (project_id) REFERENCES projects (id)
 );
 
@@ -154,6 +155,9 @@ def init_db(database_path=None):
         columns = {row['name'] for row in conn.execute('PRAGMA table_info(ocr_text)')}
         if 'confidence_data' not in columns:
             conn.execute('ALTER TABLE ocr_text ADD COLUMN confidence_data TEXT')
+        file_columns = {row['name'] for row in conn.execute('PRAGMA table_info(files)')}
+        if 'archive_format' not in file_columns:
+            conn.execute('ALTER TABLE files ADD COLUMN archive_format TEXT')
 
 
 def get_config_value(key, default=None):

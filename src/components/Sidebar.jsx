@@ -241,7 +241,7 @@ const Sidebar = ({ onLogout }) => {
                         <span>Sign Out</span>
                     </button>
 
-                    <span className="version-chip" title="LibraDigit AI Version">v1.2.0</span>
+                    <span className="version-chip" title="LibraDigit AI Version">v{__APP_VERSION__}</span>
                 </div>
             </div>
         </aside>

@@ -50,7 +50,7 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                         <LogoLoader size="sm" />
                         <div className="brand-text">
                             <span className="brand-title">LibraDigit AI</span>
-                            <span className="brand-tag">v1.2.0 • Local Archival AI</span>
+                            <span className="brand-tag">v{__APP_VERSION__} • Local Archival AI</span>
                         </div>
                     </div>
 

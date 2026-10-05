@@ -172,7 +172,7 @@ const HelpModal = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="modal-footer">
-                    <p className="version-info">LibraDigit AI v1.2.0 • Offline & MIT Licensed • Built for Librarians & Archivists</p>
+                    <p className="version-info">LibraDigit AI v{__APP_VERSION__} • Offline & MIT Licensed • Built for Librarians & Archivists</p>
                     <button className="btn btn-primary" onClick={onClose} aria-label="Close help dialog">
                         Got it, thanks!
                     </button>

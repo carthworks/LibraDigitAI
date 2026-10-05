@@ -1,5 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { readFileSync } from 'node:fs'
+
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
 
 // Large third-party libraries get their own long-lived chunks so they are
 // cached across deploys and only fetched by the pages that use them.
@@ -13,6 +16,9 @@ const vendorChunks = {
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
   base: process.env.ELECTRON_BUILD ? './' : '/',
   server: {
     port: 3000

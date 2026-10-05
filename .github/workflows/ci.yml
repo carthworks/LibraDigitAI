@@ -28,9 +28,15 @@ jobs:
           cache-dependency-path: backend/requirements*.txt
       - name: Install Tesseract
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install veraPDF (PDF/A validator used by the archive tests)
+        run: echo "VERAPDF=$(scripts/install-verapdf.sh)" >> "$GITHUB_ENV"
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
-      - run: python -m pytest tests -q
+      - run: python -m pytest tests -q -rs
 
   frontend:
     name: Frontend (lint + build)

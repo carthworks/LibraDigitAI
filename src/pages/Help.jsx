@@ -46,7 +46,7 @@ const Help = () => {
                 <div className="hero-banner-left">
                     <div className="hero-status-pill">
                         <ShieldCheck size={14} className="icon-emerald" />
-                        <span>Sovereign Archival Documentation • v1.2.0</span>
+                        <span>Sovereign Archival Documentation • v{__APP_VERSION__}</span>
                     </div>
                     <h1>Knowledge Base & Compliance Guide</h1>
                     <p>Comprehensive manual for digitization workflows, neural OCR tuning, BagIt preservation, and offline privacy guarantees.</p>
@@ -124,7 +124,7 @@ const Help = () => {
                             <div className="step-badge">03</div>
                             <div className="step-icon-wrap info"><Cpu size={20} /></div>
                             <h3>Metadata Studio</h3>
-                            <p>Generate Dublin Core and MARC21 descriptive metadata with AI entity auto-extraction.</p>
+                            <p>Generate Dublin Core descriptive metadata with automatic title, author and date extraction; export it as oai_dc XML or CSV.</p>
                         </div>
 
                         <div className="pipeline-step-card">
