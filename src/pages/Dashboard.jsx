@@ -24,7 +24,8 @@ import {
     ArrowRight,
     Filter,
     HardDrive,
-    SlidersHorizontal
+    SlidersHorizontal,
+    BookOpen
 } from 'lucide-react'
 import Modal from '../components/Modal'
 import { useToast } from '../context/ToastContext'
@@ -222,6 +223,10 @@ const Dashboard = () => {
                     <button className="btn-dash-secondary" onClick={() => navigate('/batch')}>
                         <Layers size={18} />
                         <span>Batch Queue</span>
+                    </button>
+                    <button className="btn-dash-secondary" onClick={() => navigate('/ebooks')}>
+                        <BookOpen size={18} />
+                        <span>Converted E-Books</span>
                     </button>
                 </div>
             </div>

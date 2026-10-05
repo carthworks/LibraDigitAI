@@ -16,7 +16,8 @@ import {
     FolderKanban,
     Database,
     ShieldCheck,
-    Cpu
+    Cpu,
+    BookOpen
 } from 'lucide-react'
 import './Sidebar.css'
 
@@ -37,7 +38,7 @@ const Sidebar = ({ onLogout }) => {
         const path = location.pathname
         if (['/upload', '/batch'].includes(path) || path.startsWith('/cleanup') || path.startsWith('/metadata') || path.startsWith('/archive/')) {
             setOpenSections(prev => ({ ...prev, digitization: true }))
-        } else if (['/search', '/analytics'].includes(path)) {
+        } else if (['/search', '/analytics', '/ebooks', '/library'].includes(path)) {
             setOpenSections(prev => ({ ...prev, repository: true }))
         } else if (['/settings', '/help', '/marketing'].includes(path)) {
             setOpenSections(prev => ({ ...prev, system: true }))
@@ -150,6 +151,16 @@ const Sidebar = ({ onLogout }) => {
 
                     {openSections.repository && (
                         <div className="submenu-items-list">
+                            <button
+                                type="button"
+                                onClick={() => handleNavigation('/ebooks')}
+                                className={`submenu-nav-btn ${isActive('/ebooks') || isActive('/library') ? 'active' : ''}`}
+                                aria-current={isActive('/ebooks') ? 'page' : undefined}
+                            >
+                                <BookOpen size={16} className="sub-icon text-accent" />
+                                <span>Converted E-Books</span>
+                            </button>
+
                             <button
                                 type="button"
                                 onClick={() => handleNavigation('/search')}

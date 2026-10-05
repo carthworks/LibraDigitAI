@@ -58,6 +58,73 @@ def create_project():
     return jsonify({'project': get_project_data(project_id)})
 
 
+@bp.get('/ebooks')
+def list_ebooks():
+    """List all converted/digitized e-books with complete metadata and file information."""
+    with transaction() as conn:
+        rows = conn.execute('''
+            SELECT 
+                p.id,
+                p.filename,
+                p.filepath,
+                p.status,
+                p.created_at,
+                p.updated_at,
+                m.title,
+                m.author,
+                m.year,
+                m.subject,
+                m.keywords,
+                f.original_path,
+                f.ocr_path,
+                f.cleaned_path,
+                f.final_path,
+                LENGTH(COALESCE(o.cleaned_text, o.original_text, '')) AS text_length,
+                o.original_text,
+                o.cleaned_text
+            FROM projects p
+            LEFT JOIN metadata m ON p.id = m.project_id
+            LEFT JOIN files f ON p.id = f.project_id
+            LEFT JOIN ocr_text o ON p.id = o.project_id
+            ORDER BY p.created_at DESC
+        ''').fetchall()
+
+    ebooks = []
+    for r in rows:
+        d = dict(r)
+        final_path = d.get('final_path')
+        ocr_path = d.get('ocr_path')
+        original_path = d.get('original_path')
+
+        target_file = None
+        for p in (final_path, ocr_path, original_path):
+            if p and os.path.exists(p):
+                target_file = p
+                break
+
+        file_size = os.path.getsize(target_file) if target_file else 0
+        has_searchable_pdf = bool(ocr_path and os.path.exists(ocr_path))
+        has_final_pdf = bool(final_path and os.path.exists(final_path))
+
+        cleaned = d.get('cleaned_text') or d.get('original_text') or ''
+        word_count = len(cleaned.split()) if cleaned else 0
+        snippet = (cleaned[:300] + '...') if len(cleaned) > 300 else cleaned
+
+        del d['original_text']
+        del d['cleaned_text']
+
+        d['file_size'] = file_size
+        d['word_count'] = word_count
+        d['snippet'] = snippet
+        d['has_searchable_pdf'] = has_searchable_pdf
+        d['has_final_pdf'] = has_final_pdf
+        d['has_pdf'] = bool((target_file and target_file.lower().endswith('.pdf')) or has_searchable_pdf or has_final_pdf)
+        d['display_title'] = d.get('title') or os.path.splitext(d['filename'])[0]
+        ebooks.append(d)
+
+    return jsonify({'ebooks': ebooks, 'total': len(ebooks)})
+
+
 @bp.get('/<int:project_id>')
 def get_project(project_id):
     project = get_project_data(project_id)

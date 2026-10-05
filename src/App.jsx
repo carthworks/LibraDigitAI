@@ -19,6 +19,7 @@ const Cleanup = lazy(() => import('./pages/Cleanup'))
 const Metadata = lazy(() => import('./pages/Metadata'))
 const Archive = lazy(() => import('./pages/Archive'))
 const ArchiveSearch = lazy(() => import('./pages/ArchiveSearch'))
+const ConvertedEbooks = lazy(() => import('./pages/ConvertedEbooks'))
 const Analytics = lazy(() => import('./pages/Analytics'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Help = lazy(() => import('./pages/Help'))
@@ -110,6 +111,8 @@ function App() {
                                                     <Route path="/cleanup/:projectId" element={<Cleanup />} />
                                                     <Route path="/metadata/:projectId" element={<Metadata />} />
                                                     <Route path="/archive/:projectId" element={<Archive />} />
+                                                    <Route path="/ebooks" element={<ConvertedEbooks />} />
+                                                    <Route path="/library" element={<ConvertedEbooks />} />
                                                     <Route path="/search" element={<ArchiveSearch />} />
                                                     <Route path="/analytics" element={<Analytics />} />
                                                     <Route path="/settings" element={<Settings />} />

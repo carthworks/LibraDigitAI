@@ -4,7 +4,7 @@
 
 A production-grade desktop application that converts scanned documents into searchable, metadata-rich digital archives using a guided workflow.
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ![LibraDigit AI Poster](assets/marketing/ad_librDigitIT_2026.png)
@@ -33,6 +33,12 @@ LibraDigit AI is an offline-first desktop application designed for librarians, a
 - **Handwritten Text Recognition**: Specialized LSTM neural network for improved handwriting accuracy (75-92%).
 - **Enhanced Preprocessing**: CLAHE enhancement, adaptive thresholding, and advanced denoising for better accuracy.
 - **Handwritten to PDF**: Convert handwritten notes directly to professionally formatted, searchable PDF documents.
+
+### 📖 Converted E-Books Repository & Reader
+- **Comprehensive E-Book Registry**: Responsive table view showcasing all digitized documents with title, author, year, subject classification, preservation status, file size, and word count.
+- **High-Fidelity Document Reader**: Click any row or document to view and read with high-DPI canvas rendering, zoom controls, page flipping, rotation, and fullscreen mode.
+- **Dual-View Transcription**: Seamlessly toggle between rendered PDF, extracted OCR text, and archival preservation dossiers (BagIt & XMP metadata).
+- **Direct Export & Downloads**: One-click downloads for auto-generated searchable sandwich PDFs and direct browser tab previews.
 
 ### 🔍 Extensive Search Facility
 - **Full-Text Search (FTS5)**: Powered by SQLite's FTS5, search instantly through thousands of archived documents.
@@ -109,28 +115,45 @@ cd ..
 
 ### ⚡ Quick Launch (Windows 1-Click)
 
-Double-click `run-app.bat` or run in terminal:
+Double-click `run-app.bat` or run in your terminal:
 
 ```cmd
 run-app.bat
 ```
 
-This will automatically:
-- Detect virtual environment or system Python
+This automated launcher will:
+- Detect your Python runtime (checking root `.venv`, `backend/.venv`, or system Python)
+- Verify Node.js and npm availability
+- Automatically inspect and install missing `node_modules` via `npm install`
 - Start the Flask backend server on `http://localhost:5001`
-- Launch the Vite frontend dev server on `http://localhost:3000`
-- Open your default web browser to the application (`http://localhost:3000`)
+- Launch the Vite frontend server on `http://localhost:3000`
+- Open your default browser smoothly once the servers are ready
 
 ### Manual Development Mode
 
-Alternatively, run the services separately:
+Alternatively, run the backend and frontend services separately:
 
 ```bash
-# Terminal 1 - Backend Server
+# Terminal 1 - Backend Server (Flask API)
 npm run dev:backend
 
-# Terminal 2 - Frontend Web App
+# Terminal 2 - Frontend Web App (Vite)
 npm run dev
+```
+
+### Desktop Electron Mode
+
+To run or bundle the desktop client:
+
+```bash
+# Run Electron desktop window in development mode
+npm run dev:electron
+
+# Build Windows installer (.exe) via electron-builder
+npm run dist
+
+# Package into directory without building installer
+npm run pack
 ```
 
 ### Running the Tests
@@ -287,12 +310,16 @@ LibraDigitAI/
 └── SECURITY_QA_AUDIT.md        # Latest audit findings and status
 ```
 
-## 📚 Additional Documentation
+## 📚 Additional Documentation & References
 
-- **[Advanced OCR Documentation](ADVANCED_OCR_DOCUMENTATION.md)** - Complete guide to advanced OCR features
-- **[Handwritten to PDF Guide](HANDWRITTEN_TO_PDF_DOCUMENTATION.md)** - Handwritten text conversion documentation
-- **[Quick Start Guide](QUICK_START_ADVANCED_OCR.md)** - Get started with advanced features quickly
-- **[JSON Serialization Fix](JSON_SERIALIZATION_FIX.md)** - Technical troubleshooting guide
+- **[Advanced OCR Documentation](docs/ADVANCED_OCR_DOCUMENTATION.md)** - Complete guide to AI layout analysis and table extraction
+- **[Handwritten to PDF Guide](docs/HANDWRITTEN_TO_PDF_DOCUMENTATION.md)** - Handwritten text conversion and styling guide
+- **[Quick Start Guide](docs/QUICK_START_ADVANCED_OCR.md)** - Get started with advanced OCR features quickly
+- **[Architecture & Flowcharts](docs/ARCHITECTURE_DIAGRAM.md)** - Deep dive into system components and data flows
+- **[Scanned PDF OCR Guide](docs/SCANNED_PDF_OCR_DOCUMENTATION.md)** - High-res rendering and OCR workflow
+- **[Export System Reference](docs/EXPORT_SYSTEM_DOCUMENTATION.md)** - BagIt packages, manifests, and XMP embedding
+- **[Full Changelog](docs/CHANGELOG.md)** - Version history and feature breakdown
+- **[JSON Serialization Fix](docs/history/JSON_SERIALIZATION_FIX.md)** - Technical troubleshooting guide
 
 ---
 
