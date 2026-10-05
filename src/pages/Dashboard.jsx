@@ -20,15 +20,9 @@ import {
     ShieldCheck,
     FolderOpen,
     ArrowRight,
-<<<<<<< HEAD
-    Filter,
-    HardDrive,
     SlidersHorizontal,
-    BookOpen
-=======
-    SlidersHorizontal,
+    BookOpen,
     Download
->>>>>>> f10c8c534b85ea5a0f0fa4faa3e2ddafd32d5056
 } from 'lucide-react'
 import Modal from '../components/Modal'
 import { useToast } from '../context/ToastContext'
@@ -226,12 +220,10 @@ const Dashboard = () => {
                         <Layers size={18} />
                         <span>Batch Queue</span>
                     </button>
-<<<<<<< HEAD
                     <button className="btn-dash-secondary" onClick={() => navigate('/ebooks')}>
                         <BookOpen size={18} />
                         <span>Converted E-Books</span>
                     </button>
-=======
                     <a
                         className="btn-dash-secondary"
                         href={`${API_URL}/export/metadata?format=csv`}
@@ -249,7 +241,6 @@ const Dashboard = () => {
                     >
                         <span>XML</span>
                     </a>
->>>>>>> f10c8c534b85ea5a0f0fa4faa3e2ddafd32d5056
                 </div>
             </div>
 

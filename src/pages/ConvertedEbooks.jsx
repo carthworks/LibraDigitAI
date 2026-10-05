@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, memo } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import {
@@ -14,9 +14,7 @@ import {
     Maximize2,
     Minimize2,
     X,
-    Calendar,
     User,
-    Tag,
     HardDrive,
     Search,
     SlidersHorizontal,
@@ -64,7 +62,7 @@ export default function ConvertedEbooks() {
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
+    const pageSize = 10
 
     // Viewer Modal State
     const [selectedDoc, setSelectedDoc] = useState(null)
