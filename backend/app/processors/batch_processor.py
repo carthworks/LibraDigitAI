@@ -24,9 +24,22 @@ class BatchProcessor:
     
     def get_db(self):
         """Get database connection"""
-        conn = sqlite3.connect(self.database_path)
+        conn = sqlite3.connect(self.database_path, timeout=30)
         conn.row_factory = sqlite3.Row
+        conn.execute('PRAGMA busy_timeout=30000')
         return conn
+
+    def is_cancelled(self, batch_id):
+        conn = self.get_db()
+        try:
+            row = conn.execute('SELECT status FROM batch_jobs WHERE id = ?', (batch_id,)).fetchone()
+        finally:
+            conn.close()
+        return row is None or row['status'] == 'cancelled'
+
+    def is_running(self, batch_id):
+        thread = self.processing_threads.get(batch_id)
+        return thread is not None and thread.is_alive()
     
     def create_batch_job(self, name, file_count):
         """
@@ -127,7 +140,8 @@ class BatchProcessor:
                 'pending': 0,
                 'processing': 0,
                 'completed': 0,
-                'failed': 0
+                'failed': 0,
+                'cancelled': 0
             }
             
             items_list = []
@@ -248,6 +262,9 @@ class BatchProcessor:
         failed_count = 0
         
         for item in items:
+            # Stop as soon as the batch is cancelled; remaining items stay 'cancelled'.
+            if self.is_cancelled(batch_id):
+                break
             item_id = item['id']
             project_id = item['project_id']
             filename = item['filename']
@@ -288,6 +305,11 @@ class BatchProcessor:
                 self.batch_status[batch_id]['success'] = success_count
                 self.batch_status[batch_id]['failed'] = failed_count
         
+        if self.is_cancelled(batch_id):
+            if batch_id in self.batch_status:
+                self.batch_status[batch_id]['current_file'] = None
+            return {'total': total_items, 'success': success_count, 'failed': failed_count}
+
         # Mark batch as completed
         final_status = 'completed' if failed_count == 0 else 'completed_with_errors'
         self.update_batch_job_status(batch_id, final_status, processed_count)
@@ -310,6 +332,9 @@ class BatchProcessor:
             batch_id (int): Batch job ID
             ocr_callback (function): OCR processing function
         """
+        if self.is_running(batch_id):
+            return False
+
         def process_thread():
             try:
                 self.process_batch_ocr(batch_id, ocr_callback)

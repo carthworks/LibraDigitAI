@@ -257,7 +257,7 @@ class HandwrittenToPDFConverter:
             story = []
             
             # Add title
-            story.append(Paragraph(title, self.styles['CustomTitle']))
+            story.append(Paragraph(self._clean_text(title), self.styles['CustomTitle']))
             story.append(Spacer(1, 0.2*inch))
             
             # Get structured text

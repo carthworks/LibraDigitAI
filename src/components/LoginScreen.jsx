@@ -129,7 +129,8 @@ const LoginScreen = ({ onLogin, isModal = false, onClose = null }) => {
                 if (email) localStorage.setItem('auth_email', email)
                 
                 // Set default recovery key or user chosen key
-                const generatedKey = recoveryKey.trim() || 'SOVEREIGN-' + Math.random().toString(36).substring(2, 10).toUpperCase()
+                const randomPart = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, '0')).join('').toUpperCase()
+                const generatedKey = recoveryKey.trim() || 'SOVEREIGN-' + randomPart
                 localStorage.setItem('auth_recovery_key', generatedKey)
 
                 setSuccessMessage(`Account initialized! Your recovery key is: ${generatedKey}`)
@@ -163,8 +164,8 @@ const LoginScreen = ({ onLogin, isModal = false, onClose = null }) => {
         const storedRecoveryKey = localStorage.getItem('auth_recovery_key')
         const storedEmail = localStorage.getItem('auth_email')
 
-        // Verify recovery key or email match if stored
-        if (storedRecoveryKey && recoveryKey.trim() && recoveryKey.trim().toUpperCase() !== storedRecoveryKey.toUpperCase()) {
+        // A stored recovery key must always be supplied; a blank key used to skip this check.
+        if (storedRecoveryKey && recoveryKey.trim().toUpperCase() !== storedRecoveryKey.toUpperCase()) {
             setError('Invalid Recovery Key. Please check your key and retry.')
             return
         }

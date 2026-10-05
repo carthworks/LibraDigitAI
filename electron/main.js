@@ -1,6 +1,15 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, session, shell } = require('electron');
 const path = require('path');
+const crypto = require('crypto');
 const { spawn } = require('child_process');
+
+// Per-launch secret shared with the packaged backend. Electron adds it to
+// requests itself, so page scripts never see it and other local web pages
+// cannot call the API.
+const API_TOKEN = crypto.randomBytes(32).toString('hex');
+const BACKEND_URLS = ['http://localhost:5001/*', 'http://127.0.0.1:5001/*'];
+const isBackendUrl = (url) => /^http:\/\/(localhost|127\.0\.0\.1):5001\//.test(url);
+const isExternalWebUrl = (url) => /^https?:\/\//i.test(url) && !isBackendUrl(url);
 
 let mainWindow;
 let pythonProcess = null;
@@ -53,7 +62,8 @@ const startPythonSubprocess = () => {
         pythonProcess = spawn(script, [], {
             detached: false,
             windowsHide: true,
-            cwd: scriptDir
+            cwd: scriptDir,
+            env: { ...process.env, LIBRADIGIT_API_TOKEN: API_TOKEN }
         });
     }
 
@@ -88,6 +98,13 @@ function createWindow() {
     // Start backend
     startPythonSubprocess();
 
+    if (app.isPackaged) {
+        session.defaultSession.webRequest.onBeforeSendHeaders({ urls: BACKEND_URLS }, (details, callback) => {
+            details.requestHeaders['X-LibraDigit-Token'] = API_TOKEN;
+            callback({ requestHeaders: details.requestHeaders });
+        });
+    }
+
     mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
@@ -111,6 +128,22 @@ function createWindow() {
     } else {
         mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
     }
+
+    // Backend links (PDF previews/downloads) may open in-app; other web links go
+    // to the system browser; everything else is refused.
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        if (isBackendUrl(url)) return { action: 'allow' };
+        if (isExternalWebUrl(url)) shell.openExternal(url);
+        return { action: 'deny' };
+    });
+    mainWindow.webContents.on('will-navigate', (event, url) => {
+        const current = mainWindow.webContents.getURL();
+        const sameApp = url.startsWith('file://') || (current && new URL(url).origin === new URL(current).origin);
+        if (!sameApp && !isBackendUrl(url)) {
+            event.preventDefault();
+            if (isExternalWebUrl(url)) shell.openExternal(url);
+        }
+    });
 
     mainWindow.on('closed', () => {
         mainWindow = null;

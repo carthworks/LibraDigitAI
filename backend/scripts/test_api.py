@@ -4,7 +4,7 @@ Test script to verify LibraDigit AI backend API is working
 import requests
 import json
 
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://localhost:5001"
 
 def test_api():
     print("🧪 Testing LibraDigit AI Backend API\n")

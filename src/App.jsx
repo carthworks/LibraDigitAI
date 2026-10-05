@@ -1,23 +1,33 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
-import Dashboard from './pages/Dashboard'
-import UploadOCR from './pages/UploadOCR'
-import Cleanup from './pages/Cleanup'
-import Metadata from './pages/Metadata'
-import Archive from './pages/Archive'
-import Help from './pages/Help'
-import BatchProcessing from './pages/BatchProcessing'
 import WelcomeScreen from './components/WelcomeScreen'
-import LoginScreen from './components/LoginScreen'
-import LandingPage from './pages/LandingPage'
-import MarketingInfo from './pages/MarketingInfo'
+import LogoLoader from './components/LogoLoader'
 import { ProjectProvider } from './context/ProjectContext'
-import ArchiveSearch from './pages/ArchiveSearch'
-import Analytics from './pages/Analytics'
-import Settings from './pages/Settings'
 import { ToastProvider } from './context/ToastContext'
+
+// Each page is its own chunk, so heavy libraries (charts, PDF rendering, the
+// rich-text editor, bcrypt) only download when the page that needs them opens.
+const LandingPage = lazy(() => import('./pages/LandingPage'))
+const MarketingInfo = lazy(() => import('./pages/MarketingInfo'))
+const LoginScreen = lazy(() => import('./components/LoginScreen'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const UploadOCR = lazy(() => import('./pages/UploadOCR'))
+const BatchProcessing = lazy(() => import('./pages/BatchProcessing'))
+const Cleanup = lazy(() => import('./pages/Cleanup'))
+const Metadata = lazy(() => import('./pages/Metadata'))
+const Archive = lazy(() => import('./pages/Archive'))
+const ArchiveSearch = lazy(() => import('./pages/ArchiveSearch'))
+const Analytics = lazy(() => import('./pages/Analytics'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Help = lazy(() => import('./pages/Help'))
+
+const PageFallback = () => (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh' }}>
+        <LogoLoader size="md" />
+    </div>
+)
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -54,6 +64,7 @@ function App() {
                     <WelcomeScreen onComplete={() => setShowWelcome(false)} />
                 )}
                 <Router>
+                    <Suspense fallback={<PageFallback />}>
                     <Routes>
                         {/* Public Routes accessible anytime */}
                         <Route
@@ -91,6 +102,7 @@ function App() {
                                         <div className="main-content">
                                             <Header />
                                             <div className="content-area">
+                                                <Suspense fallback={<PageFallback />}>
                                                 <Routes>
                                                     <Route path="/" element={<Dashboard />} />
                                                     <Route path="/upload" element={<UploadOCR />} />
@@ -104,6 +116,7 @@ function App() {
                                                     <Route path="/help" element={<Help />} />
                                                     <Route path="*" element={<Navigate to="/" replace />} />
                                                 </Routes>
+                                                </Suspense>
                                             </div>
                                         </div>
                                     </div>
@@ -111,6 +124,7 @@ function App() {
                             />
                         )}
                     </Routes>
+                    </Suspense>
                 </Router>
             </ProjectProvider>
         </ToastProvider>

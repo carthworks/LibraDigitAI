@@ -104,7 +104,7 @@ if file_ext == '.pdf' and is_text_file(filepath):
 
 ### Step 5: Extract Text
 - Read newly created PDF
-- Extract text using PyPDF2
+- Extract text using PyMuPDF
 - Continue normal OCR workflow
 
 ---
