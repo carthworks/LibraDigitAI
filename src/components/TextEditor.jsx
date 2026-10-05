@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
 import { FileText, Type, CheckCircle } from 'lucide-react'
-import './TextEditor.css'
 
 const TextEditor = ({ value, onChange, placeholder = "Text will appear here..." }) => {
     const [stats, setStats] = useState({ chars: 0, words: 0, lines: 0 })

@@ -183,5 +183,8 @@ def update_project_status(project_id):
 
 @bp.delete('/<int:project_id>')
 def delete_project(project_id):
+    jobs = current_app.extensions['jobs']
+    for job in jobs.list(project_id=project_id, active_only=True):
+        jobs.cancel(job['id'])
     remove_project(project_id)
     return jsonify({'success': True})

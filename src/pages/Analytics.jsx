@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import axios from "axios"
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, AreaChart, Area
 } from "recharts"
 import {
-    Activity, HardDrive, FileText, Layers, TrendingUp, RefreshCw,
-    ShieldCheck, Sparkles, CheckCircle2, PieChart as PieIcon, BarChart2
+    Activity, HardDrive, FileText, TrendingUp, RefreshCw,
+    ShieldCheck, CheckCircle2, PieChart as PieIcon, BarChart2
 } from "lucide-react"
 import { API_URL } from "../config"
-import "./Analytics.css"
 
 const CHART_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#38bdf8", "#8b5cf6", "#ec4899"]
 

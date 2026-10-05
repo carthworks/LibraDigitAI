@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
     Lock,
     Mail,
@@ -18,7 +18,6 @@ import {
     LogIn
 } from 'lucide-react'
 import bcrypt from 'bcryptjs'
-import './LoginScreen.css'
 
 const LoginScreen = ({ onLogin, isModal = false, onClose = null }) => {
     // Mode: 'login' | 'register' | 'reset'
@@ -162,7 +161,6 @@ const LoginScreen = ({ onLogin, isModal = false, onClose = null }) => {
         }
 
         const storedRecoveryKey = localStorage.getItem('auth_recovery_key')
-        const storedEmail = localStorage.getItem('auth_email')
 
         // A stored recovery key must always be supplied; a blank key used to skip this check.
         if (storedRecoveryKey && recoveryKey.trim().toUpperCase() !== storedRecoveryKey.toUpperCase()) {

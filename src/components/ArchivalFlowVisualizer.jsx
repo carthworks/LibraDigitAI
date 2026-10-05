@@ -1,38 +1,25 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
     Play,
     Pause,
     RotateCw,
     Folder,
     Search,
-    Shield,
     Lock,
     Tag,
-    FileText,
-    ArrowRight,
-    Sparkles,
-    CheckCircle2,
-    Layers,
-    Cpu,
-    Database,
-    BookOpen,
-    HelpCircle
+    ArrowRight
 } from 'lucide-react'
-import './ArchivalFlowVisualizer.css'
 
 const ArchivalFlowVisualizer = () => {
     const [isPlaying, setIsPlaying] = useState(true)
     const [activeStep, setActiveStep] = useState(null)
     const [searchPulseIndex, setSearchPulseIndex] = useState(0)
-    const [deskewAngle, setDeskewAngle] = useState(-6)
-    const [scannerY, setScannerY] = useState(0)
 
     // Animated scanline and step loop
     useEffect(() => {
         if (!isPlaying) return
 
         const interval = setInterval(() => {
-            setScannerY(prev => (prev + 2) % 100)
             setSearchPulseIndex(prev => (prev + 1) % 3)
         }, 120)
 

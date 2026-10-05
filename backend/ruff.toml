@@ -1,0 +1,11 @@
+line-length = 120
+target-version = "py310"
+
+[lint]
+# pyflakes, pycodestyle, import order, bugbear (likely bugs)
+select = ["E", "F", "W", "I", "B"]
+# E501: long lines are allowed in the legacy OCR processors
+ignore = ["E501"]
+
+[lint.per-file-ignores]
+"tests/*" = ["B011"]

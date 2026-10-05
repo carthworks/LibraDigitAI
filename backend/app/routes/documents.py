@@ -3,15 +3,17 @@ Post-OCR workflow: text cleanup, metadata, AI suggestions, archiving, translatio
 """
 import json
 import os
+from datetime import datetime
 
 from deep_translator import GoogleTranslator
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify, request
 
 from .. import search_index
-from ..db import transaction
+from ..db import get_config_value, transaction
 from ..processors.metadata_extractor import extract_metadata
 from ..security import ValidationError
-from ..services.archive import build_archive
+from ..services import dublin_core
+from ..services.archive import build_archive, sanitize_component
 from ..services.projects import get_project_data, set_status
 
 bp = Blueprint('documents', __name__, url_prefix='/api')
@@ -123,16 +125,70 @@ def generate_archive(project_id):
     with transaction() as conn:
         file_row = conn.execute('SELECT cleaned_path, original_path, ocr_path FROM files WHERE project_id = ?',
                                 (project_id,)).fetchone()
-    final_path = build_archive(project, file_row)
+        language = dublin_core.project_language(conn, project_id, get_config_value('default_ocr_language', 'eng'))
+    result = build_archive(project, file_row, language)
+    final_path, pdfa = result['final_path'], result['pdfa']
 
     with transaction() as conn:
-        conn.execute('UPDATE files SET final_path = ? WHERE project_id = ?', (final_path, project_id))
+        conn.execute('UPDATE files SET final_path = ?, archive_format = ? WHERE project_id = ?',
+                     (final_path, pdfa['conformance'], project_id))
         set_status(conn, project_id, 'archived')
     return jsonify({
         'success': True,
         'archive_path': final_path,
         'file_size': os.path.getsize(final_path) if os.path.exists(final_path) else 0,
+        'pdfa': pdfa,
     })
+
+
+def _dc_record(conn, project):
+    language = dublin_core.project_language(conn, project['id'], get_config_value('default_ocr_language', 'eng'))
+    final_path = (project.get('files') or {}).get('final_path')
+    return dublin_core.build_record(project, get_config_value('institution_name', ''), language,
+                                    os.path.basename(final_path) if final_path else None)
+
+
+def _download(body, filename, mimetype):
+    response = Response(body, mimetype=mimetype)
+    response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@bp.get('/projects/<int:project_id>/dublin-core')
+def project_dublin_core(project_id):
+    project = get_project_data(project_id)
+    if not project:
+        return jsonify({'error': 'Project not found'}), 404
+    with transaction() as conn:
+        record = _dc_record(conn, project)
+    name = sanitize_component((project.get('metadata') or {}).get('title'), f'project_{project_id}')
+    return _download(dublin_core.to_xml(record), f'{name}_dublin_core.xml', 'application/xml')
+
+
+@bp.get('/export/metadata')
+def export_metadata():
+    """Catalogue export of every project with metadata (or only archived ones)."""
+    fmt = request.args.get('format', 'csv')
+    if fmt not in ('csv', 'xml'):
+        raise ValidationError('format must be csv or xml')
+    archived_only = request.args.get('scope', 'archived') == 'archived'
+
+    with transaction() as conn:
+        sql = 'SELECT p.id FROM projects p JOIN metadata m ON m.project_id = p.id'
+        if archived_only:
+            sql += " WHERE p.status = 'archived'"
+        ids = [row['id'] for row in conn.execute(sql + ' ORDER BY p.id')]
+        records = []
+        for project_id in ids:
+            project = get_project_data(project_id, conn=conn)
+            records.append(_dc_record(conn, project))
+
+    stamp = datetime.now().strftime('%Y%m%d')
+    if fmt == 'xml':
+        return _download(dublin_core.collection_to_xml(records), f'libradigit_catalogue_{stamp}.xml', 'application/xml')
+    # BOM so Excel opens the UTF-8 CSV correctly.
+    return _download('\ufeff' + dublin_core.collection_to_csv(records), f'libradigit_catalogue_{stamp}.csv',
+                     'text/csv; charset=utf-8')
 
 
 TRANSLATE_CHUNK_CHARS = 4500  # Google Translate rejects requests over 5000 chars

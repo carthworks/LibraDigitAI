@@ -17,6 +17,10 @@ from .text_files import convert_text_file_to_pdf, extract_text_from_text_file, i
 RENDER_DPI = 300
 LOW_CONFIDENCE_THRESHOLD = 80
 HANDWRITTEN_CONFIG = r'--oem 1 --psm 6'
+
+
+def no_progress(current, total, message):
+    """Default progress callback for synchronous calls."""
 TESSERACT_MISSING_MESSAGE = (
     'Tesseract OCR is not installed.\n\nTo extract text from images, please install Tesseract OCR:\n'
     '- Windows: https://github.com/UB-Mannheim/tesseract/wiki\n'
@@ -83,12 +87,14 @@ def _extract_pdf_text_layer(doc):
     return '\n\n'.join(page.get_text().strip() for page in doc).strip()
 
 
-def _ocr_scanned_pdf(doc, filepath, lang):
+def _ocr_scanned_pdf(doc, filepath, lang, progress):
     """Render each page, OCR it and assemble a searchable (sandwich) PDF."""
     texts, confidence = [], []
     merged = pymupdf.open()
     has_pdf_pages = False
+    total = len(doc)
     for page_idx, page in enumerate(doc):
+        progress(page_idx, total, f'Recognising page {page_idx + 1} of {total}')
         pix = page.get_pixmap(dpi=RENDER_DPI)
         img = Image.frombytes('RGB', [pix.width, pix.height], pix.samples)
         try:
@@ -104,6 +110,7 @@ def _ocr_scanned_pdf(doc, filepath, lang):
         confidence.extend(page_conf)
         texts.append(page_text)
 
+    progress(total, total, 'Saving searchable PDF')
     ocr_pdf_path = None
     if has_pdf_pages:
         ocr_pdf_path = _searchable_pdf_path(filepath)
@@ -112,7 +119,7 @@ def _ocr_scanned_pdf(doc, filepath, lang):
     return '\n\n'.join(texts), confidence, ocr_pdf_path
 
 
-def _extract_pdf(filepath, lang):
+def _extract_pdf(filepath, lang, progress):
     if is_text_file(filepath):
         if convert_text_file_to_pdf(filepath):
             with pymupdf.open(filepath) as doc:
@@ -128,6 +135,7 @@ def _extract_pdf(filepath, lang):
         return {'text': f'Error opening PDF: {e}', 'file_type': 'PDF (Error)'}
 
     with doc:
+        progress(0, 1, 'Reading PDF text layer')
         text = _extract_pdf_text_layer(doc)
         if len(text) >= 50:
             return {'text': text, 'file_type': 'PDF'}
@@ -136,7 +144,7 @@ def _extract_pdf(filepath, lang):
         if not tesseract_available():
             return {'text': text or TESSERACT_MISSING_MESSAGE, 'file_type': 'PDF (OCR unavailable)'}
         try:
-            ocr_text, confidence, ocr_pdf_path = _ocr_scanned_pdf(doc, filepath, lang)
+            ocr_text, confidence, ocr_pdf_path = _ocr_scanned_pdf(doc, filepath, lang, progress)
         except Exception as e:
             current_app.logger.exception('Scanned PDF OCR failed')
             return {'text': text or f'No text found in PDF. OCR failed: {e}', 'file_type': 'PDF (OCR Failed)'}
@@ -148,7 +156,8 @@ def _extract_pdf(filepath, lang):
             'ocr_pdf_path': ocr_pdf_path}
 
 
-def _extract_image(filepath, lang, engine):
+def _extract_image(filepath, lang, engine, progress):
+    progress(0, 1, 'Recognising text')
     if engine == 'glm-ocr':
         try:
             result = GlmOcrProcessor().process_image(filepath)
@@ -183,17 +192,19 @@ def _extract_image(filepath, lang, engine):
         return {'text': message, 'file_type': 'image (error)'}
 
 
-def extract_document_text(filepath, lang='eng', engine='tesseract'):
+def extract_document_text(filepath, lang='eng', engine='tesseract', progress=no_progress):
     """
     Extract text from a document on disk.
 
     Returns a dict with keys: text, file_type and optionally confidence
     (low-confidence words) and ocr_pdf_path (generated searchable PDF).
+    progress(current, total, message) is called between units of work; it may
+    raise to abort (see app.jobs.JobCancelled).
     """
     ext = os.path.splitext(filepath)[1].lower()
     if ext == '.pdf':
-        return _extract_pdf(filepath, lang)
+        return _extract_pdf(filepath, lang, progress)
     if ext in current_app.config['IMAGE_EXTENSIONS']:
-        return _extract_image(filepath, lang, engine)
+        return _extract_image(filepath, lang, engine, progress)
     return {'text': f'Unsupported file type: {ext}\n\nSupported formats: PDF, PNG, JPG, JPEG, TIFF, BMP',
             'file_type': f'unsupported ({ext})', 'unsupported': True}

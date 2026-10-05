@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { useToast } from '../context/ToastContext'
@@ -13,14 +13,12 @@ import {
     Cpu,
     ShieldCheck,
     ArrowRight,
-    Layers,
-    Sliders,
     Globe,
     FileCheck
 } from 'lucide-react'
 import AdvancedOCRResults from '../components/AdvancedOCRResults'
 import { API_URL } from '../config'
-import './UploadOCR.css'
+import { cancelJob, JobCancelledError } from '../api/jobs'
 
 const UploadOCR = () => {
     const navigate = useNavigate()
@@ -31,6 +29,8 @@ const UploadOCR = () => {
     const [dragActive, setDragActive] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [processing, setProcessing] = useState(false)
+    const [job, setJob] = useState(null)
+    const [cancelling, setCancelling] = useState(false)
     const [convertingPDF, setConvertingPDF] = useState(false)
     const [currentProject, setCurrentProject] = useState(null)
     const [ocrResult, setOcrResult] = useState(null)
@@ -109,20 +109,40 @@ const UploadOCR = () => {
         }
     }
 
+    const jobOptions = { onStart: setJob, onProgress: setJob }
+
+    const finishJob = () => {
+        setProcessing(false)
+        setJob(null)
+        setCancelling(false)
+    }
+
+    const handleCancel = async () => {
+        if (!job) return
+        setCancelling(true)
+        try {
+            setJob(await cancelJob(job.id))
+        } catch {
+            setCancelling(false)
+            addToast('Could not cancel processing. Please try again.', 'error')
+        }
+    }
+
     const handleRunOCR = async (projectId) => {
         try {
             setProcessing(true)
+            setJob(null)
             setError(null)
 
             let result
             if (useAdvancedOCR) {
-                result = await runAdvancedOCR(projectId || currentProject.id, language)
+                result = await runAdvancedOCR(projectId || currentProject.id, language, jobOptions)
             } else {
-                result = await runOCR(projectId || currentProject.id, language)
+                result = await runOCR(projectId || currentProject.id, language, jobOptions)
             }
 
             setOcrResult(result)
-            setProcessing(false)
+            finishJob()
             addToast('Neural OCR extraction complete!', 'success')
 
             setTimeout(() => {
@@ -130,7 +150,11 @@ const UploadOCR = () => {
             }, 1800)
 
         } catch (err) {
-            setProcessing(false)
+            finishJob()
+            if (err instanceof JobCancelledError) {
+                addToast('OCR cancelled.', 'info')
+                return
+            }
             addToast(err.message || 'OCR processing encountered an issue. Please verify file and retry.', 'error')
         }
     }
@@ -138,6 +162,8 @@ const UploadOCR = () => {
     const handleConvertToPDF = async (projectId) => {
         try {
             setConvertingPDF(true)
+            setProcessing(true)
+            setJob(null)
             setError(null)
 
             const title = file?.name?.replace(/\.[^/.]+$/, "") || "Handwritten Document"
@@ -145,12 +171,14 @@ const UploadOCR = () => {
             const result = await convertHandwrittenToPDF(
                 projectId || currentProject.id,
                 title,
-                language
+                language,
+                jobOptions
             )
 
             setPdfResult(result)
             setConvertingPDF(false)
-            addToast('Handwritten document converted to PDF/A successfully!', 'success')
+            finishJob()
+            addToast('Handwritten document converted to a searchable PDF!', 'success')
 
             setTimeout(() => {
                 navigate(`/cleanup/${projectId || currentProject.id}`)
@@ -158,6 +186,11 @@ const UploadOCR = () => {
 
         } catch (err) {
             setConvertingPDF(false)
+            finishJob()
+            if (err instanceof JobCancelledError) {
+                addToast('Conversion cancelled.', 'info')
+                return
+            }
             addToast('PDF conversion failed: ' + (err.message || 'Unknown error'), 'error')
         }
     }
@@ -302,7 +335,28 @@ const UploadOCR = () => {
                                 <Loader2 size={44} className="spin-anim text-primary" />
                             </div>
                             <h3>Neural Recognition in Progress...</h3>
-                            <p>Performing binarization, deskew analysis, and OCR character extraction.</p>
+                            <p aria-live="polite">{job?.message || 'Performing binarization, deskew analysis, and OCR character extraction.'}</p>
+                            <div
+                                className="ocr-progress"
+                                role="progressbar"
+                                aria-label="OCR progress"
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-valuenow={Math.round(job?.progress || 0)}
+                            >
+                                <div className="ocr-progress-fill" style={{ width: `${job?.progress || 0}%` }} />
+                            </div>
+                            <div className="ocr-progress-meta">
+                                {job?.status === 'queued' ? 'Queued' : `${Math.round(job?.progress || 0)}%`}
+                            </div>
+                            <button
+                                type="button"
+                                className="btn-dash-secondary ocr-cancel-btn"
+                                onClick={handleCancel}
+                                disabled={!job || cancelling}
+                            >
+                                {cancelling ? 'Stopping…' : 'Stop processing'}
+                            </button>
                             <div className="processing-subtext">Zero data leaves your machine • Running locally</div>
                         </div>
                     ) : ocrResult ? (

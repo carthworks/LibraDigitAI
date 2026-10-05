@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { X, Save, CheckSquare, Square, Edit3, AlertTriangle, CheckCircle, Info } from 'lucide-react'
 import { API_URL } from '../config'
-import './BulkMetadataEditor.css'
 
 const BulkMetadataEditor = ({ projects, onClose, onSaveComplete }) => {
     // State for selected projects (subset of passed projects)

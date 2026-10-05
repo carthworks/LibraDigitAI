@@ -5,7 +5,6 @@ Checks the database structure and batch data
 
 import os
 import sqlite3
-import json
 
 DATABASE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'libradigit.db')
 
@@ -13,19 +12,19 @@ def check_database():
     """Check database structure and data"""
     print("🔍 Checking LibraDigit AI Database...")
     print("=" * 60)
-    
+
     try:
         conn = sqlite3.connect(DATABASE)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        
+
         # Check tables
         print("\n📋 Tables in database:")
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = cursor.fetchall()
         for table in tables:
             print(f"  ✓ {table['name']}")
-        
+
         # Check batch_jobs
         print("\n📦 Batch Jobs:")
         cursor.execute("SELECT * FROM batch_jobs")
@@ -41,7 +40,7 @@ def check_database():
                 print()
         else:
             print("  No batches found")
-        
+
         # Check batch_items
         print("\n📄 Batch Items:")
         cursor.execute("SELECT * FROM batch_items")
@@ -57,7 +56,7 @@ def check_database():
                 print()
         else:
             print("  No batch items found")
-        
+
         # Check projects
         print("\n📁 Projects:")
         cursor.execute("SELECT id, filename, status FROM projects")
@@ -70,7 +69,7 @@ def check_database():
                 print()
         else:
             print("  No projects found")
-        
+
         # Check for orphaned batch items (items with missing projects)
         print("\n⚠️  Checking for orphaned batch items...")
         cursor.execute('''
@@ -86,7 +85,7 @@ def check_database():
                 print(f"    Item ID: {item['id']}, Batch ID: {item['batch_id']}, Project ID: {item['project_id']}")
         else:
             print("  ✓ No orphaned batch items")
-        
+
         # Test batch status query
         print("\n🧪 Testing batch status query...")
         cursor.execute("SELECT id FROM batch_jobs LIMIT 1")
@@ -94,7 +93,7 @@ def check_database():
         if batch:
             batch_id = batch['id']
             print(f"  Testing with batch ID: {batch_id}")
-            
+
             try:
                 cursor.execute('''
                     SELECT bi.*, COALESCE(p.filename, 'Unknown') as filename
@@ -112,12 +111,12 @@ def check_database():
                 print(f"  ✗ Query failed: {e}")
         else:
             print("  No batches to test with")
-        
+
         conn.close()
-        
+
         print("\n" + "=" * 60)
         print("✅ Database check complete!")
-        
+
     except Exception as e:
         print(f"\n❌ Error checking database: {e}")
         import traceback

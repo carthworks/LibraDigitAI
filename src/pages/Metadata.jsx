@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { Save, AlertCircle, ArrowRight, X } from 'lucide-react'
 import WorkflowTracker from '../components/WorkflowTracker'
 import MetadataSuggestions from '../components/MetadataSuggestions'
-import './Metadata.css'
 
 const Metadata = () => {
     const { projectId } = useParams()

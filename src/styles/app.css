@@ -1,0 +1,38 @@
+/*
+ * The whole app's CSS, in one fixed order.
+ *
+ * Page and component stylesheets share class names (buttons, pills, colour
+ * helpers) and some define the same selector differently, so the cascade
+ * depends on load order. Keep every stylesheet listed here, not imported from
+ * its component, so lazy-loaded pages cannot change the order.
+ */
+@import '../components/Sidebar.css';
+@import '../components/HelpModal.css';
+@import '../components/Header.css';
+@import '../components/Modal.css';
+@import '../context/Toast.css';
+@import '../pages/Dashboard.css';
+@import '../components/AdvancedOCRResults.css';
+@import '../pages/UploadOCR.css';
+@import '../components/WorkflowTracker.css';
+@import 'react-quill/dist/quill.snow.css';
+@import '../components/TextEditor.css';
+@import '../pages/Cleanup.css';
+@import '../components/MetadataSuggestions.css';
+@import '../pages/Metadata.css';
+@import '../pages/Archive.css';
+@import '../pages/Help.css';
+@import '../pages/BatchProcessing.css';
+@import '../components/BulkMetadataEditor.css';
+@import '../components/LogoLoader.css';
+@import '../components/WelcomeScreen.css';
+@import '../components/LoginScreen.css';
+@import '../components/ArchivalFlowVisualizer.css';
+@import '../pages/LandingPage.css';
+@import '../pages/MarketingInfo.css';
+@import '../pages/ArchiveSearch.css';
+@import 'react-pdf/dist/Page/AnnotationLayer.css';
+@import 'react-pdf/dist/Page/TextLayer.css';
+@import '../pages/Analytics.css';
+@import '../pages/Settings.css';
+@import '../index.css';
