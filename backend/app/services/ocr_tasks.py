@@ -201,7 +201,19 @@ def run_advanced_ocr(project_id, params, progress=no_progress):
         raise TaskError(result.get('error', 'Advanced OCR processing failed'))
 
     progress(1, 1, 'Saving results')
-    structured_text = processor.generate_structured_output(result)
+    main_text = (result.get('main_text') or '').strip()
+    clean_parts = []
+    if main_text:
+        clean_parts.append(main_text)
+    for t in result.get('tables', []):
+        t_text = (t.get('text') or '').strip()
+        if t_text and t_text not in main_text:
+            clean_parts.append(t_text)
+    hw = (result.get('handwritten_text') or '').strip()
+    if hw and hw not in main_text:
+        clean_parts.append(hw)
+
+    structured_text = '\n\n'.join(clean_parts) if clean_parts else processor.generate_structured_output(result)
 
     # Generate searchable PDF with selectable text for the image
     ocr_pdf_path = None
