@@ -17,7 +17,7 @@ export function initConsoleSignature() {
     const tipLabelStyle = 'font-weight: 700; color: #fcb900;'
     const codeStyle = 'font-family: "JetBrains Mono", monospace; color: #f15a24; background: rgba(241, 90, 36, 0.15); padding: 2px 6px; border-radius: 4px;'
 
-    console.log('%c🏛️ LibraDigit AI — Digital Archive Builder v1.2.0', titleStyle)
+    console.log('%c🏛️ LibraDigit AI — Digital Archive Builder v1.3.0', titleStyle)
 
     console.log(
         '%c👨‍💻 Lead Engineer:%c Karthikeyan T (@carthworks)\n' +
@@ -48,7 +48,7 @@ export function initConsoleSignature() {
 
     // Interactive DevTools Inspection API
     window.LibraDigit = {
-        version: '1.2.0',
+        version: '1.3.0',
         author: {
             name: 'Karthikeyan T',
             handle: '@carthworks',

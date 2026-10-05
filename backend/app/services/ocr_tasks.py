@@ -82,6 +82,8 @@ def _advanced_pdf(project_id, filepath, lang, engine, progress):
     stats = dict.fromkeys(STAT_KEYS, 0)
     pages = []
     upload_folder = current_app.config['UPLOAD_FOLDER']
+    merged_searchable = pymupdf.open()
+    has_pdf_pages = False
     with pymupdf.open(filepath) as doc:
         total = len(doc)
         for page_idx, page in enumerate(doc):
@@ -90,6 +92,17 @@ def _advanced_pdf(project_id, filepath, lang, engine, progress):
             temp_path = os.path.join(upload_folder, f'temp_adv_{project_id}_page_{page_idx}.png')
             page.get_pixmap(dpi=RENDER_DPI).save(temp_path)
             try:
+                # 1. Generate searchable PDF page (invisible text layer for search & select)
+                try:
+                    with Image.open(temp_path) as img:
+                        page_pdf_bytes = pytesseract.image_to_pdf_or_hocr(img, extension='pdf', lang=lang)
+                        with pymupdf.open('pdf', page_pdf_bytes) as single:
+                            merged_searchable.insert_pdf(single)
+                        has_pdf_pages = True
+                except Exception as pdf_err:
+                    current_app.logger.warning('Advanced OCR searchable page %s failed: %s', page_idx + 1, pdf_err)
+
+                # 2. Extract structured layout and text
                 if engine == 'glm-ocr':
                     text, tables = _glm_text_and_tables(temp_path)
                     page_text = header + text
@@ -119,9 +132,16 @@ def _advanced_pdf(project_id, filepath, lang, engine, progress):
                 if os.path.exists(temp_path):
                     os.remove(temp_path)
 
+    ocr_pdf_path = None
+    if has_pdf_pages:
+        stem = os.path.splitext(os.path.basename(filepath))[0]
+        ocr_pdf_path = os.path.join(upload_folder, f'ocr_{stem}.pdf')
+        merged_searchable.save(ocr_pdf_path, garbage=3, deflate=True)
+    merged_searchable.close()
+
     progress(1, 1, 'Saving results')
     final_text = '\n\n'.join(pages) if pages else 'No text extracted from PDF.'
-    _save_ocr_result(project_id, final_text)
+    _save_ocr_result(project_id, final_text, ocr_pdf_path=ocr_pdf_path)
     return {
         'success': True,
         'message': 'Advanced OCR completed for PDF successfully',
@@ -134,6 +154,7 @@ def _advanced_pdf(project_id, filepath, lang, engine, progress):
                            'stamps_count': stats['stamps_found'], 'signatures_count': stats['signatures_found']},
         'tables_found': stats['tables_found'],
         'forms_found': {'checkboxes': stats['checkboxes_found'], 'text_fields': stats['text_fields_found']},
+        'ocr_pdf_path': ocr_pdf_path,
     }
 
 
@@ -181,7 +202,20 @@ def run_advanced_ocr(project_id, params, progress=no_progress):
 
     progress(1, 1, 'Saving results')
     structured_text = processor.generate_structured_output(result)
-    _save_ocr_result(project_id, structured_text)
+
+    # Generate searchable PDF with selectable text for the image
+    ocr_pdf_path = None
+    try:
+        with Image.open(filepath) as img:
+            pdf_bytes = pytesseract.image_to_pdf_or_hocr(img, extension='pdf', lang=lang)
+            stem = os.path.splitext(os.path.basename(filepath))[0]
+            ocr_pdf_path = os.path.join(current_app.config['UPLOAD_FOLDER'], f'ocr_{stem}.pdf')
+            with open(ocr_pdf_path, 'wb') as f:
+                f.write(pdf_bytes)
+    except Exception as e:
+        current_app.logger.warning('Failed to generate searchable PDF for image in advanced OCR: %s', e)
+
+    _save_ocr_result(project_id, structured_text, ocr_pdf_path=ocr_pdf_path)
 
     stats = result.get('statistics', {})
     structure = result.get('page_structure', {})
@@ -203,6 +237,7 @@ def run_advanced_ocr(project_id, params, progress=no_progress):
         'forms_found': {'checkboxes': len(forms.get('checkboxes', [])),
                         'text_fields': len(forms.get('text_fields', []))},
         'text_length': len(structured_text),
+        'ocr_pdf_path': ocr_pdf_path,
         'pages': 1,
     }
 

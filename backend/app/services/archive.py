@@ -78,6 +78,15 @@ def _materialize_pdf(source_path, final_path, labels, generated_source):
     if ext in current_app.config['IMAGE_EXTENSIONS']:
         try:
             with Image.open(source_path) as image:
+                # 1. Generate real searchable & selectable PDF with Tesseract
+                try:
+                    import pytesseract
+                    pdf_bytes = pytesseract.image_to_pdf_or_hocr(image, extension='pdf')
+                    with open(final_path, 'wb') as f:
+                        f.write(pdf_bytes)
+                    return True
+                except Exception as t_err:
+                    current_app.logger.warning('Tesseract image_to_pdf failed in _materialize_pdf, fallback: %s', t_err)
                 if image.mode not in ('RGB', 'L'):
                     image = image.convert('RGB')
                 image.save(final_path, 'PDF', resolution=100.0)
@@ -86,6 +95,22 @@ def _materialize_pdf(source_path, final_path, labels, generated_source):
             _placeholder_pdf(final_path, [f'Error archiving file: {labels["title"]}',
                                           'Could not convert original image to PDF.'])
         return True
+
+    if ext == '.pdf':
+        try:
+            import pymupdf
+            with pymupdf.open(source_path) as doc:
+                text_layer = ''.join(page.get_text() for page in doc).strip()
+                # If scanned without a text layer and not already OCR generated, make it searchable
+                if len(text_layer) < 30 and not generated_source:
+                    from .ocr import _ocr_scanned_pdf, no_progress
+                    _ocr_text, _conf, ocr_pdf, _mean = _ocr_scanned_pdf(doc, source_path, 'eng', no_progress)
+                    if ocr_pdf and os.path.exists(ocr_pdf):
+                        shutil.copy2(ocr_pdf, final_path)
+                        return True
+        except Exception as pdf_err:
+            current_app.logger.warning('PDF text layer inspection in _materialize_pdf: %s', pdf_err)
+
     shutil.copy2(source_path, final_path)
     return generated_source
 

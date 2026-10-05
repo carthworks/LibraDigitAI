@@ -117,8 +117,9 @@ def list_ebooks():
                 break
 
         file_size = os.path.getsize(target_file) if target_file else 0
-        has_searchable_pdf = bool(ocr_path and os.path.exists(ocr_path))
         has_final_pdf = bool(final_path and os.path.exists(final_path))
+        has_ocr_pdf = bool(ocr_path and os.path.exists(ocr_path))
+        has_searchable_pdf = has_final_pdf or has_ocr_pdf or bool(target_file)
 
         cleaned = d.get('cleaned_text') or d.get('original_text') or ''
         word_count = len(cleaned.split()) if cleaned else 0
@@ -132,7 +133,7 @@ def list_ebooks():
         d['snippet'] = snippet
         d['has_searchable_pdf'] = has_searchable_pdf
         d['has_final_pdf'] = has_final_pdf
-        d['has_pdf'] = bool((target_file and target_file.lower().endswith('.pdf')) or has_searchable_pdf or has_final_pdf)
+        d['has_pdf'] = bool(target_file)
         d['display_title'] = d.get('title') or os.path.splitext(d['filename'])[0]
         ebooks.append(d)
 
@@ -147,6 +148,80 @@ def get_project(project_id):
     return jsonify({'project': project})
 
 
+def _ensure_searchable_pdf(project_id, project):
+    files = project.get('files') or {}
+    final, ocr, original = files.get('final_path'), files.get('ocr_path'), files.get('original_path') or project.get('filepath')
+
+    # 1. If final_path or ocr_path exists and is a valid file, use it
+    if final and os.path.exists(final) and final.lower().endswith('.pdf'):
+        return final
+    if ocr and os.path.exists(ocr) and ocr.lower().endswith('.pdf'):
+        return ocr
+
+    # 2. If neither exists, generate searchable PDF from original_path
+    if original and os.path.exists(original):
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        stem = os.path.splitext(project['filename'])[0]
+        ext = os.path.splitext(original)[1].lower()
+        target_ocr_path = os.path.join(upload_folder, f'ocr_{stem}.pdf')
+
+        try:
+            if ext in current_app.config['IMAGE_EXTENSIONS']:
+                from PIL import Image
+                import pytesseract
+                with Image.open(original) as img:
+                    pdf_bytes = pytesseract.image_to_pdf_or_hocr(img, extension='pdf')
+                    with open(target_ocr_path, 'wb') as f:
+                        f.write(pdf_bytes)
+                with transaction() as conn:
+                    conn.execute('UPDATE files SET ocr_path = ? WHERE project_id = ?', (target_ocr_path, project_id))
+                return target_ocr_path
+            elif ext == '.pdf':
+                import pymupdf
+                with pymupdf.open(original) as doc:
+                    text = ''.join(page.get_text() for page in doc).strip()
+                    if len(text) >= 30:
+                        # Already has selectable digital text layer
+                        return original
+                    from ..services.ocr import _ocr_scanned_pdf, no_progress
+                    _text, _conf, generated_path, _mean = _ocr_scanned_pdf(doc, original, 'eng', no_progress)
+                    if generated_path and os.path.exists(generated_path):
+                        with transaction() as conn:
+                            conn.execute('UPDATE files SET ocr_path = ? WHERE project_id = ?', (generated_path, project_id))
+                        return generated_path
+        except Exception as e:
+            current_app.logger.warning('Auto-generation of searchable PDF from file failed: %s', e)
+
+    # 3. If file is missing or generation failed, but OCR text exists in database, synthesize a searchable PDF
+    ocr_text = project.get('cleaned_text') or project.get('ocr_text')
+    if ocr_text and ocr_text.strip():
+        try:
+            from reportlab.lib.pagesizes import letter
+            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            stem = os.path.splitext(project['filename'])[0]
+            target_ocr_path = os.path.join(upload_folder, f'ocr_{stem}.pdf')
+            doc = SimpleDocTemplate(target_ocr_path, pagesize=letter, rightMargin=54, leftMargin=54, topMargin=54, bottomMargin=54)
+            styles = getSampleStyleSheet()
+            normal = ParagraphStyle('DocNormal', parent=styles['Normal'], fontSize=10, leading=14)
+            story = []
+            for paragraph in ocr_text.split('\n\n'):
+                p_clean = paragraph.strip().replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br/>')
+                if p_clean:
+                    story.append(Paragraph(p_clean, normal))
+                    story.append(Spacer(1, 8))
+            if story:
+                doc.build(story)
+                with transaction() as conn:
+                    conn.execute('UPDATE files SET ocr_path = ? WHERE project_id = ?', (target_ocr_path, project_id))
+                return target_ocr_path
+        except Exception as reportlab_err:
+            current_app.logger.warning('Failed to generate PDF from text fallback: %s', reportlab_err)
+
+    return _first_existing(final, ocr, original if (original or '').lower().endswith('.pdf') else None)
+
+
 @bp.get('/<int:project_id>/file')
 def get_project_file(project_id):
     """Serve the project file, preferring the archived/searchable PDF."""
@@ -154,16 +229,16 @@ def get_project_file(project_id):
     if not project:
         return jsonify({'error': 'Project not found'}), 404
 
-    files = project.get('files') or {}
-    original, ocr, final = files.get('original_path'), files.get('ocr_path'), files.get('final_path')
     req_type = request.args.get('type')
+    files = project.get('files') or {}
+    original = files.get('original_path')
 
-    file_path = None
     if req_type == 'original':
         file_path = _first_existing(original)
     elif req_type == 'pdf':
-        file_path = _first_existing(final, ocr, original if (original or '').lower().endswith('.pdf') else None)
-    file_path = file_path or _first_existing(final, ocr, original)
+        file_path = _ensure_searchable_pdf(project_id, project)
+    else:
+        file_path = _first_existing(files.get('final_path'), files.get('ocr_path'), original)
 
     if not file_path or not is_within(file_path, *_servable_roots()):
         return jsonify({'error': 'File not found'}), 404
@@ -178,11 +253,13 @@ def download_searchable_pdf(project_id):
     project = get_project_data(project_id)
     if not project:
         return jsonify({'error': 'Project not found'}), 404
-    ocr_path = (project.get('files') or {}).get('ocr_path')
-    if not ocr_path or not os.path.exists(ocr_path) or not is_within(ocr_path, current_app.config['UPLOAD_FOLDER']):
+
+    searchable_path = _ensure_searchable_pdf(project_id, project)
+    if not searchable_path or not os.path.exists(searchable_path):
         return jsonify({'error': 'Searchable PDF not generated yet. Please Run OCR.'}), 404
+
     stem = os.path.splitext(project['filename'])[0]
-    return send_file(ocr_path, as_attachment=True, download_name=f'Searchable_{stem}.pdf')
+    return send_file(searchable_path, as_attachment=True, download_name=f'Searchable_{stem}.pdf')
 
 
 @bp.put('/<int:project_id>/status')

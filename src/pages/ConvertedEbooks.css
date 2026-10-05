@@ -944,6 +944,23 @@
     overflow: hidden;
     margin-bottom: 2rem;
     transition: transform 0.2s ease;
+    position: relative;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.pdf-canvas-card .react-pdf__Page {
+    position: relative;
+}
+
+.pdf-canvas-card .textLayer {
+    z-index: 2;
+    cursor: text;
+}
+
+.pdf-canvas-card .textLayer ::selection {
+    background: rgba(240, 132, 24, 0.4) !important;
+    color: transparent !important;
 }
 
 /* Native Browser PDF iFrame */

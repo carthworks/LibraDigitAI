@@ -46,7 +46,7 @@ class Config:
 
     HOST = os.environ.get('LIBRADIGIT_HOST', '127.0.0.1')
     PORT = int(os.environ.get('LIBRADIGIT_PORT', '5001'))
-    DEBUG = _env_bool('LIBRADIGIT_DEBUG', False)
+    DEBUG = _env_bool('LIBRADIGIT_DEBUG', not _env_bool('ELECTRON_BUILD', False) and not getattr(sys, 'frozen', False))
 
     # Shared secret injected by the Electron shell. When set, every /api request
     # must carry it in the X-LibraDigit-Token header.
