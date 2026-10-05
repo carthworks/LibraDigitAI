@@ -118,13 +118,21 @@ cd ..
 Double-click `run-app.bat` or run in your terminal:
 
 ```cmd
+:: Standard 1-click launch (Backend + Frontend + Browser)
 run-app.bat
+
+:: Launch in Electron desktop app mode
+run-app.bat electron
+
+:: Stop all running services (kill background ports 5001 and 3000)
+run-app.bat stop
 ```
 
 This automated launcher will:
 - Detect your Python runtime (checking root `.venv`, `backend/.venv`, or system Python)
 - Verify Node.js and npm availability
 - Automatically inspect and install missing `node_modules` via `npm install`
+- Check if port 5001 is already running to prevent duplicate instances or port conflicts
 - Start the Flask backend server on `http://localhost:5001`
 - Launch the Vite frontend server on `http://localhost:3000`
 - Open your default browser smoothly once the servers are ready
@@ -140,8 +148,6 @@ npm run dev:backend
 # Terminal 2 - Frontend Web App (Vite)
 npm run dev
 ```
-
-<<<<<<< HEAD
 ### Desktop Electron Mode
 
 To run or bundle the desktop client:
@@ -157,8 +163,15 @@ npm run dist
 npm run pack
 ```
 
-=======
-### Linting
+### Dedicated Backend Launch
+
+To run only the backend server on port 5001:
+
+```cmd
+run-backend.bat
+```
+
+### Linting & CI
 
 ```bash
 npm run lint                      # ESLint (frontend + Electron)
@@ -168,8 +181,6 @@ cd backend && ruff check .        # Python
 CI (`.github/workflows/ci.yml`) runs lint, the backend tests, the frontend build and a
 Windows packaging smoke test on every pull request. See [docs/RELEASING.md](docs/RELEASING.md)
 for building and signing the Windows installer.
-
->>>>>>> f10c8c534b85ea5a0f0fa4faa3e2ddafd32d5056
 ### Running the Tests
 
 ```bash

@@ -14,8 +14,15 @@ can break rules a preflight cannot see.
 """
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+import shutil
 
-import pikepdf
+try:
+    import pikepdf
+    PIKEPDF_AVAILABLE = True
+except ImportError:
+    pikepdf = None
+    PIKEPDF_AVAILABLE = False
+
 from PIL import ImageCms
 
 PDFA_PART = '2'
@@ -50,7 +57,7 @@ def _filters(obj):
     value = obj.get('/Filter')
     if value is None:
         return set()
-    if isinstance(value, pikepdf.Array):
+    if pikepdf and isinstance(value, pikepdf.Array):
         return {str(v) for v in value}
     return {str(value)}
 
@@ -158,6 +165,10 @@ def convert_to_pdfa(src_path, dst_path, metadata, generated=True):
     generated=False marks a PDF the user imported. Those can break PDF/A rules
     the preflight cannot detect, so they are never labelled PDF/A.
     """
+    if not PIKEPDF_AVAILABLE:
+        shutil.copy2(src_path, dst_path)
+        return PdfAResult(False, ['pikepdf is not installed; archived as plain PDF'])
+
     now = datetime.now(timezone.utc).replace(microsecond=0)
     with pikepdf.open(src_path) as pdf:
         issues = preflight(pdf)

@@ -18,6 +18,7 @@ import {
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
+import './Sidebar.css'
 
 const Sidebar = ({ onLogout }) => {
     const location = useLocation()
