@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { useToast } from '../context/ToastContext'
 import {
@@ -18,11 +18,12 @@ import {
 } from 'lucide-react'
 import AdvancedOCRResults from '../components/AdvancedOCRResults'
 import { API_URL } from '../config'
-import { cancelJob, JobCancelledError } from '../api/jobs'
+import { cancelJob, findActiveJob, waitForJob, JobCancelledError } from '../api/jobs'
 
 const UploadOCR = () => {
     const navigate = useNavigate()
-    const { createProject, runOCR, runAdvancedOCR, convertHandwrittenToPDF, deleteProject, setError } = useProject()
+    const { createProject, getProject, runOCR, runAdvancedOCR, convertHandwrittenToPDF, deleteProject, setError } = useProject()
+    const [searchParams] = useSearchParams()
     const { addToast } = useToast()
 
     const [file, setFile] = useState(null)
@@ -110,6 +111,44 @@ const UploadOCR = () => {
     }
 
     const jobOptions = { onStart: setJob, onProgress: setJob }
+
+    // Opened from the dashboard (/upload?project=<id>): continue that document,
+    // and if OCR is already running for it, show its live progress.
+    const resumeProjectId = searchParams.get('project')
+    useEffect(() => {
+        if (!resumeProjectId) return undefined
+        const controller = new AbortController()
+        ;(async () => {
+            let project
+            try {
+                project = await getProject(resumeProjectId)
+            } catch {
+                addToast('That document could not be found.', 'error')
+                return
+            }
+            if (controller.signal.aborted) return
+            setCurrentProject(project)
+            const active = await findActiveJob(project.id).catch(() => null)
+            if (!active || controller.signal.aborted) return
+            setProcessing(true)
+            setJob(active)
+            try {
+                const result = await waitForJob(active.id, { onProgress: setJob, signal: controller.signal })
+                setOcrResult(result)
+                addToast('Neural OCR extraction complete!', 'success')
+                getProject(project.id).catch(() => {})
+            } catch (err) {
+                if (err.name === 'AbortError') return
+                addToast(err instanceof JobCancelledError ? 'OCR cancelled.' : err.message, err instanceof JobCancelledError ? 'info' : 'error')
+            }
+            if (!controller.signal.aborted) {
+                setProcessing(false)
+                setJob(null)
+                setCancelling(false)
+            }
+        })()
+        return () => controller.abort()
+    }, [resumeProjectId])
 
     const finishJob = () => {
         setProcessing(false)

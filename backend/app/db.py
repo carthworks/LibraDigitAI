@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS ocr_text (
     original_text TEXT,
     cleaned_text TEXT,
     confidence_data TEXT,
+    mean_confidence REAL,
     FOREIGN KEY (project_id) REFERENCES projects (id)
 );
 
@@ -155,6 +156,8 @@ def init_db(database_path=None):
         columns = {row['name'] for row in conn.execute('PRAGMA table_info(ocr_text)')}
         if 'confidence_data' not in columns:
             conn.execute('ALTER TABLE ocr_text ADD COLUMN confidence_data TEXT')
+        if 'mean_confidence' not in columns:
+            conn.execute('ALTER TABLE ocr_text ADD COLUMN mean_confidence REAL')
         file_columns = {row['name'] for row in conn.execute('PRAGMA table_info(files)')}
         if 'archive_format' not in file_columns:
             conn.execute('ALTER TABLE files ADD COLUMN archive_format TEXT')

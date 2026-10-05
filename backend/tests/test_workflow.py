@@ -26,6 +26,10 @@ def test_image_full_workflow(client, app, tmp_path):
     assert data['files']['ocr_path'] and os.path.exists(data['files']['ocr_path'])
 
     # Searchable immediately after OCR, with the snippet taken from the content.
+    listed = client.get('/api/projects').get_json()['projects'][0]
+    assert 80 <= listed['mean_confidence'] <= 100  # real Tesseract word confidence
+    assert listed['has_archive'] is False and listed['archive_format'] is None
+
     hits = client.get('/api/search?q=Library').get_json()
     assert hits['count'] == 1 and '<mark>' in hits['results'][0]['snippet']
 
@@ -52,6 +56,10 @@ def test_image_full_workflow(client, app, tmp_path):
         assert 'City Library' in f.read()
     with fitz.open(final) as doc:
         assert doc.metadata['title'] == 'Annual Report'
+
+    listed = client.get('/api/projects').get_json()['projects'][0]
+    assert listed['has_archive'] is True and listed['archive_format'] == 'PDF/A-2b'
+    assert listed['title'] == 'Annual Report'
 
     served = client.get(f'/api/projects/{pid}/file?type=pdf')
     assert served.status_code == 200 and served.data.startswith(b'%PDF')

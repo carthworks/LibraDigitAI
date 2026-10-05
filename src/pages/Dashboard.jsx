@@ -17,14 +17,18 @@ import {
     X,
     Layers,
     Sparkles,
-    ShieldCheck,
     FolderOpen,
     ArrowRight,
     SlidersHorizontal,
     BookOpen,
-    Download
+    Download,
+    ChevronDown
 } from 'lucide-react'
 import Modal from '../components/Modal'
+import NeedsAttention from '../components/NeedsAttention'
+import { useActiveJobs } from '../hooks/useActiveJobs'
+import { cancelJob } from '../api/jobs'
+import { displayTitle, nextStep } from '../utils/workflow'
 import { useToast } from '../context/ToastContext'
 import { API_URL } from '../config'
 
@@ -71,7 +75,10 @@ const Dashboard = () => {
 
     const closePreview = () => setPreviewProject(null)
 
-    const getStatusInfo = (status) => {
+    const getStatusInfo = (status, hasArchive = true) => {
+        if (status === 'archived' && !hasArchive) {
+            return { label: 'Ready to Archive', color: 'info', icon: SlidersHorizontal, step: '4/5' }
+        }
         const statusMap = {
             upload: { label: 'Uploaded', color: 'primary', icon: FileText, step: '1/5' },
             ocr: { label: 'OCR Processing', color: 'primary', icon: Clock, step: '2/5' },
@@ -82,35 +89,29 @@ const Dashboard = () => {
         return statusMap[status] || statusMap.upload
     }
 
-    const getProgressPercentage = (status) => {
-        const progressMap = {
-            upload: 20,
-            ocr: 40,
-            cleanup: 60,
-            metadata: 80,
-            archived: 100
+
+    // Background OCR jobs; reload documents when one finishes.
+    const jobs = useActiveJobs(fetchProjects)
+    const jobByProject = useMemo(() => new Map(jobs.map(job => [job.project_id, job])), [jobs])
+
+    // A document with a running job opens its progress view; otherwise its next step.
+    const handleProjectClick = (project) => navigate(
+        jobByProject.has(project.id) ? `/upload?project=${project.id}` : nextStep(project).path
+    )
+
+    const handleStopJob = async (job) => {
+        try {
+            await cancelJob(job.id)
+            addToast('Stopping after the current page…', 'info')
+        } catch {
+            addToast('Could not stop processing. Please try again.', 'error')
         }
-        return progressMap[status] || 0
     }
 
-    const handleProjectClick = (project) => {
-        switch (project.status) {
-            case 'upload':
-            case 'ocr':
-                navigate('/upload')
-                break
-            case 'cleanup':
-                navigate(`/cleanup/${project.id}`)
-                break
-            case 'metadata':
-                navigate(`/metadata/${project.id}`)
-                break
-            case 'archived':
-                navigate(`/archive/${project.id}`)
-                break
-            default:
-                navigate('/upload')
-        }
+    const showWaiting = () => {
+        setStatusFilter('waiting')
+        setCurrentPage(1)
+        document.querySelector('.dashboard-funnel-bar')?.scrollIntoView({ behavior: 'smooth' })
     }
 
     const handleDelete = (e, projectId) => {
@@ -134,38 +135,53 @@ const Dashboard = () => {
 
     // Dynamic Counts for Funnel
     const counts = useMemo(() => {
-        const c = { all: projects.length, inProgress: 0, cleanup: 0, metadata: 0, archived: 0 }
-        projects.forEach(p => {
-            if (p.status === 'upload' || p.status === 'ocr') c.inProgress++
-            else if (p.status === 'cleanup') c.cleanup++
-            else if (p.status === 'metadata') c.metadata++
-            else if (p.status === 'archived') c.archived++
-        })
+        // Keyed by workflow step so tabs, cards and the attention panel agree.
+        const c = { all: projects.length, ocr: 0, cleanup: 0, metadata: 0, archive: 0, done: 0 }
+        projects.forEach(p => { c[nextStep(p).key]++ })
         return c
     }, [projects])
+
+    // Real figures for the summary cards (no placeholders).
+    const stats = useMemo(() => {
+        const archives = projects.filter(p => p.has_archive)
+        const measured = projects.filter(p => typeof p.mean_confidence === 'number')
+        const avgConfidence = measured.length
+            ? measured.reduce((sum, p) => sum + p.mean_confidence, 0) / measured.length
+            : null
+        const waitingProjects = projects.filter(p => nextStep(p).needsAction && !jobByProject.has(p.id))
+        const waitingBy = { ocr: 0, cleanup: 0, metadata: 0, archive: 0 }
+        waitingProjects.forEach(p => { waitingBy[nextStep(p).key]++ })
+        const waiting = waitingProjects.length
+        return {
+            archives: archives.length,
+            pdfa: archives.filter(p => p.archive_format === 'PDF/A-2b').length,
+            avgConfidence,
+            measured: measured.length,
+            waiting,
+            waitingBy,
+        }
+    }, [projects, jobByProject])
 
     // Filter, Sort, and Pagination Logic
     const filteredProjects = useMemo(() => {
         return projects
             .filter(project => {
-                const matchesSearch = project.filename.toLowerCase().includes(searchQuery.toLowerCase())
+                const matchesSearch = displayTitle(project).toLowerCase().includes(searchQuery.toLowerCase())
+                    || project.filename.toLowerCase().includes(searchQuery.toLowerCase())
                 if (!matchesSearch) return false
 
                 if (statusFilter === 'all') return true
-                if (statusFilter === 'inProgress') return project.status === 'upload' || project.status === 'ocr'
-                if (statusFilter === 'cleanup') return project.status === 'cleanup'
-                if (statusFilter === 'metadata') return project.status === 'metadata'
-                if (statusFilter === 'archived') return project.status === 'archived'
-                return true
+                if (statusFilter === 'waiting') return nextStep(project).needsAction && !jobByProject.has(project.id)
+                return nextStep(project).key === statusFilter
             })
             .sort((a, b) => {
                 if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at)
                 if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at)
-                if (sortBy === 'progress') return getProgressPercentage(b.status) - getProgressPercentage(a.status)
+                if (sortBy === 'progress') return nextStep(b).progress - nextStep(a).progress
                 if (sortBy === 'name') return a.filename.localeCompare(b.filename)
                 return 0
             })
-    }, [projects, searchQuery, statusFilter, sortBy])
+    }, [projects, searchQuery, statusFilter, sortBy, jobByProject])
 
     const totalPages = Math.ceil(filteredProjects.length / itemsPerPage) || 1
     const currentProjects = filteredProjects.slice(
@@ -200,18 +216,18 @@ const Dashboard = () => {
                 </div>
             )}
 
-            {/* Top Welcome & Health Banner */}
-            <div className="dashboard-hero-banner">
-                <div className="hero-banner-text">
-                    <div className="hero-status-pill">
-                        <ShieldCheck size={14} className="icon-emerald" />
-                        <span>100% Local Sovereignty • Air-Gapped Engine Active</span>
-                    </div>
-                    <h1>Archival Digitization Command Center</h1>
-                    <p>Ingest physical records, run neural OCR, generate Dublin Core metadata, and preserve historical documents locally.</p>
+            {/* Compact header: what this is and the main actions */}
+            <div className="dash-header">
+                <div className="dash-header-text">
+                    <p className="dash-summary">
+                        {projects.length === 0
+                            ? 'Start by uploading a scanned document.'
+                            : stats.waiting > 0
+                                ? `${stats.waiting} document${stats.waiting === 1 ? '' : 's'} waiting on you`
+                                : 'Everything is archived.'}
+                    </p>
                 </div>
-
-                <div className="hero-quick-actions">
+                <div className="dash-header-actions">
                     <button className="btn-dash-primary" onClick={() => navigate('/upload')}>
                         <Plus size={18} />
                         <span>New Ingest & OCR</span>
@@ -222,29 +238,40 @@ const Dashboard = () => {
                     </button>
                     <button className="btn-dash-secondary" onClick={() => navigate('/ebooks')}>
                         <BookOpen size={18} />
-                        <span>Converted E-Books</span>
+                        <span>E-Books</span>
                     </button>
-                    <a
-                        className="btn-dash-secondary"
-                        href={`${API_URL}/export/metadata?format=csv`}
-                        download
-                        title="Dublin Core catalogue of all archived documents (CSV, opens in Excel)"
-                    >
-                        <Download size={18} />
-                        <span>Export Catalogue</span>
-                    </a>
-                    <a
-                        className="btn-dash-secondary"
-                        href={`${API_URL}/export/metadata?format=xml`}
-                        download
-                        title="Dublin Core catalogue of all archived documents (oai_dc XML)"
-                    >
-                        <span>XML</span>
-                    </a>
+                    <details className="dash-menu">
+                        <summary className="btn-dash-secondary">
+                            <Download size={18} />
+                            <span>Export</span>
+                            <ChevronDown size={14} />
+                        </summary>
+                        <div className="dash-menu-list" role="menu">
+                            <a role="menuitem" href={`${API_URL}/export/metadata?format=csv`} download>
+                                <strong>Catalogue (CSV)</strong>
+                                <span>Dublin Core, opens in Excel</span>
+                            </a>
+                            <a role="menuitem" href={`${API_URL}/export/metadata?format=xml`} download>
+                                <strong>Catalogue (XML)</strong>
+                                <span>oai_dc records for repositories</span>
+                            </a>
+                        </div>
+                    </details>
                 </div>
             </div>
 
+            {projects.length > 0 && (
+                <NeedsAttention
+                    projects={projects}
+                    jobs={jobs}
+                    onStopJob={handleStopJob}
+                    onShowAll={showWaiting}
+                />
+            )}
+
             {/* Real-time Metric Cards Deck */}
+            {projects.length > 0 && (
+            <>
             <div className="dashboard-metrics-grid">
                 <div className="metric-stat-card">
                     <div className="stat-card-top">
@@ -259,23 +286,27 @@ const Dashboard = () => {
 
                 <div className="metric-stat-card">
                     <div className="stat-card-top">
-                        <span className="stat-label">Active Digitization Queue</span>
+                        <span className="stat-label">Waiting On You</span>
                         <div className="stat-icon-wrapper warning"><Clock size={20} /></div>
                     </div>
-                    <div className="stat-value">{counts.inProgress + counts.cleanup + counts.metadata}</div>
+                    <div className="stat-value">{stats.waiting}</div>
                     <div className="stat-footer">
-                        <span className="stat-hint text-warning">{counts.cleanup} cleanup • {counts.metadata} metadata</span>
+                        <span className="stat-hint text-warning">{stats.waitingBy.ocr} OCR • {stats.waitingBy.cleanup} review • {stats.waitingBy.metadata} metadata • {stats.waitingBy.archive} to archive</span>
                     </div>
                 </div>
 
                 <div className="metric-stat-card">
                     <div className="stat-card-top">
-                        <span className="stat-label">Archived & Published</span>
+                        <span className="stat-label">Archive Packages</span>
                         <div className="stat-icon-wrapper success"><CheckCircle2 size={20} /></div>
                     </div>
-                    <div className="stat-value">{counts.archived}</div>
+                    <div className="stat-value">{stats.archives}</div>
                     <div className="stat-footer">
-                        <span className="stat-hint text-success">PDF/A-1b & Dublin Core ready</span>
+                        <span className="stat-hint text-success">
+                            {stats.archives === 0
+                                ? 'None created yet'
+                                : `${stats.pdfa} PDF/A-2b · ${stats.archives - stats.pdfa} standard PDF`}
+                        </span>
                     </div>
                 </div>
 
@@ -284,9 +315,13 @@ const Dashboard = () => {
                         <span className="stat-label">OCR Confidence Average</span>
                         <div className="stat-icon-wrapper info"><Sparkles size={20} /></div>
                     </div>
-                    <div className="stat-value">99.4%</div>
+                    <div className="stat-value">{stats.avgConfidence === null ? '—' : `${stats.avgConfidence.toFixed(1)}%`}</div>
                     <div className="stat-footer">
-                        <span className="stat-hint">Dual-pass neural accuracy</span>
+                        <span className="stat-hint">
+                            {stats.measured === 0
+                                ? 'Shown after the first OCR run'
+                                : `Tesseract word confidence, ${stats.measured} document${stats.measured === 1 ? '' : 's'}`}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -302,17 +337,17 @@ const Dashboard = () => {
                         <span className="tab-count">{counts.all}</span>
                     </button>
                     <button
-                        className={`funnel-tab ${statusFilter === 'inProgress' ? 'active' : ''}`}
-                        onClick={() => { setStatusFilter('inProgress'); setCurrentPage(1); }}
+                        className={`funnel-tab ${statusFilter === 'ocr' ? 'active' : ''}`}
+                        onClick={() => { setStatusFilter('ocr'); setCurrentPage(1); }}
                     >
-                        <span>In Processing</span>
-                        <span className="tab-count">{counts.inProgress}</span>
+                        <span>Needs OCR</span>
+                        <span className="tab-count">{counts.ocr}</span>
                     </button>
                     <button
                         className={`funnel-tab ${statusFilter === 'cleanup' ? 'active' : ''}`}
                         onClick={() => { setStatusFilter('cleanup'); setCurrentPage(1); }}
                     >
-                        <span>Needs Cleanup</span>
+                        <span>Needs Review</span>
                         <span className="tab-count">{counts.cleanup}</span>
                     </button>
                     <button
@@ -323,11 +358,18 @@ const Dashboard = () => {
                         <span className="tab-count">{counts.metadata}</span>
                     </button>
                     <button
-                        className={`funnel-tab ${statusFilter === 'archived' ? 'active' : ''}`}
-                        onClick={() => { setStatusFilter('archived'); setCurrentPage(1); }}
+                        className={`funnel-tab ${statusFilter === 'archive' ? 'active' : ''}`}
+                        onClick={() => { setStatusFilter('archive'); setCurrentPage(1); }}
+                    >
+                        <span>Ready to Archive</span>
+                        <span className="tab-count">{counts.archive}</span>
+                    </button>
+                    <button
+                        className={`funnel-tab ${statusFilter === 'done' ? 'active' : ''}`}
+                        onClick={() => { setStatusFilter('done'); setCurrentPage(1); }}
                     >
                         <span>Archived</span>
-                        <span className="tab-count">{counts.archived}</span>
+                        <span className="tab-count">{counts.done}</span>
                     </button>
                 </div>
 
@@ -387,14 +429,21 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            </>
+            )}
+
             {/* Main Content Area: Empty State or Grid / Table */}
             {projects.length === 0 ? (
                 <div className="dashboard-empty-hub">
                     <div className="empty-hub-icon">
                         <FolderOpen size={48} />
                     </div>
-                    <h3>No Records Ingested Yet</h3>
-                    <p>Your sovereign local archive is ready. Drag and drop scanned manuscripts, historical charters, or PDFs to start digitizing.</p>
+                    <h3>Digitize your first document</h3>
+                    <ol className="empty-hub-steps">
+                        <li><strong>Upload</strong> a scan or PDF. Text is extracted on this computer.</li>
+                        <li><strong>Review</strong> the recognised text and fix any errors.</li>
+                        <li><strong>Describe and archive</strong>: add title, author and year, then create a PDF/A archive package.</li>
+                    </ol>
                     <div className="empty-hub-btn-row">
                         <button className="btn-dash-primary" onClick={() => navigate('/upload')}>
                             <Plus size={18} />
@@ -420,9 +469,11 @@ const Dashboard = () => {
                     {viewMode === 'grid' ? (
                         <div className="dash-cards-grid">
                             {currentProjects.map((project) => {
-                                const statusInfo = getStatusInfo(project.status)
+                                const statusInfo = getStatusInfo(project.status, project.has_archive)
                                 const StatusIcon = statusInfo.icon
-                                const progress = getProgressPercentage(project.status)
+                                const step = nextStep(project)
+                                const progress = step.progress
+                                const job = jobByProject.get(project.id)
 
                                 return (
                                     <div
@@ -457,7 +508,7 @@ const Dashboard = () => {
 
                                         <div className="card-body">
                                             <h3 className="card-filename" title={project.filename}>
-                                                {project.filename}
+                                                {displayTitle(project)}
                                             </h3>
                                             <div className="card-status-row">
                                                 <span className={`status-pill ${statusInfo.color}`}>
@@ -484,15 +535,21 @@ const Dashboard = () => {
                                             </div>
                                         </div>
 
-                                        <div className="card-hover-footer">
-                                            <span className="btn-continue-action">
-                                                <span>
-                                                    {project.status === 'cleanup' ? 'Open Cleanup Studio' :
-                                                     project.status === 'metadata' ? 'Generate Metadata' :
-                                                     project.status === 'archived' ? 'Inspect Archive' : 'Open Pipeline'}
+                                        <div className="card-next-step">
+                                            {job ? (
+                                                <span className="card-job-status">
+                                                    {job.status === 'queued' ? 'Queued for OCR' : `${job.message} · ${Math.round(job.progress)}%`}
                                                 </span>
-                                                <ArrowRight size={14} />
-                                            </span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    className={step.needsAction ? 'btn-dash-primary btn-sm' : 'btn-dash-secondary btn-sm'}
+                                                    onClick={(e) => { e.stopPropagation(); navigate(step.path) }}
+                                                >
+                                                    <span>{step.label}</span>
+                                                    <ArrowRight size={14} />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 )
@@ -514,9 +571,9 @@ const Dashboard = () => {
                                     </thead>
                                     <tbody>
                                         {currentProjects.map((project) => {
-                                            const statusInfo = getStatusInfo(project.status)
+                                            const statusInfo = getStatusInfo(project.status, project.has_archive)
                                             const StatusIcon = statusInfo.icon
-                                            const progress = getProgressPercentage(project.status)
+                                            const progress = nextStep(project).progress
 
                                             return (
                                                 <tr
@@ -530,7 +587,7 @@ const Dashboard = () => {
                                                                 <FileText size={18} />
                                                             </div>
                                                             <div className="doc-meta-info">
-                                                                <span className="doc-title">{project.filename}</span>
+                                                                <span className="doc-title">{displayTitle(project)}</span>
                                                                 <span className="doc-sub">ID: #{String(project.id || '')}</span>
                                                             </div>
                                                         </div>
@@ -593,7 +650,7 @@ const Dashboard = () => {
                                                                     handleProjectClick(project)
                                                                 }}
                                                             >
-                                                                <span>Open</span>
+                                                                <span>{jobByProject.has(project.id) ? 'View progress' : nextStep(project).label}</span>
                                                                 <ArrowRight size={14} />
                                                             </button>
                                                         </div>

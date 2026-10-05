@@ -41,12 +41,14 @@ def ocr_image(image, lang='eng'):
     """
     OCR one image with a single Tesseract pass.
 
-    Returns (text, low_confidence_words). Text is rebuilt from word boxes with
-    line and paragraph breaks, which matches image_to_string output, so the
-    confidence data comes for free instead of costing a second OCR run.
+    Returns (text, low_confidence_words, mean_confidence, word_count). Text is
+    rebuilt from word boxes with line and paragraph breaks, which matches
+    image_to_string output, so the confidence data comes for free instead of
+    costing a second OCR run.
     """
     data = pytesseract.image_to_data(image, lang=lang, output_type=pytesseract.Output.DICT)
     lines, order, low_conf = {}, [], []
+    conf_total, conf_count = 0.0, 0
     for i, word in enumerate(data['text']):
         if data['level'][i] != 5:
             continue
@@ -59,6 +61,9 @@ def ocr_image(image, lang='eng'):
             order.append(key)
         lines[key].append(word)
         conf = float(data['conf'][i])
+        if conf >= 0:
+            conf_total += conf
+            conf_count += 1
         if 0 <= conf < LOW_CONFIDENCE_THRESHOLD:
             low_conf.append({'word': word, 'conf': conf})
 
@@ -75,7 +80,8 @@ def ocr_image(image, lang='eng'):
         retry = pytesseract.image_to_string(image, lang=lang, config=HANDWRITTEN_CONFIG)
         if len(retry.strip()) > len(text.strip()):
             text = retry
-    return text, low_conf
+    mean = conf_total / conf_count if conf_count else None
+    return text, low_conf, mean, conf_count
 
 
 def _searchable_pdf_path(filepath):
@@ -90,6 +96,7 @@ def _extract_pdf_text_layer(doc):
 def _ocr_scanned_pdf(doc, filepath, lang, progress):
     """Render each page, OCR it and assemble a searchable (sandwich) PDF."""
     texts, confidence = [], []
+    conf_total, conf_count = 0.0, 0
     merged = pymupdf.open()
     has_pdf_pages = False
     total = len(doc)
@@ -104,7 +111,10 @@ def _ocr_scanned_pdf(doc, filepath, lang, progress):
             has_pdf_pages = True
         except Exception as e:
             current_app.logger.warning('Searchable PDF page %s failed: %s', page_idx + 1, e)
-        page_text, page_conf = ocr_image(img, lang)
+        page_text, page_conf, page_mean, page_words = ocr_image(img, lang)
+        if page_mean is not None:
+            conf_total += page_mean * page_words
+            conf_count += page_words
         for item in page_conf:
             item['page'] = page_idx + 1
         confidence.extend(page_conf)
@@ -116,7 +126,8 @@ def _ocr_scanned_pdf(doc, filepath, lang, progress):
         ocr_pdf_path = _searchable_pdf_path(filepath)
         merged.save(ocr_pdf_path, garbage=3, deflate=True)
     merged.close()
-    return '\n\n'.join(texts), confidence, ocr_pdf_path
+    mean = conf_total / conf_count if conf_count else None
+    return '\n\n'.join(texts), confidence, ocr_pdf_path, mean
 
 
 def _extract_pdf(filepath, lang, progress):
@@ -144,14 +155,14 @@ def _extract_pdf(filepath, lang, progress):
         if not tesseract_available():
             return {'text': text or TESSERACT_MISSING_MESSAGE, 'file_type': 'PDF (OCR unavailable)'}
         try:
-            ocr_text, confidence, ocr_pdf_path = _ocr_scanned_pdf(doc, filepath, lang, progress)
+            ocr_text, confidence, ocr_pdf_path, mean_conf = _ocr_scanned_pdf(doc, filepath, lang, progress)
         except Exception as e:
             current_app.logger.exception('Scanned PDF OCR failed')
             return {'text': text or f'No text found in PDF. OCR failed: {e}', 'file_type': 'PDF (OCR Failed)'}
 
     if ocr_text.strip():
         return {'text': ocr_text, 'file_type': 'PDF (Scanned/OCR)',
-                'confidence': confidence, 'ocr_pdf_path': ocr_pdf_path}
+                'confidence': confidence, 'ocr_pdf_path': ocr_pdf_path, 'mean_confidence': mean_conf}
     return {'text': text or 'No text found in PDF (OCR produced no results).', 'file_type': 'PDF (Empty)',
             'ocr_pdf_path': ocr_pdf_path}
 
@@ -172,7 +183,7 @@ def _extract_image(filepath, lang, engine, progress):
     try:
         with Image.open(filepath) as image:
             image.load()
-            text, confidence = ocr_image(image, lang)
+            text, confidence, mean_conf, _words = ocr_image(image, lang)
             ocr_pdf_path = None
             try:
                 pdf_bytes = pytesseract.image_to_pdf_or_hocr(image, extension='pdf', lang=lang)
@@ -184,7 +195,8 @@ def _extract_image(filepath, lang, engine, progress):
                 ocr_pdf_path = None
         if not text.strip():
             text = 'No text detected in image. Please ensure the image contains readable text.'
-        return {'text': text, 'file_type': 'image', 'confidence': confidence, 'ocr_pdf_path': ocr_pdf_path}
+        return {'text': text, 'file_type': 'image', 'confidence': confidence, 'ocr_pdf_path': ocr_pdf_path,
+                'mean_confidence': mean_conf}
     except Exception as e:
         message = f'Error extracting text from image: {e}'
         if 'tessdata' in str(e) or 'traineddata' in str(e):
