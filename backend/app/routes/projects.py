@@ -63,7 +63,7 @@ def list_ebooks():
     """List all converted/digitized e-books with complete metadata and file information."""
     with transaction() as conn:
         rows = conn.execute('''
-            SELECT 
+            SELECT
                 p.id,
                 p.filename,
                 p.filepath,

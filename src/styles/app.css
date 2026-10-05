@@ -35,4 +35,5 @@
 @import 'react-pdf/dist/Page/TextLayer.css';
 @import '../pages/Analytics.css';
 @import '../pages/Settings.css';
+@import '../pages/ConvertedEbooks.css';
 @import '../index.css';

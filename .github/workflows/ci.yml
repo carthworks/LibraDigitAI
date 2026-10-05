@@ -33,7 +33,12 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Install veraPDF (PDF/A validator used by the archive tests)
-        run: echo "VERAPDF=$(scripts/install-verapdf.sh)" >> "$GITHUB_ENV"
+        # Invoke through bash (works even if the executable bit is lost, e.g. after a
+        # Windows commit) and fail loudly, otherwise the PDF/A tests silently skip.
+        run: |
+          VERAPDF_PATH="$(bash scripts/install-verapdf.sh)"
+          test -x "$VERAPDF_PATH"
+          echo "VERAPDF=$VERAPDF_PATH" >> "$GITHUB_ENV"
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
       - run: python -m pytest tests -q -rs
