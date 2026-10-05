@@ -1,28 +1,23 @@
-import { useState, useEffect } from 'react'
+import {
+    Archive,
+    BarChart3,
+    BookOpen,
+    ChevronDown,
+    Cpu,
+    Database,
+    FolderKanban,
+    HelpCircle,
+    Layers,
+    LayoutDashboard,
+    LogOut,
+    Search,
+    Settings,
+    Sparkles,
+    UploadCloud
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
-import {
-    LayoutDashboard,
-    UploadCloud,
-    Layers,
-    Search,
-    BarChart3,
-    Settings,
-    HelpCircle,
-    Sparkles,
-    LogOut,
-    ChevronDown,
-    Archive,
-    FolderKanban,
-    Database,
-<<<<<<< HEAD
-    ShieldCheck,
-    Cpu,
-    BookOpen
-=======
-    Cpu
->>>>>>> f10c8c534b85ea5a0f0fa4faa3e2ddafd32d5056
-} from 'lucide-react'
 
 const Sidebar = ({ onLogout }) => {
     const location = useLocation()
