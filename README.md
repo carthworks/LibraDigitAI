@@ -7,7 +7,7 @@ A production-grade desktop application that converts scanned documents into sear
 ![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-![LibraDigit AI Poster](ad_librDigitIT_2026.png)
+![LibraDigit AI Poster](assets/marketing/ad_librDigitIT_2026.png)
 
 ## 🎯 Overview
 
@@ -133,16 +133,37 @@ npm run dev:backend
 npm run dev
 ```
 
+### Running the Tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+python -m pytest tests -q      # OCR workflow tests are skipped if Tesseract is absent
+```
+
+### Backend Configuration
+
+The backend reads optional environment variables (see `backend/app/config.py`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `LIBRADIGIT_HOST` / `LIBRADIGIT_PORT` | `127.0.0.1` / `5001` | Bind address. Keep it on localhost. |
+| `LIBRADIGIT_ALLOWED_ORIGINS` | `http://localhost:3000,...` | Browser origins allowed to call the API (dev mode). |
+| `LIBRADIGIT_API_TOKEN` | unset | Shared secret required in `X-LibraDigit-Token`. The Electron app generates one per launch automatically. |
+| `LIBRADIGIT_DEBUG` | `false` | Flask debug mode. Never enable outside local development. |
+| `LIBRADIGIT_MAX_UPLOAD_MB` | `200` | Maximum request size. |
+| `LIBRADIGIT_ENABLE_TRANSLATION` | `true` | Set `false` to stop the Translate feature sending text to Google. |
+
 ## 📚 Documentation
 
-Detailed technical guides, architectural diagrams, and feature walkthroughs have been organized in the [`docs/`](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs) directory:
+Detailed technical guides, architectural diagrams, and feature walkthroughs have been organized in the [`docs/`](docs) directory:
 
-- [System Architecture](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/ARCHITECTURE_DIAGRAM.md)
-- [Backend Guide](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/BACKEND_GUIDE.md)
-- [Advanced OCR Documentation](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/ADVANCED_OCR_DOCUMENTATION.md)
-- [Handwritten Text Processing Guide](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/HANDWRITTEN_TEXT_PROCESSING_GUIDE.md)
-- [Export System Documentation](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/EXPORT_SYSTEM_DOCUMENTATION.md)
-- [Tesseract Setup Guide](file:///c:/Users/tkart/Dev/products/LibraDigit%20AI/docs/TESSERACT_SETUP.md)
+- [System Architecture](docs/ARCHITECTURE_DIAGRAM.md)
+- [Backend Guide](docs/BACKEND_GUIDE.md)
+- [Advanced OCR Documentation](docs/ADVANCED_OCR_DOCUMENTATION.md)
+- [Handwritten Text Processing Guide](docs/HANDWRITTEN_TEXT_PROCESSING_GUIDE.md)
+- [Export System Documentation](docs/EXPORT_SYSTEM_DOCUMENTATION.md)
+- [Tesseract Setup Guide](docs/TESSERACT_SETUP.md)
 
 
 ### Creating Your First Project
@@ -208,8 +229,10 @@ Archive/
           └── Author_Year_Title/
               ├── data/
               │   └── Author_Year_Title.pdf   (Final PDF with embedded metadata)
+              ├── bagit.txt                   (BagIt declaration)
               ├── bag-info.txt                (Archive package metadata)
-              └── manifest-md5.txt            (Checksums for file integrity)
+              ├── manifest-md5.txt            (MD5 checksums)
+              └── manifest-sha256.txt         (SHA-256 checksums for long-term integrity)
 ```
 
 ## 🔧 Technology Stack
@@ -228,35 +251,40 @@ Archive/
 - **Flask** (Python API)
 - **SQLite 3** (Database & FTS5 Search Engine)
 - **Tesseract OCR** (Text Extraction with LSTM neural networks)
-- **PyMuPDF (fitz)** (PDF rendering for scanned PDF OCR at 300 DPI)
+- **PyMuPDF** (PDF text extraction, rendering at 300 DPI, merging and metadata)
 - **OpenCV** (Advanced image processing & computer vision)
 - **NumPy** (Numerical operations for image analysis)
-- **PyPDF2 & ReportLab** (PDF Metadata, Generation & Manipulation)
-- **Bagit-Python** (Packaging standard)
+- **ReportLab** (PDF generation)
 
 ## 🎨 Project Structure
 
 ```
-LibraDigit AI/
-├── backend/                    # Flask server & OCR engines
-│   ├── advanced_ocr_processor.py    # Advanced OCR with layout analysis
-│   ├── handwritten_to_pdf.py        # Handwritten text converter
-│   ├── metadata_extractor.py        # Metadata extraction
-│   ├── batch_processor.py           # Batch operations
-│   └── server.py                    # Main Flask API
+LibraDigitAI/
+├── backend/
+│   ├── server.py               # Entrypoint (python server.py / PyInstaller)
+│   ├── app/
+│   │   ├── __init__.py         # create_app() factory, CORS, error handling
+│   │   ├── config.py           # Environment-driven settings
+│   │   ├── db.py               # SQLite connection (WAL), schema, app_config
+│   │   ├── security.py         # API guard, upload/path safety, validation
+│   │   ├── search_index.py     # FTS5 index + safe query building
+│   │   ├── routes/             # Blueprints: projects, ocr, documents, batch, system
+│   │   ├── services/           # OCR pipeline, archive (BagIt), projects, text files
+│   │   └── processors/         # Advanced OCR, handwriting, GLM-OCR, metadata, batch
+│   ├── tests/                  # pytest suite (security + end-to-end workflow)
+│   └── scripts/                # Maintenance utilities (DB check/migrate, manual API test)
+├── electron/                   # Desktop shell (spawns backend, injects API token)
 ├── src/
-│   ├── components/             # UI elements (Charts, Loaders, Sidebar)
-│   │   └── AdvancedOCRResults.jsx   # Advanced OCR results display
-│   ├── pages/                  # Full views (Analytics, Search, Dashboard)
-│   ├── context/                # Multi-tab sync & Global state
-│   └── index.css               # Design system & Desktop/Mobile styles
-├── Archive/                    # Final BagIt collections
-├── Documentation/              # Feature documentation
-│   ├── ADVANCED_OCR_DOCUMENTATION.md
-│   ├── HANDWRITTEN_TO_PDF_DOCUMENTATION.md
-│   └── QUICK_START_ADVANCED_OCR.md
-├── package.json                # Frontend scripts
-└── README.md                   # This guide
+│   ├── App.jsx                 # Routes (each page lazy-loaded)
+│   ├── components/             # Shared UI
+│   ├── pages/                  # One file per screen
+│   ├── context/                # Project + toast state
+│   └── config.js               # API base URL
+├── public/                     # Files served as-is with the web build
+├── assets/marketing/           # Posters, brochures (not shipped in builds)
+├── docs/                       # Guides; docs/history holds past change notes
+├── Archive/, uploads/          # Runtime data (git-ignored)
+└── SECURITY_QA_AUDIT.md        # Latest audit findings and status
 ```
 
 ## 📚 Additional Documentation

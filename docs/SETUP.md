@@ -71,7 +71,7 @@ This will install:
 - Tesseract Python wrapper
 - OCRmyPDF
 - Pillow (image processing)
-- PyPDF2
+- PyMuPDF
 
 ## Step 3: Run the Application
 

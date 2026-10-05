@@ -92,7 +92,8 @@ const Cleanup = () => {
         let newText = cleanedText
         let count = 0
         confidenceData.forEach(item => {
-            const regex = new RegExp(`\\b${item.word}\\b`, 'g')
+            const escaped = item.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+            const regex = new RegExp(`\\b${escaped}\\b`, 'g')
             if (!newText.includes(`background-color: #fff9c4`)) {
             }
             newText = newText.replace(regex, `<span style="background-color: #fff9c4" title="Confidence: ${item.conf}%">${item.word}</span>`)

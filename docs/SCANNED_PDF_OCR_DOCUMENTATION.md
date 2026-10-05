@@ -10,7 +10,7 @@ LibraDigit AI now includes **automatic scanned PDF detection and OCR processing*
 
 When you upload a PDF file, the system:
 
-1. **First attempts standard text extraction** using PyPDF2
+1. **First attempts standard text extraction** using PyMuPDF
 2. **Analyzes the extracted content** to determine if it's a scanned document
 3. **Triggers OCR automatically** if:
    - No text is found in the PDF
@@ -101,7 +101,7 @@ After processing, the system labels files to show how they were processed:
 - **PyMuPDF (fitz)**: High-quality PDF rendering library
 - **Tesseract OCR**: Industry-standard OCR engine
 - **Pillow (PIL)**: Image processing library
-- **PyPDF2**: PDF text extraction fallback
+- **PyMuPDF**: PDF text extraction fallback
 
 ### Performance
 
@@ -126,7 +126,7 @@ For best OCR results:
 
 The system includes multiple fallback mechanisms:
 
-1. **Primary**: PyPDF2 text extraction
+1. **Primary**: PyMuPDF text extraction
 2. **Secondary**: PyMuPDF + Tesseract OCR (if minimal text found)
 3. **Tertiary**: Full OCR fallback (if extraction errors occur)
 

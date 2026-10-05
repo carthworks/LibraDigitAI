@@ -3,10 +3,11 @@ Database Diagnostic Script
 Checks the database structure and batch data
 """
 
+import os
 import sqlite3
 import json
 
-DATABASE = 'libradigit.db'
+DATABASE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'libradigit.db')
 
 def check_database():
     """Check database structure and data"""

@@ -302,7 +302,7 @@
 ### PDF Operations
 - Metadata embedding (XMP)
 - PDF generation (ReportLab)
-- PDF reading (PyPDF2)
+- PDF reading (PyMuPDF)
 - Multi-page support
 - Custom styling
 

@@ -169,7 +169,7 @@ Change ports in:
 
 ### Backend
 - flask, flask-cors
-- pytesseract, Pillow, PyPDF2
+- pytesseract, Pillow, PyMuPDF
 
 ## 🔑 Key Features
 

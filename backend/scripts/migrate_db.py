@@ -6,7 +6,7 @@ Adds tables for batch processing and metadata suggestions
 import sqlite3
 import os
 
-DATABASE = 'libradigit.db'
+DATABASE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'libradigit.db')
 
 def migrate_database():
     """Add new tables for batch processing and AI metadata"""
