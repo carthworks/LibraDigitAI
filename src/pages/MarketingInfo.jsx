@@ -23,6 +23,7 @@ const MarketingInfo = ({ isLoggedIn, onOpenLogin }) => {
     const navigate = useNavigate()
     const [openFaq, setOpenFaq] = useState(0)
     const [formSubmitted, setFormSubmitted] = useState(false)
+    const [consentAgreed, setConsentAgreed] = useState(false)
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -436,7 +437,21 @@ const MarketingInfo = ({ isLoggedIn, onOpenLogin }) => {
                                 ></textarea>
                             </div>
 
-                            <button type="submit" className="btn-submit-inquiry">
+                            <div className="form-field-consent" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '12px', marginBottom: '16px' }}>
+                                <input
+                                    type="checkbox"
+                                    id="mkt-privacy-consent"
+                                    required
+                                    checked={consentAgreed}
+                                    onChange={(e) => setConsentAgreed(e.target.checked)}
+                                    style={{ marginTop: '3px', cursor: 'pointer' }}
+                                />
+                                <label htmlFor="mkt-privacy-consent" style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.5, cursor: 'pointer' }}>
+                                    I consent to having LibraDigit AI process my contact details to evaluate institutional digitization requirements in accordance with the <Link to="/privacy" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Privacy Policy</Link>. (Zero marketing spam, zero data sales).
+                                </label>
+                            </div>
+
+                            <button type="submit" className="btn-submit-inquiry" disabled={!consentAgreed} style={{ opacity: consentAgreed ? 1 : 0.6 }}>
                                 <Send size={16} />
                                 <span>Submit Institutional Inquiry</span>
                             </button>
@@ -447,15 +462,27 @@ const MarketingInfo = ({ isLoggedIn, onOpenLogin }) => {
 
             {/* Footer */}
             <footer className="marketing-footer">
-                <div className="footer-inner-clean">
+                <div className="footer-inner-clean" style={{ flexWrap: 'wrap', gap: '16px' }}>
                     <div className="footer-left">
                         <LogoLoader size="sm" />
-                        <span>LibraDigit AI • Created by Karthikeyan T (<a href="mailto:tkarthikeyan@gmail.com" style={{ color: '#f08418', textDecoration: 'none' }}>tkarthikeyan@gmail.com</a>)</span>
+                        <span>LibraDigit AI • Created by Carthworks / Karthikeyan T (<a href="mailto:tkarthikeyan@gmail.com" style={{ color: '#f08418', textDecoration: 'none' }}>tkarthikeyan@gmail.com</a>)</span>
                     </div>
-                    <div className="footer-right">
+                    <div className="footer-right" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
                         <Link to="/landing">Home</Link>
-                        <Link to="/help">Help & Docs</Link>
-                        <Link to="/">Launch App</Link>
+                        <Link to="/pricing">Pricing</Link>
+                        <Link to="/privacy">Privacy</Link>
+                        <Link to="/terms">Terms</Link>
+                        <Link to="/refund">Refund Policy</Link>
+                        <Link to="/trust">Trust Center</Link>
+                        <Link to="/contact">Contact</Link>
+                        <button
+                            type="button"
+                            className="footer-link-btn"
+                            style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: '13px', padding: 0 }}
+                            onClick={() => window.openCookieConsentSettings?.()}
+                        >
+                            Cookie Preferences
+                        </button>
                     </div>
                 </div>
             </footer>

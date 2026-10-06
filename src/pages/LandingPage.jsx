@@ -425,42 +425,56 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                         <a href="#features">Features</a>
                         <a href="#pipeline">Workflow</a>
                         <a href="#solutions">Solutions</a>
+                        <Link to="/pricing">Transparent Pricing</Link>
                         <Link to="/marketing">Marketing Overview</Link>
                     </div>
 
                     <div className="footer-col">
-                        <h4>Application</h4>
-                        {isLoggedIn ? (
-                            <>
-                                <Link to="/">Dashboard</Link>
-                                <Link to="/upload">OCR Upload</Link>
-                                <Link to="/batch">Batch Processing</Link>
-                                <Link to="/search">Archive Search</Link>
-                            </>
-                        ) : (
-                            <>
-                                <button className="footer-link-btn" onClick={() => setShowLoginModal(true)}>Sign In</button>
-                                <button className="footer-link-btn" onClick={() => setShowLoginModal(true)}>Security Setup</button>
-                                <Link to="/help">Help Center</Link>
-                            </>
-                        )}
+                        <h4>Trust & Legal</h4>
+                        <Link to="/privacy">Privacy Policy</Link>
+                        <Link to="/terms">Terms of Service</Link>
+                        <Link to="/refund">Cancellation & Refund</Link>
+                        <Link to="/cookies">Cookie Policy</Link>
+                        <Link to="/trust">Trust & Compliance Hub</Link>
                     </div>
 
                     <div className="footer-col">
-                        <h4>Standards & Security</h4>
-                        <span>Dublin Core Metadata</span>
-                        <span>MARC21 Standard</span>
-                        <span>Bcrypt Local Hashing</span>
-                        <span>Zero Telemetry Policy</span>
+                        <h4>Company & Support</h4>
+                        <Link to="/about">About Us</Link>
+                        <Link to="/contact">Contact & Support</Link>
+                        <Link to="/help">Help & Documentation</Link>
+                        <button
+                            type="button"
+                            className="footer-link-btn"
+                            onClick={() => window.openCookieConsentSettings?.()}
+                            title="Manage cookie consent choices"
+                        >
+                            Cookie Preferences
+                        </button>
                     </div>
                 </div>
 
                 <div className="footer-bottom">
-                    <p>© 2026 LibraDigit AI. Created by Karthikeyan T (<a href="mailto:tkarthikeyan@gmail.com" style={{ color: '#f08418', textDecoration: 'none' }}>tkarthikeyan@gmail.com</a>). All rights reserved.</p>
+                    <p>© 2026 LibraDigit AI. Created by Carthworks / Karthikeyan T (<a href="mailto:tkarthikeyan@gmail.com" style={{ color: '#f08418', textDecoration: 'none' }}>tkarthikeyan@gmail.com</a>). All rights reserved.</p>
                     <div className="footer-bottom-links">
-                        <Link to="/marketing">Product Tour</Link>
+                        <Link to="/privacy">Privacy</Link>
                         <span className="dot-sep">•</span>
-                        <Link to="/help">Documentation</Link>
+                        <Link to="/terms">Terms</Link>
+                        <span className="dot-sep">•</span>
+                        <Link to="/refund">Refund Policy</Link>
+                        <span className="dot-sep">•</span>
+                        <Link to="/pricing">Pricing</Link>
+                        <span className="dot-sep">•</span>
+                        <Link to="/contact">Contact</Link>
+                        <span className="dot-sep">•</span>
+                        <button
+                            type="button"
+                            className="footer-link-btn"
+                            style={{ display: 'inline', color: 'inherit' }}
+                            onClick={() => window.openCookieConsentSettings?.()}
+                        >
+                            Cookies
+                        </button>
                     </div>
                 </div>
             </footer>

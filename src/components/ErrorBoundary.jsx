@@ -32,9 +32,9 @@ class ErrorBoundary extends React.Component {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    minHeight: '100vh',
-                    padding: '2rem',
-                    backgroundColor: '#212327',
+                    minHeight: this.props.inline ? '400px' : '100vh',
+                    padding: this.props.inline ? '2rem 1rem' : '2rem',
+                    backgroundColor: this.props.inline ? 'transparent' : '#212327',
                     color: '#ffffff',
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
                     textAlign: 'center'

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import {
     Lock,
     Mail,
@@ -547,9 +548,17 @@ const LoginScreen = ({ onLogin, isModal = false, onClose = null }) => {
             )}
 
             {/* Footer Trust Indicator */}
-            <div className="auth-footer-security">
-                <ShieldCheck size={14} className="icon-emerald" />
-                <span>100% On-Device Sovereign Processing • Bcrypt Encrypted</span>
+            <div className="auth-footer-security" style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <ShieldCheck size={14} className="icon-emerald" />
+                    <span>100% On-Device Sovereign Processing • Bcrypt Encrypted</span>
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
+                    By continuing, you agree to our{' '}
+                    <Link to="/terms" onClick={isModal && onClose ? onClose : undefined} style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Terms</Link>
+                    {' '}and{' '}
+                    <Link to="/privacy" onClick={isModal && onClose ? onClose : undefined} style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Privacy Policy</Link>.
+                </div>
             </div>
         </div>
     )

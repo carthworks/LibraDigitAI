@@ -7,6 +7,7 @@ import LogoLoader from './components/LogoLoader'
 import { ProjectProvider } from './context/ProjectContext'
 import { ToastProvider } from './context/ToastContext'
 import { ThemeProvider } from './context/ThemeContext'
+import ErrorBoundary from './components/ErrorBoundary'
 
 // Each page is its own chunk, so heavy libraries (charts, PDF rendering, the
 // rich-text editor, bcrypt) only download when the page that needs them opens.
@@ -24,6 +25,8 @@ const ConvertedEbooks = lazy(() => import('./pages/ConvertedEbooks'))
 const Analytics = lazy(() => import('./pages/Analytics'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Help = lazy(() => import('./pages/Help'))
+const TrustCenter = lazy(() => import('./pages/TrustCenter'))
+import CookieConsent from './components/CookieConsent'
 
 const PageFallback = () => (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh' }}>
@@ -79,6 +82,16 @@ function App() {
                             element={<MarketingInfo isLoggedIn={isLoggedIn} onOpenLogin={() => {}} />}
                         />
 
+                        {/* Trust & Legal Compliance Anchors (Publicly accessible anytime) */}
+                        <Route path="/trust" element={<TrustCenter />} />
+                        <Route path="/about" element={<TrustCenter />} />
+                        <Route path="/contact" element={<TrustCenter />} />
+                        <Route path="/privacy" element={<TrustCenter />} />
+                        <Route path="/terms" element={<TrustCenter />} />
+                        <Route path="/refund" element={<TrustCenter />} />
+                        <Route path="/pricing" element={<TrustCenter />} />
+                        <Route path="/cookies" element={<TrustCenter />} />
+
                         {/* If not logged in, root routes render LandingPage or Login */}
                         {!isLoggedIn ? (
                             <>
@@ -105,23 +118,33 @@ function App() {
                                         <div className="main-content">
                                             <Header />
                                             <div className="content-area">
-                                                <Suspense fallback={<PageFallback />}>
-                                                <Routes>
-                                                    <Route path="/" element={<Dashboard />} />
-                                                    <Route path="/upload" element={<UploadOCR />} />
-                                                    <Route path="/batch" element={<BatchProcessing />} />
-                                                    <Route path="/cleanup/:projectId" element={<Cleanup />} />
-                                                    <Route path="/metadata/:projectId" element={<Metadata />} />
-                                                    <Route path="/archive/:projectId" element={<Archive />} />
-                                                    <Route path="/ebooks" element={<ConvertedEbooks />} />
-                                                    <Route path="/library" element={<ConvertedEbooks />} />
-                                                    <Route path="/search" element={<ArchiveSearch />} />
-                                                    <Route path="/analytics" element={<Analytics />} />
-                                                    <Route path="/settings" element={<Settings />} />
-                                                    <Route path="/help" element={<Help />} />
-                                                    <Route path="*" element={<Navigate to="/" replace />} />
-                                                </Routes>
-                                                </Suspense>
+                                                <ErrorBoundary inline={true}>
+                                                    <Suspense fallback={<PageFallback />}>
+                                                    <Routes>
+                                                        <Route path="/" element={<Dashboard />} />
+                                                        <Route path="/upload" element={<UploadOCR />} />
+                                                        <Route path="/batch" element={<BatchProcessing />} />
+                                                        <Route path="/cleanup/:projectId" element={<Cleanup />} />
+                                                        <Route path="/metadata/:projectId" element={<Metadata />} />
+                                                        <Route path="/archive/:projectId" element={<Archive />} />
+                                                        <Route path="/ebooks" element={<ConvertedEbooks />} />
+                                                        <Route path="/library" element={<ConvertedEbooks />} />
+                                                        <Route path="/search" element={<ArchiveSearch />} />
+                                                        <Route path="/analytics" element={<Analytics />} />
+                                                        <Route path="/settings" element={<Settings />} />
+                                                        <Route path="/help" element={<Help />} />
+                                                        <Route path="/trust" element={<TrustCenter />} />
+                                                        <Route path="/about" element={<TrustCenter />} />
+                                                        <Route path="/contact" element={<TrustCenter />} />
+                                                        <Route path="/privacy" element={<TrustCenter />} />
+                                                        <Route path="/terms" element={<TrustCenter />} />
+                                                        <Route path="/refund" element={<TrustCenter />} />
+                                                        <Route path="/pricing" element={<TrustCenter />} />
+                                                        <Route path="/cookies" element={<TrustCenter />} />
+                                                        <Route path="*" element={<Navigate to="/" replace />} />
+                                                    </Routes>
+                                                    </Suspense>
+                                                </ErrorBoundary>
                                             </div>
                                         </div>
                                     </div>
@@ -130,6 +153,7 @@ function App() {
                         )}
                     </Routes>
                     </Suspense>
+                    <CookieConsent />
                 </Router>
             </ProjectProvider>
         </ToastProvider>
