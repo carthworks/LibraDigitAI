@@ -37,7 +37,23 @@ const UploadOCR = () => {
     const [ocrResult, setOcrResult] = useState(null)
     const [pdfResult, setPdfResult] = useState(null)
     const [language, setLanguage] = useState('eng')
-    const [useAdvancedOCR, setUseAdvancedOCR] = useState(true)
+    // Standard OCR by default: Advanced layout analysis is about 3x slower per
+    // page and only helps documents with tables, forms or stamps.
+    const [useAdvancedOCR, setUseAdvancedOCR] = useState(() => {
+        try {
+            return localStorage.getItem('libradigit_advanced_ocr') === 'true'
+        } catch {
+            return false
+        }
+    })
+    const handleAdvancedToggle = (checked) => {
+        setUseAdvancedOCR(checked)
+        try {
+            localStorage.setItem('libradigit_advanced_ocr', String(checked))
+        } catch {
+            // Preference simply isn't remembered.
+        }
+    }
     const [activeEngine, setActiveEngine] = useState('tesseract') // 'tesseract' | 'glm-ocr'
 
     // Read active engine from settings once on mount
@@ -485,7 +501,7 @@ const UploadOCR = () => {
                                     </div>
                                     <div className="toggle-copy">
                                         <h4>Advanced Layout & Feature Analysis</h4>
-                                        <p>Detect structured tables, form fields, stamps, signatures, and auto-correct skew angle.</p>
+                                        <p>Detect structured tables, form fields, stamps, signatures, and auto-correct skew angle. About 3× slower per page — turn on for forms and tables.</p>
                                     </div>
                                 </div>
                                 <label className="dash-switch">
@@ -493,7 +509,8 @@ const UploadOCR = () => {
                                         type="checkbox"
                                         checked={useAdvancedOCR}
                                         disabled={activeEngine === 'glm-ocr'}
-                                        onChange={(e) => setUseAdvancedOCR(e.target.checked)}
+                                        aria-label="Advanced layout and feature analysis"
+                                        onChange={(e) => handleAdvancedToggle(e.target.checked)}
                                     />
                                     <span className="dash-slider"></span>
                                 </label>

@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS ocr_text (
     cleaned_text TEXT,
     confidence_data TEXT,
     mean_confidence REAL,
+    word_count INTEGER,
     FOREIGN KEY (project_id) REFERENCES projects (id)
 );
 
@@ -158,9 +159,36 @@ def init_db(database_path=None):
             conn.execute('ALTER TABLE ocr_text ADD COLUMN confidence_data TEXT')
         if 'mean_confidence' not in columns:
             conn.execute('ALTER TABLE ocr_text ADD COLUMN mean_confidence REAL')
+        if 'word_count' not in columns:
+            conn.execute('ALTER TABLE ocr_text ADD COLUMN word_count INTEGER')
+        backfill_word_counts(conn)
         file_columns = {row['name'] for row in conn.execute('PRAGMA table_info(files)')}
         if 'archive_format' not in file_columns:
             conn.execute('ALTER TABLE files ADD COLUMN archive_format TEXT')
+
+
+EFFECTIVE_TEXT_SQL = "COALESCE(NULLIF(cleaned_text, ''), original_text, '')"
+
+
+def refresh_word_count(conn, project_id):
+    """Store the word count of a project's current text (cleaned if present, else OCR)."""
+    row = conn.execute(f'SELECT {EFFECTIVE_TEXT_SQL} AS text FROM ocr_text WHERE project_id = ?',
+                       (project_id,)).fetchone()
+    if row is not None:
+        conn.execute('UPDATE ocr_text SET word_count = ? WHERE project_id = ?', (len(row['text'].split()), project_id))
+
+
+def backfill_word_counts(conn, batch=200):
+    """Fill word_count for rows saved before the column existed (runs once per row)."""
+    while True:
+        rows = conn.execute(f'''
+            SELECT project_id, {EFFECTIVE_TEXT_SQL} AS text FROM ocr_text
+            WHERE word_count IS NULL AND (original_text IS NOT NULL OR cleaned_text IS NOT NULL)
+            LIMIT ?''', (batch,)).fetchall()
+        if not rows:
+            return
+        conn.executemany('UPDATE ocr_text SET word_count = ? WHERE project_id = ?',
+                         [(len(r['text'].split()), r['project_id']) for r in rows])
 
 
 def get_config_value(key, default=None):

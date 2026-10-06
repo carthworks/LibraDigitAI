@@ -163,3 +163,28 @@ def test_metadata_extractor():
     result = extract_metadata(sample, 'ai_introduction.pdf')
     assert result['year'] == '2024'
     assert set(result) >= {'title', 'author', 'year', 'subject', 'keywords', 'confidence_scores'}
+
+
+def test_ebooks_listing_uses_stored_word_counts_and_short_snippets(client, app):
+    long_text = ' '.join(f'word{i}' for i in range(400))
+    pid = upload(client, 'notes.pdf', ('Title: Notes\n' + long_text).encode()).get_json()['project']['id']
+    client.post(f'/api/ocr/{pid}')
+    listed = {e['id']: e for e in client.get('/api/projects/ebooks').get_json()['ebooks']}[pid]
+    assert listed['word_count'] >= 400
+    assert listed['snippet'].endswith('...') and len(listed['snippet']) == 303
+    assert 'original_text' not in listed and 'cleaned_text' not in listed
+
+    # Editing the text updates the stored count.
+    client.post(f'/api/cleanup/{pid}', json={'cleaned_text': 'just three words'})
+    listed = {e['id']: e for e in client.get('/api/projects/ebooks').get_json()['ebooks']}[pid]
+    assert listed['word_count'] == 3 and listed['snippet'] == 'just three words'
+
+
+def test_word_counts_backfilled_for_existing_databases(make_app, app):
+    import sqlite3
+    with sqlite3.connect(app.config['DATABASE']) as conn:
+        conn.execute("INSERT INTO projects (id, filename, filepath, status) VALUES (900, 'old.pdf', '', 'cleanup')")
+        conn.execute("INSERT INTO ocr_text (project_id, original_text) VALUES (900, 'one two three four')")
+    restarted = make_app().test_client()
+    listed = {e['id']: e for e in restarted.get('/api/projects/ebooks').get_json()['ebooks']}[900]
+    assert listed['word_count'] == 4

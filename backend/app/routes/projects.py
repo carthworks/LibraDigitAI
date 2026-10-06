@@ -12,6 +12,7 @@ from ..services.projects import get_project_data, set_status
 bp = Blueprint('projects', __name__, url_prefix='/api/projects')
 
 VALID_STATUSES = ('upload', 'ocr', 'cleanup', 'metadata', 'archived')
+SNIPPET_CHARS = 300
 
 
 def _servable_roots():
@@ -94,14 +95,15 @@ def list_ebooks():
                 f.cleaned_path,
                 f.final_path,
                 LENGTH(COALESCE(o.cleaned_text, o.original_text, '')) AS text_length,
-                o.original_text,
-                o.cleaned_text
+                COALESCE(o.word_count, 0) AS word_count,
+                -- Cut the preview in SQLite so full OCR texts never leave the database.
+                substr(COALESCE(NULLIF(o.cleaned_text, ''), o.original_text, ''), 1, ?) AS snippet
             FROM projects p
             LEFT JOIN metadata m ON p.id = m.project_id
             LEFT JOIN files f ON p.id = f.project_id
             LEFT JOIN ocr_text o ON p.id = o.project_id
             ORDER BY p.created_at DESC
-        ''').fetchall()
+        ''', (SNIPPET_CHARS + 1,)).fetchall()
 
     ebooks = []
     for r in rows:
@@ -121,16 +123,9 @@ def list_ebooks():
         has_ocr_pdf = bool(ocr_path and os.path.exists(ocr_path))
         has_searchable_pdf = has_final_pdf or has_ocr_pdf or bool(target_file)
 
-        cleaned = d.get('cleaned_text') or d.get('original_text') or ''
-        word_count = len(cleaned.split()) if cleaned else 0
-        snippet = (cleaned[:300] + '...') if len(cleaned) > 300 else cleaned
-
-        del d['original_text']
-        del d['cleaned_text']
-
+        snippet = d['snippet'] or ''
+        d['snippet'] = snippet[:SNIPPET_CHARS] + '...' if len(snippet) > SNIPPET_CHARS else snippet
         d['file_size'] = file_size
-        d['word_count'] = word_count
-        d['snippet'] = snippet
         d['has_searchable_pdf'] = has_searchable_pdf
         d['has_final_pdf'] = has_final_pdf
         d['has_pdf'] = bool(target_file)
@@ -167,8 +162,8 @@ def _ensure_searchable_pdf(project_id, project):
 
         try:
             if ext in current_app.config['IMAGE_EXTENSIONS']:
-                from PIL import Image
                 import pytesseract
+                from PIL import Image
                 with Image.open(original) as img:
                     pdf_bytes = pytesseract.image_to_pdf_or_hocr(img, extension='pdf')
                     with open(target_ocr_path, 'wb') as f:
@@ -197,8 +192,8 @@ def _ensure_searchable_pdf(project_id, project):
     if ocr_text and ocr_text.strip():
         try:
             from reportlab.lib.pagesizes import letter
-            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+            from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
             upload_folder = current_app.config['UPLOAD_FOLDER']
             stem = os.path.splitext(project['filename'])[0]
             target_ocr_path = os.path.join(upload_folder, f'ocr_{stem}.pdf')
