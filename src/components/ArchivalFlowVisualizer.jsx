@@ -98,13 +98,13 @@ const ArchivalFlowVisualizer = () => {
                         <div className="step-number-circle step-1-circle">1</div>
                         <h4 className="step-heading">Ingest Scans</h4>
                         <p className="step-description">
-                            Drag & drop PDFs, TIFFs, or batch scans.
+                            Drop in PDFs, TIFFs, JPEGs or whole folders.
                         </p>
                     </div>
                 </div>
 
                 {/* -------------------------------------------------------------
-                    STEP 2: AI CLEAN & DESKEW
+                    STEP 2: AUTO-ROTATE
                     ------------------------------------------------------------- */}
                 <div
                     className={`step-column ${activeStep === 2 ? 'active' : ''}`}
@@ -160,9 +160,9 @@ const ArchivalFlowVisualizer = () => {
 
                     <div className="step-footer-info">
                         <div className="step-number-circle step-2-circle">2</div>
-                        <h4 className="step-heading">AI Clean & Deskew</h4>
+                        <h4 className="step-heading">Auto-Rotate</h4>
                         <p className="step-description">
-                            Auto rotation, skew correction, noise removal.
+                            Sideways and upside-down pages are turned upright.
                         </p>
                     </div>
                 </div>
@@ -207,9 +207,9 @@ const ArchivalFlowVisualizer = () => {
 
                     <div className="step-footer-info">
                         <div className="step-number-circle step-3-circle">3</div>
-                        <h4 className="step-heading">Dual-Pass OCR</h4>
+                        <h4 className="step-heading">Local OCR</h4>
                         <p className="step-description">
-                            Multi-language extraction with bounding boxes and confidence.
+                            Text extraction in 10 languages, with word confidence.
                         </p>
                     </div>
                 </div>
@@ -241,15 +241,15 @@ const ArchivalFlowVisualizer = () => {
                                 <div className="metadata-table-rows">
                                     <div className="meta-row">
                                         <span className="meta-key">Title</span>
-                                        <span className="meta-val">AI-inferred title</span>
+                                        <span className="meta-val">Suggested title</span>
                                     </div>
                                     <div className="meta-row">
                                         <span className="meta-key">Author</span>
-                                        <span className="meta-val">AI-inferred author</span>
+                                        <span className="meta-val">Suggested author</span>
                                     </div>
                                     <div className="meta-row">
                                         <span className="meta-key">Date</span>
-                                        <span className="meta-val highlight-year">1923 (inferred)</span>
+                                        <span className="meta-val highlight-year">1923 (from text)</span>
                                     </div>
                                     <div className="meta-row">
                                         <span className="meta-key">Subject</span>
@@ -261,7 +261,7 @@ const ArchivalFlowVisualizer = () => {
                                     </div>
                                     <div className="meta-row">
                                         <span className="meta-key">Schema</span>
-                                        <span className="meta-val schema-tag">Dublin Core / MARC21</span>
+                                        <span className="meta-val schema-tag">Dublin Core</span>
                                     </div>
                                 </div>
                             </div>
@@ -274,9 +274,9 @@ const ArchivalFlowVisualizer = () => {
 
                     <div className="step-footer-info">
                         <div className="step-number-circle step-4-circle">4</div>
-                        <h4 className="step-heading">Metadata Tagging</h4>
+                        <h4 className="step-heading">Describe</h4>
                         <p className="step-description">
-                            Dublin Core / MARC21 tagging with AI inference.
+                            Dublin Core fields, suggested from the text.
                         </p>
                     </div>
                 </div>
@@ -335,7 +335,7 @@ const ArchivalFlowVisualizer = () => {
                         <div className="step-number-circle step-5-circle">5</div>
                         <h4 className="step-heading">Index & Export</h4>
                         <p className="step-description">
-                            Searchable PDF/A, full-text index, and flexible export options.
+                            PDF/A-2b archive, full-text index and Dublin Core export.
                         </p>
                     </div>
                 </div>
@@ -375,14 +375,14 @@ const ArchivalFlowVisualizer = () => {
                     </div>
                 </div>
 
-                {/* 100% Private Air-Gapped Ready Badge */}
+                {/* Offline badge */}
                 <div className="air-gapped-security-pill">
                     <div className="security-icon-box">
                         <Lock size={12} className="text-emerald-400" />
                     </div>
                     <div className="security-text-box">
-                        <span className="sec-title">100% PRIVATE</span>
-                        <span className="sec-subtitle">AIR-GAPPED READY</span>
+                        <span className="sec-title">WORKS OFFLINE</span>
+                        <span className="sec-subtitle">NOTHING UPLOADED</span>
                     </div>
                 </div>
             </div>

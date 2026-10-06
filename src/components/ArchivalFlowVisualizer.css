@@ -861,3 +861,16 @@
         align-items: flex-start;
     }
 }
+
+/* The showcase card is dark in both themes; keep its headings light when the
+   global light-theme heading colour would otherwise turn them dark. */
+[data-theme="light"] .flow-showcase-card h3.showcase-title,
+[data-theme="light"] .flow-showcase-card .step-footer-info h4.step-heading {
+    color: #ffffff;
+}
+
+@media (max-width: 640px) {
+    .flow-path-timeline {
+        flex-wrap: wrap;
+    }
+}

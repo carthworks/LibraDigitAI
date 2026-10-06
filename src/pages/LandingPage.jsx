@@ -2,21 +2,14 @@ import { useState, useEffect } from 'react'
 import {
     ShieldCheck,
     Lock,
-    Sparkles,
     Layers,
-    FileText,
     Search,
-    Cpu,
     ArrowRight,
-    CheckCircle2,
-    Database,
-    Zap,
-    BookOpen,
-    FolderCheck,
-    Building2,
-    Scale,
-    GraduationCap,
-    Landmark,
+    Archive,
+    PenLine,
+    Languages,
+    Download,
+    WifiOff,
     Sun,
     Moon
 } from 'lucide-react'
@@ -26,10 +19,75 @@ import LogoLoader from '../components/LogoLoader'
 import LoginScreen from '../components/LoginScreen'
 import ArchivalFlowVisualizer from '../components/ArchivalFlowVisualizer'
 
+const DOWNLOAD_URL = 'https://github.com/carthworks/LibraDigitAI/releases/latest'
+const SCREENSHOT_BASE = `${import.meta.env.BASE_URL}screenshots/`
+
+const STEPS = [
+    {
+        title: 'Upload and extract the text',
+        text: 'Drop in scans, photos or PDFs, one at a time or a whole batch. OCR runs on your computer, page by page, with a progress bar. Scanned PDFs are detected automatically and pages are turned upright.',
+        image: 'upload-ocr.webp',
+        alt: 'Upload page after OCR has finished on a scanned 1954 library report',
+    },
+    {
+        title: 'Review',
+        text: 'Correct recognition errors side by side with the original page. Words the OCR was unsure about can be highlighted.',
+        image: 'review.webp',
+        alt: 'Cleanup editor showing the scanned page next to its editable text',
+    },
+    {
+        title: 'Describe',
+        text: 'Add title, author, year and subject. LibraDigit suggests them from the text, and you stay in control of what is saved.',
+        image: 'describe.webp',
+        alt: 'Metadata form with title, author, year and subject filled in',
+    },
+    {
+        title: 'Archive',
+        text: 'Get a PDF/A-2b file with your catalogue details embedded, in a BagIt folder with checksums and a Dublin Core record.',
+        image: 'archive.webp',
+        alt: 'Archive result showing a PDF/A-2b file saved to the archive folder',
+    },
+]
+
+const FEATURES = [
+    {
+        icon: Search,
+        tone: 'warning',
+        title: 'Full-text search',
+        text: 'Search everything you have archived, with highlighted matches and filters by field and year.',
+    },
+    {
+        icon: Layers,
+        tone: 'accent',
+        title: 'Batch processing',
+        text: 'Process whole folders of scans with a status for every file.',
+    },
+    {
+        icon: Archive,
+        tone: 'success',
+        title: 'Archival formats',
+        text: 'PDF/A-2b checked with the veraPDF validator, BagIt packages with SHA-256 checksums, and Dublin Core export as CSV (for Excel, DSpace or Omeka) or oai_dc XML.',
+    },
+    {
+        icon: PenLine,
+        tone: 'primary',
+        title: 'Handwriting mode',
+        text: 'A dedicated mode for handwritten pages, including a handwriting-to-PDF converter.',
+    },
+    {
+        icon: Languages,
+        tone: 'info',
+        title: '10 OCR languages included',
+        text: 'English, Spanish, French, German, Italian, Portuguese, Hindi, Chinese (Simplified), Japanese and Russian.',
+    },
+]
+
 const LandingPage = ({ onLogin, isLoggedIn }) => {
     const navigate = useNavigate()
     const [showLoginModal, setShowLoginModal] = useState(false)
     const [isFirstRun, setIsFirstRun] = useState(false)
+    // Inside the desktop app the visitor already has LibraDigit, so offer to open it instead of downloading it.
+    const isDesktop = Boolean(window.electron)
 
     useEffect(() => {
         const storedHash = localStorage.getItem('auth_hash')
@@ -46,6 +104,18 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
         }
     }
 
+    const primaryAction = isDesktop ? (
+        <button className="btn-hero-primary" onClick={handleLaunchWorkspace}>
+            <span>{isFirstRun && !isLoggedIn ? 'Set up my archive' : 'Open my archive'}</span>
+            <ArrowRight size={18} />
+        </button>
+    ) : (
+        <a className="btn-hero-primary" href={DOWNLOAD_URL} target="_blank" rel="noopener noreferrer">
+            <Download size={18} />
+            <span>Download for Windows</span>
+        </a>
+    )
+
     return (
         <div className="landing-container">
             {/* Header / Navigation */}
@@ -55,16 +125,14 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                         <LogoLoader size="sm" />
                         <div className="brand-text">
                             <span className="brand-title">LibraDigit AI</span>
-                            <span className="brand-tag">v{__APP_VERSION__} • Local Archival AI</span>
+                            <span className="brand-tag">v{__APP_VERSION__} • Free for Windows</span>
                         </div>
                     </div>
 
                     <nav className="landing-nav-links">
+                        <a href="#how-it-works">How it works</a>
                         <a href="#features">Features</a>
-                        <a href="#solutions">Solutions</a>
-                        <a href="#pipeline">Workflow</a>
-                        <a href="#security">Security</a>
-                        <Link to="/marketing" className="nav-highlight">Marketing Info</Link>
+                        <a href="#privacy">Privacy</a>
                     </nav>
 
                     <div className="landing-nav-actions">
@@ -98,309 +166,126 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                 </div>
             </header>
 
-            {/* Hero Section */}
+            {/* 1. Hero */}
             <section className="landing-hero">
                 <div className="hero-content">
                     <div className="hero-badge">
-                        <Sparkles size={14} />
-                        <span>Next-Gen Archival Preservation & Multi-Engine OCR</span>
+                        <ShieldCheck size={14} />
+                        <span>For libraries, museums, schools, colleges and government offices</span>
                     </div>
 
                     <h1 className="hero-headline">
-                        Transform Physical Heritage Into <span className="gradient-text">AI-Searchable</span> Digital Archives
+                        Turn scanned documents into a <span className="gradient-text">searchable digital archive</span> on your own computer.
                     </h1>
 
                     <p className="hero-subheadline">
-                        High-accuracy local OCR, automated image restoration, Dublin Core & MARC21 metadata generation, and instant full-text search—engineered for 100% privacy and air-gapped security.
+                        LibraDigit reads your scans and PDFs with OCR, lets you correct the text and add catalogue details,
+                        and saves each document as a preservation-ready PDF/A package. Nothing is uploaded anywhere.
                     </p>
 
                     <div className="hero-cta-group">
-                        <button className="btn-hero-primary" onClick={handleLaunchWorkspace}>
-                            <span>Access Archive System</span>
-                            <ArrowRight size={18} />
-                        </button>
-                        <Link to="/marketing" className="btn-hero-secondary">
-                            <BookOpen size={18} />
-                            <span>Explore Marketing Overview</span>
-                        </Link>
+                        {primaryAction}
+                        <a href="#how-it-works" className="btn-hero-secondary">
+                            <span>See how it works</span>
+                        </a>
                     </div>
 
-                    <div className="hero-trust-row">
-                        <div className="trust-item">
-                            <ShieldCheck size={20} className="trust-icon success" />
-                            <div className="trust-text-stack">
-                                <span className="trust-title">100% Offline & Private</span>
-                                <span className="trust-sub">Your data stays yours</span>
-                            </div>
-                        </div>
-                        <div className="trust-item">
-                            <Cpu size={20} className="trust-icon primary" />
-                            <div className="trust-text-stack">
-                                <span className="trust-title">Local AI Engines</span>
-                                <span className="trust-sub">No cloud, no tracking</span>
-                            </div>
-                        </div>
-                        <div className="trust-item">
-                            <Database size={20} className="trust-icon accent" />
-                            <div className="trust-text-stack">
-                                <span className="trust-title">Dublin Core & MARC21</span>
-                                <span className="trust-sub">Library standards ready</span>
-                            </div>
-                        </div>
-                    </div>
+                    <p className="hero-smallprint">
+                        Free · Windows 10 and 11 · Works offline · OCR in 10 languages included
+                    </p>
                 </div>
 
-                {/* Hero 3D Purpose Flow Visualization */}
                 <div className="hero-preview-wrapper hero-flow-3d-wrapper">
                     <ArchivalFlowVisualizer />
                 </div>
             </section>
 
-            {/* Metrics Showcase */}
-            <section className="landing-metrics">
-                <div className="metric-card">
-                    <div className="metric-number">99.8%</div>
-                    <div className="metric-label">OCR Character Accuracy</div>
-                    <div className="metric-desc">Dual-pass engine optimized for historical and degraded fonts</div>
+            {/* 2. How it works */}
+            <section className="landing-steps" id="how-it-works">
+                <div className="landing-section-header">
+                    <span className="landing-section-eyebrow">How it works</span>
+                    <h2 className="landing-section-title">From a scanned page to an archived, searchable record</h2>
                 </div>
-                <div className="metric-card">
-                    <div className="metric-number">0 bytes</div>
-                    <div className="metric-label">External Telemetry</div>
-                    <div className="metric-desc">All processing executes locally in an air-gapped runtime</div>
-                </div>
-                <div className="metric-card">
-                    <div className="metric-number">10x</div>
-                    <div className="metric-label">Batch Throughput</div>
-                    <div className="metric-desc">Multi-threaded concurrent page deskewing and OCR pipeline</div>
-                </div>
-                <div className="metric-card">
-                    <div className="metric-number">100%</div>
-                    <div className="metric-label">Standards Compliance</div>
-                    <div className="metric-desc">Dublin Core, MARC21, PDF/A-1b, and TEI-XML export schemas</div>
-                </div>
+
+                <ol className="landing-step-list">
+                    {STEPS.map((step, index) => (
+                        <li className="landing-step-row" key={step.title}>
+                            <div className="landing-step-text">
+                                <span className="landing-step-number">{index + 1}</span>
+                                <h3>{step.title}</h3>
+                                <p>{step.text}</p>
+                            </div>
+                            <figure className="landing-shot">
+                                <img
+                                    src={`${SCREENSHOT_BASE}${step.image}`}
+                                    alt={step.alt}
+                                    width="1400"
+                                    height="875"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                            </figure>
+                        </li>
+                    ))}
+                </ol>
             </section>
 
-            {/* Core Features Grid */}
+            {/* 3. What you get */}
             <section className="landing-features" id="features">
                 <div className="landing-section-header">
-                    <span className="landing-section-eyebrow">Enterprise Capabilities</span>
-                    <h2 className="landing-section-title">Engineered for Curators, Librarians & Archivists</h2>
-                    <p className="landing-section-subtitle">
-                        Everything required to ingest, clean, extract, catalog, and preserve complex physical media collections in high fidelity.
-                    </p>
+                    <span className="landing-section-eyebrow">What you get</span>
+                    <h2 className="landing-section-title">Everything a small archive needs, in one app</h2>
                 </div>
 
                 <div className="landing-features-grid">
-                    <div className="landing-feature-card">
-                        <div className="landing-feature-icon-box primary">
-                            <Sparkles size={24} />
+                    {FEATURES.map(({ icon: Icon, tone, title, text }) => (
+                        <div className="landing-feature-card" key={title}>
+                            <div className={`landing-feature-icon-box ${tone}`}>
+                                <Icon size={24} />
+                            </div>
+                            <h3>{title}</h3>
+                            <p>{text}</p>
                         </div>
-                        <h3>Multi-Engine AI OCR</h3>
-                        <p>Adaptive binarization, edge smoothing, deskewing, and high-precision text recognition for modern prints and historic manuscripts.</p>
-                    </div>
+                    ))}
+                </div>
 
-                    <div className="landing-feature-card">
-                        <div className="landing-feature-icon-box accent">
-                            <Layers size={24} />
-                        </div>
-                        <h3>High-Volume Batch Processing</h3>
-                        <p>Feed entire folders of high-resolution TIFF, JPG, and PDF scans with live status monitoring, automated queuing, and batch export.</p>
-                    </div>
+                <figure className="landing-shot landing-shot-wide">
+                    <img
+                        src={`${SCREENSHOT_BASE}search.webp`}
+                        alt="Archive search finding the 1954 report by a phrase from its text"
+                        width="1400"
+                        height="875"
+                        loading="lazy"
+                        decoding="async"
+                    />
+                </figure>
+            </section>
 
-                    <div className="landing-feature-card">
-                        <div className="landing-feature-icon-box success">
-                            <FileText size={24} />
-                        </div>
-                        <h3>Dublin Core & MARC21 Tagging</h3>
-                        <p>Smart metadata suggestions with structured cataloging fields, automatic date resolution, and standardized vocabulary mapping.</p>
-                    </div>
-
-                    <div className="landing-feature-card">
-                        <div className="landing-feature-icon-box warning">
-                            <Search size={24} />
-                        </div>
-                        <h3>Deep Full-Text Search</h3>
-                        <p>Instant keyword, wildcard, and fuzzy search across your entire repository with OCR confidence scoring and highlighted snippets.</p>
-                    </div>
-
-                    <div className="landing-feature-card">
-                        <div className="landing-feature-icon-box info">
-                            <Cpu size={24} />
-                        </div>
-                        <h3>Document Cleanup & Restoration</h3>
-                        <p>Interactive contrast stretching, deskewing, background noise erasing, and border cropping before text extraction.</p>
-                    </div>
-
-                    <div className="landing-feature-card">
-                        <div className="landing-feature-icon-box primary">
-                            <ShieldCheck size={24} />
-                        </div>
-                        <h3>Air-Gapped Privacy & Security</h3>
-                        <p>Bcrypt password-protected local storage, zero third-party cloud dependence, and complete compliance with institutional data governance.</p>
+            {/* 4. Private by design */}
+            <section className="landing-privacy" id="privacy">
+                <div className="landing-privacy-card">
+                    <WifiOff size={32} className="landing-privacy-icon" />
+                    <div>
+                        <h2>Your documents never leave your computer.</h2>
+                        <p>
+                            OCR, search and archiving all run locally. There is no account and no telemetry,
+                            and the app keeps working with no internet connection.
+                        </p>
+                        <p className="landing-privacy-note">
+                            The optional Translate button sends the selected text to Google Translate.
+                            Administrators can switch it off.
+                        </p>
                     </div>
                 </div>
             </section>
 
-            {/* Interactive Pipeline Showcase */}
-            <section className="landing-pipeline" id="pipeline">
-                <div className="landing-section-header">
-                    <span className="landing-section-eyebrow">End-to-End Workflow</span>
-                    <h2 className="landing-section-title">The Five-Step Archival Digitization Pipeline</h2>
-                    <p className="landing-section-subtitle">
-                        From raw scanned imagery to a fully indexed, archival-grade preservation repository in minutes.
-                    </p>
-                </div>
-
-                <div className="landing-pipeline-grid">
-                    <div className="landing-pipeline-card">
-                        <div className="landing-step-badge">01</div>
-                        <div className="landing-step-icon"><FolderCheck size={22} /></div>
-                        <h4>1. Ingest Scans</h4>
-                        <p>Drag and drop multi-page PDFs, high-res TIFFs, or batch directory scans.</p>
-                    </div>
-
-                    <div className="landing-pipeline-card">
-                        <div className="landing-step-badge">02</div>
-                        <div className="landing-step-icon"><Zap size={22} /></div>
-                        <h4>2. AI Clean & Deskew</h4>
-                        <p>Automated rotation, skew correction, thresholding, and speckle removal.</p>
-                    </div>
-
-                    <div className="landing-pipeline-card">
-                        <div className="landing-step-badge">03</div>
-                        <div className="landing-step-icon"><Sparkles size={22} /></div>
-                        <h4>3. Dual-Pass OCR</h4>
-                        <p>Multi-language text extraction with bounding box coordinates and confidence levels.</p>
-                    </div>
-
-                    <div className="landing-pipeline-card">
-                        <div className="landing-step-badge">04</div>
-                        <div className="landing-step-icon"><Database size={22} /></div>
-                        <h4>4. Metadata Tagging</h4>
-                        <p>Dublin Core / MARC21 schema tagging with AI title and author inference.</p>
-                    </div>
-
-                    <div className="landing-pipeline-card">
-                        <div className="landing-step-badge">05</div>
-                        <div className="landing-step-icon"><Search size={22} /></div>
-                        <h4>5. Index & Export</h4>
-                        <p>Searchable PDF/A generation, SQLite full-text indexation, and archive package export.</p>
-                    </div>
-                </div>
-            </section>
-
-            {/* Target Solutions */}
-            <section className="landing-solutions" id="solutions">
-                <div className="landing-section-header">
-                    <span className="landing-section-eyebrow">Industry Solutions</span>
-                    <h2 className="landing-section-title">Tailored for Heritage, Legal & Academic Institutions</h2>
-                </div>
-
-                <div className="landing-solutions-grid">
-                    <div className="landing-solution-card">
-                        <div className="solution-icon-wrap"><Landmark size={24} /></div>
-                        <h3>Heritage Libraries & Museums</h3>
-                        <p>Digitize rare manuscripts, historical newspapers, and fragile ledger books with delicate preservation care and zero risk of data loss.</p>
-                        <ul className="solution-list">
-                            <li><CheckCircle2 size={16} /> Preservation-grade PDF/A-1b</li>
-                            <li><CheckCircle2 size={16} /> High dynamic range image cleanup</li>
-                        </ul>
-                    </div>
-
-                    <div className="landing-solution-card">
-                        <div className="solution-icon-wrap"><GraduationCap size={24} /></div>
-                        <h3>Universities & Research Centers</h3>
-                        <p>Transform special collections, theses, journals, and scientific archives into instantly searchable, citation-ready research databases.</p>
-                        <ul className="solution-list">
-                            <li><CheckCircle2 size={16} /> Dublin Core schema validation</li>
-                            <li><CheckCircle2 size={16} /> Multi-language OCR recognition</li>
-                        </ul>
-                    </div>
-
-                    <div className="landing-solution-card">
-                        <div className="solution-icon-wrap"><Scale size={24} /></div>
-                        <h3>Legal & Government Registries</h3>
-                        <p>Process sensitive court documents, municipal registers, and confidential contracts under strict air-gapped compliance requirements.</p>
-                        <ul className="solution-list">
-                            <li><CheckCircle2 size={16} /> Zero external cloud transmission</li>
-                            <li><CheckCircle2 size={16} /> Audit trail & local encryption</li>
-                        </ul>
-                    </div>
-
-                    <div className="landing-solution-card">
-                        <div className="solution-icon-wrap"><Building2 size={24} /></div>
-                        <h3>Corporate & Media Archives</h3>
-                        <p>Centralize decades of legacy documentation, engineering drawings, and press clippings into a scalable digital intelligence hub.</p>
-                        <ul className="solution-list">
-                            <li><CheckCircle2 size={16} /> High-throughput batch ingestion</li>
-                            <li><CheckCircle2 size={16} /> Sub-second full-text retrieval</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            {/* Security & Air-Gapped Architecture Section */}
-            <section className="landing-security" id="security">
-                <div className="landing-section-header">
-                    <span className="landing-section-eyebrow">Zero-Trust & Sovereignty</span>
-                    <h2 className="landing-section-title">Institutional Security & Air-Gapped Architecture</h2>
-                    <p className="landing-section-subtitle">
-                        Engineered from the ground up for strict confidentiality, complete cryptographic privacy, and compliance with high-security heritage, legal, and government environments.
-                    </p>
-                </div>
-
-                <div className="landing-security-grid">
-                    <div className="landing-security-card">
-                        <div className="security-icon-box success">
-                            <ShieldCheck size={28} />
-                        </div>
-                        <h3>100% Air-Gapped Processing</h3>
-                        <p>Every single operation—including dual-pass OCR, image binarization, deskewing, and metadata parsing—runs strictly on local hardware with zero external API calls.</p>
-                        <div className="security-badge-pill">Zero Cloud Telemetry</div>
-                    </div>
-
-                    <div className="landing-security-card">
-                        <div className="security-icon-box primary">
-                            <Lock size={28} />
-                        </div>
-                        <h3>Bcrypt Cryptographic Authentication</h3>
-                        <p>Local archive access is protected with salted bcrypt key derivation. Your master passphrase never leaves your device memory.</p>
-                        <div className="security-badge-pill">Salted Key Derivation</div>
-                    </div>
-
-                    <div className="landing-security-card">
-                        <div className="security-icon-box accent">
-                            <Database size={28} />
-                        </div>
-                        <h3>Local Storage & Sovereign Database</h3>
-                        <p>Documents and full-text inverted indexes are persisted in embedded SQLite databases on your local file system, granting you absolute physical ownership.</p>
-                        <div className="security-badge-pill">Embedded SQLite 3 & FTS5</div>
-                    </div>
-
-                    <div className="landing-security-card">
-                        <div className="security-icon-box info">
-                            <Scale size={28} />
-                        </div>
-                        <h3>Regulatory & Preservation Compliance</h3>
-                        <p>Designed for compliance with FIPS 140-2 environments, HIPAA/GDPR data sovereignty mandates, and ISO 19005 (PDF/A) preservation standards.</p>
-                        <div className="security-badge-pill">ISO 19005 & Dublin Core</div>
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA Banner */}
+            {/* 5. Closing call to action */}
             <section className="landing-cta-banner">
                 <div className="cta-banner-content">
-                    <h2>Ready to Digitize Your Physical Heritage?</h2>
-                    <p>Start digitizing and archiving today with full offline security and state-of-the-art AI accuracy.</p>
+                    <h2>Start digitizing today.</h2>
+                    <p>{isDesktop ? 'Your archive is ready when you are.' : 'Free. Installs in about two minutes.'}</p>
                     <div className="cta-btn-group">
-                        <button className="btn-hero-primary" onClick={handleLaunchWorkspace}>
-                            <span>{isLoggedIn ? 'Go to Application Workspace' : 'Sign In / Get Started'}</span>
-                            <ArrowRight size={18} />
-                        </button>
-                        <Link to="/marketing" className="btn-hero-secondary">
-                            <span>Read Complete Marketing Deck</span>
-                        </Link>
+                        {primaryAction}
                     </div>
                 </div>
             </section>
@@ -413,20 +298,19 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
                             <LogoLoader size="sm" />
                             <span>LibraDigit AI</span>
                         </div>
-                        <p>The sovereign, local-first artificial intelligence platform for physical record digitization and archival preservation.</p>
+                        <p>Free desktop software for digitizing and preserving documents, for libraries, museums, schools, colleges and government offices.</p>
                         <div className="footer-badge">
                             <ShieldCheck size={14} />
-                            <span>Air-Gapped & WCAG 2.1 AA Compliant</span>
+                            <span>Works offline</span>
                         </div>
                     </div>
 
                     <div className="footer-col">
                         <h4>Product</h4>
+                        <a href="#how-it-works">How it works</a>
                         <a href="#features">Features</a>
-                        <a href="#pipeline">Workflow</a>
-                        <a href="#solutions">Solutions</a>
-                        <Link to="/pricing">Transparent Pricing</Link>
-                        <Link to="/marketing">Marketing Overview</Link>
+                        <a href="#privacy">Privacy</a>
+                        <Link to="/pricing">Pricing</Link>
                     </div>
 
                     <div className="footer-col">
