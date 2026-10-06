@@ -316,6 +316,36 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
+[data-theme="light"] .settings-header-banner h1,
+[data-theme="light"] .settings-card-header h3,
+[data-theme="light"] .switch-label {
+    color: #1f2933;
+}
+
+[data-theme="light"] .settings-header-banner p,
+[data-theme="light"] .form-hint {
+    color: #42505c;
+}
+
+[data-theme="light"] .form-label {
+    color: #475569;
+}
+
+[data-theme="light"] .form-hint code {
+    background: #f1f5f9;
+    color: #0369a1;
+}
+
+[data-theme="light"] .slider {
+    background: #cbd5e1;
+}
+
+[data-theme="light"] .hero-status-pill {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+
 [data-theme="light"] .form-input,
 [data-theme="light"] .form-select {
     background: #f8fafc;

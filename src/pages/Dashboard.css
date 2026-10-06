@@ -1379,17 +1379,317 @@
 [data-theme="light"] .dash-controls-deck,
 [data-theme="light"] .doc-card,
 [data-theme="light"] .dash-table-wrap,
+[data-theme="light"] .dash-table-card,
+[data-theme="light"] .dash-project-card,
 [data-theme="light"] .attention-panel,
-[data-theme="light"] .dashboard-empty-hub {
+[data-theme="light"] .dashboard-empty-hub,
+[data-theme="light"] .dashboard-funnel-bar {
     background: #ffffff;
     border: 1px solid var(--color-border);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
+[data-theme="light"] .dashboard-hero-banner h1,
+[data-theme="light"] .dashboard-empty-hub h3 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .dashboard-hero-banner p,
+[data-theme="light"] .dashboard-empty-hub p,
+[data-theme="light"] .empty-hub-steps {
+    color: #42505c;
+}
+
+[data-theme="light"] .attention-heading {
+    color: #475569;
+}
+
+[data-theme="light"] .attention-row {
+    border-top: 1px solid #f1f5f9;
+}
+
+[data-theme="light"] .attention-title {
+    color: #1f2933;
+}
+
+[data-theme="light"] .attention-hint {
+    color: #64748b;
+}
+
+[data-theme="light"] .attention-progress {
+    background: #e2e8f0;
+}
+
+[data-theme="light"] .attention-pct {
+    color: #475569;
+}
+
+/* Metric Cards */
+[data-theme="light"] .stat-label {
+    color: #64748b;
+}
+
+[data-theme="light"] .metric-stat-card .stat-value,
+[data-theme="light"] .stat-card .stat-value {
+    color: #1f2933;
+}
+
+[data-theme="light"] .stat-footer {
+    color: #64748b;
+}
+
+[data-theme="light"] .stat-icon-wrapper.primary {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+}
+
+[data-theme="light"] .stat-icon-wrapper.warning {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+
+[data-theme="light"] .stat-icon-wrapper.success {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+[data-theme="light"] .stat-icon-wrapper.info {
+    background: #f0f9ff;
+    color: #0284c7;
+    border: 1px solid #bae6fd;
+}
+
+/* Funnel Bar & Tabs */
+[data-theme="light"] .funnel-tab {
+    color: #64748b;
+}
+
+[data-theme="light"] .funnel-tab:hover {
+    color: #1f2933;
+    background: #f1f5f9;
+}
+
+[data-theme="light"] .funnel-tab.active {
+    background: #eff6ff;
+    border-color: rgba(59, 130, 246, 0.35);
+    color: #2563eb;
+}
+
+[data-theme="light"] .tab-count {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+[data-theme="light"] .funnel-tab.active .tab-count {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* Search Box & Controls */
+[data-theme="light"] .dash-search-icon {
+    color: #64748b;
+}
+
+[data-theme="light"] .dash-search-box input {
+    background: #f8fafc;
+    border-color: var(--color-border);
+    color: #1f2933;
+}
+
+[data-theme="light"] .dash-search-box input:focus {
+    background: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="light"] .dash-search-box input::placeholder {
+    color: #94a3b8;
+}
+
+[data-theme="light"] .clear-search-btn {
+    color: #94a3b8;
+}
+
+[data-theme="light"] .clear-search-btn:hover {
+    color: #1f2933;
+}
+
+[data-theme="light"] .sort-dropdown-wrap select {
+    background: #f8fafc;
+    border-color: var(--color-border);
+    color: #1f2933;
+}
+
+[data-theme="light"] .sort-dropdown-wrap select:focus {
+    background: #ffffff;
+    border-color: #3b82f6;
+}
+
+[data-theme="light"] .btn-view-mode {
+    color: #64748b;
+}
+
+[data-theme="light"] .btn-view-mode:hover {
+    color: #1f2933;
+    background: #f1f5f9;
+}
+
+[data-theme="light"] .btn-view-mode.active {
+    background: #e2e8f0;
+    color: #1f2933;
+}
+
+/* Table View */
+[data-theme="light"] .dash-data-table th {
+    background: #f8fafc;
+    color: #475569;
+    border-bottom: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .dash-data-table td {
+    color: #1f2933;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+[data-theme="light"] .table-row-interactive:hover,
 [data-theme="light"] .doc-table tbody tr:hover {
     background: #f8fafc;
 }
 
+[data-theme="light"] .doc-cell .doc-icon-wrap {
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    color: #2563eb;
+}
+
+[data-theme="light"] .doc-title {
+    color: #1f2933;
+}
+
+[data-theme="light"] .doc-sub {
+    color: #64748b;
+}
+
+[data-theme="light"] .table-progress-text {
+    color: #64748b;
+}
+
+[data-theme="light"] .date-text {
+    color: #475569;
+}
+
+[data-theme="light"] .dash-progress-track {
+    background: #e2e8f0;
+}
+
+[data-theme="light"] .status-pill.primary {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+
+[data-theme="light"] .status-pill.warning {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a;
+}
+
+[data-theme="light"] .status-pill.info {
+    background: #f0f9ff;
+    color: #0369a1;
+    border-color: #bae6fd;
+}
+
+[data-theme="light"] .status-pill.success {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+
+[data-theme="light"] .btn-table-icon {
+    background: #f8fafc;
+    border-color: var(--color-border);
+    color: #64748b;
+}
+
+[data-theme="light"] .btn-table-icon:hover {
+    background: #f1f5f9;
+    color: #1f2933;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .btn-table-icon.delete:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+[data-theme="light"] .btn-table-open {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+[data-theme="light"] .btn-table-open:hover {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Grid Cards */
+[data-theme="light"] .dash-project-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .card-filename {
+    color: #1f2933;
+}
+
+[data-theme="light"] .card-stage-chip {
+    color: #475569;
+    background: #f1f5f9;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .card-date {
+    color: #64748b;
+}
+
+[data-theme="light"] .progress-info-row {
+    color: #64748b;
+}
+
+[data-theme="light"] .progress-num {
+    color: #1f2933;
+}
+
+[data-theme="light"] .card-hover-footer,
+[data-theme="light"] .card-next-step {
+    border-top: 1px solid #f1f5f9;
+}
+
+[data-theme="light"] .card-job-status {
+    color: #2563eb;
+}
+
+[data-theme="light"] .btn-action-icon {
+    color: #64748b;
+}
+
+[data-theme="light"] .btn-action-icon:hover {
+    background: #f1f5f9;
+    color: #1f2933;
+}
+
+[data-theme="light"] .btn-action-icon.delete:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Buttons & Secondary */
 [data-theme="light"] .btn-dash-secondary {
     background: #ffffff;
     color: #1f2933;
@@ -1402,13 +1702,63 @@
     border-color: #f08418;
 }
 
-[data-theme="light"] .funnel-tab {
+/* Pagination */
+[data-theme="light"] .pagination-info {
     color: #64748b;
 }
 
-[data-theme="light"] .funnel-tab:hover,
-[data-theme="light"] .funnel-tab.active {
+[data-theme="light"] .btn-page-nav {
+    background: #ffffff;
+    border-color: var(--color-border);
+    color: #475569;
+}
+
+[data-theme="light"] .btn-page-nav:hover:not(:disabled) {
+    background: #f1f5f9;
     color: #1f2933;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .page-current-pill {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+/* Export Dropdown */
+[data-theme="light"] .dash-menu-list {
+    background: #ffffff;
+    border-color: var(--color-border);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .dash-menu-list a {
+    color: #1f2933;
+}
+
+[data-theme="light"] .dash-menu-list a span {
+    color: #64748b;
+}
+
+[data-theme="light"] .dash-menu-list a:hover,
+[data-theme="light"] .dash-menu-list a:focus-visible {
     background: #f1f5f9;
 }
+
+/* Modal inside dashboard */
+[data-theme="light"] .preview-meta-ribbon {
+    background: #f8fafc;
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .tag-chip {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .delete-modal-content {
+    color: #475569;
+}
+
 

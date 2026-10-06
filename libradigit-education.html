@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LibraDigit for Education — Campus archives, searchable and on-site</title>
+<meta name="description" content="LibraDigit digitizes theses, exam registers, library collections and accreditation records into a searchable archive that runs on your own computers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ledger:#123C33;      /* deep library green: primary surface */
+  --ledger-2:#1C5246;
+  --paper:#F6F7F4;       /* cool page white */
+  --sheet:#FFFFFF;
+  --sage:#DFE9E3;        /* quiet tint */
+  --ink:#17201D;         /* body text */
+  --muted:#4C5A55;       /* secondary text, AA on paper */
+  --rule:#CBD6D0;
+  --amber:#D9620B;       /* brand action colour (continuity with existing orange) */
+  --amber-dark:#B24F06;
+  --marker:#FFE27A;      /* search highlight */
+  --serif:"Source Serif 4", Georgia, serif;
+  --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --wrap:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:#fff;padding:10px 14px;z-index:99}
+.skip:focus{left:8px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;line-height:1.15;margin:0}
+h1{font-size:clamp(2.3rem,5vw,3.7rem);font-weight:700}
+h2{font-size:clamp(1.8rem,3.4vw,2.6rem)}
+h3{font-size:1.3rem}
+p{margin:0}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.section{padding:104px 0}
+.section-head{max-width:720px;margin-bottom:48px}
+.section-head p{margin-top:16px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 1rem/1 var(--sans);padding:15px 22px;border-radius:8px;text-decoration:none;border:2px solid transparent;cursor:pointer;transition:background .15s}
+.btn-primary{background:var(--amber);color:#fff}
+.btn-primary:hover{background:var(--amber-dark)}
+.btn-ghost{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-ghost:hover{background:var(--ink);color:#fff}
+.btn-light{border-color:#fff;color:#fff}
+.btn-light:hover{background:#fff;color:var(--ledger)}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px;gap:24px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 1.2rem var(--serif)}
+.brand-mark{width:34px;height:34px;border-radius:7px;background:var(--ledger);display:grid;place-items:center}
+.nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;font-weight:500;color:var(--muted)}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{display:flex;align-items:center;gap:18px}
+.nav-cta .signin{text-decoration:none;font-weight:500}
+.nav-cta .btn{padding:11px 18px}
+.menu-btn{display:none;background:none;border:1px solid var(--rule);border-radius:8px;padding:8px 10px;cursor:pointer}
+
+/* Hero */
+.hero{padding:72px 0 88px}
+.hero .wrap{display:grid;grid-template-columns:1fr 1.08fr;gap:56px;align-items:center}
+.hero h1{max-width:17ch}
+.hero .lede{margin-top:22px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
+.assurances{display:flex;flex-wrap:wrap;gap:10px 22px;margin:28px 0 0;padding:0;list-style:none;font-size:.95rem;color:var(--muted)}
+.assurances li{display:flex;align-items:center;gap:8px}
+.assurances svg{flex:none;color:var(--ledger-2)}
+
+/* The demo window: the one bold element */
+.demo{background:var(--ledger);border-radius:16px;padding:18px;box-shadow:0 30px 60px -30px rgba(18,60,51,.55)}
+.demo-bar{display:flex;align-items:center;justify-content:space-between;color:#CFE0D8;font-size:.85rem;padding:2px 4px 14px}
+.demo-bar strong{color:#fff;font-weight:600}
+.demo-body{display:grid;grid-template-columns:150px 1fr;gap:14px}
+.scan{background:#EFE6CF;border-radius:6px;padding:14px 12px;position:relative;transform:rotate(-1.5deg);box-shadow:0 8px 18px rgba(0,0,0,.25);font-family:var(--serif);color:#4A3B22;font-size:.62rem;line-height:1.55;min-height:220px}
+.scan::after{content:"";position:absolute;inset:0;border-radius:6px;background:radial-gradient(circle at 80% 15%,rgba(140,100,40,.18),transparent 45%),radial-gradient(circle at 10% 90%,rgba(120,80,30,.16),transparent 40%);pointer-events:none}
+.scan b{display:block;font-size:.72rem;margin-bottom:6px;border-bottom:1px solid rgba(74,59,34,.35);padding-bottom:4px}
+.scan span{display:block;border-bottom:1px dotted rgba(74,59,34,.3)}
+.scan-tag{position:absolute;bottom:-10px;right:-8px;background:var(--amber);color:#fff;font:600 .65rem var(--sans);padding:4px 8px;border-radius:20px;transform:rotate(1.5deg)}
+.finder{background:var(--sheet);border-radius:10px;padding:14px;min-width:0}
+.finder label{font-size:.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px}
+.search{display:flex;align-items:center;gap:8px;border:2px solid var(--ledger);border-radius:8px;padding:8px 10px}
+.search input{border:0;outline:0;font:500 1rem var(--sans);width:100%;background:transparent;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.chips button{font:500 .78rem var(--sans);border:1px solid var(--rule);background:var(--paper);border-radius:20px;padding:4px 10px;cursor:pointer;color:var(--ink)}
+.chips button:hover{border-color:var(--ledger)}
+.count{font-size:.8rem;color:var(--muted);margin:8px 0}
+.results{list-style:none;margin:0;padding:0;max-height:248px;overflow:auto}
+.results li{padding:10px 0;border-top:1px solid #E6ECE8}
+.results .t{font-weight:600;font-size:.92rem}
+.results .m{font-size:.76rem;color:var(--muted)}
+.results .s{font-size:.82rem;margin-top:3px;color:#33403B}
+mark{background:var(--marker);color:inherit;padding:0 2px;border-radius:2px}
+.empty{font-size:.88rem;color:var(--muted);padding:12px 0}
+
+/* Standards strip */
+.strip{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--sheet)}
+.strip .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 32px;padding-top:22px;padding-bottom:22px}
+.strip p{font-size:.95rem;color:var(--muted)}
+.strip ul{display:flex;flex-wrap:wrap;gap:10px 28px;list-style:none;margin:0;padding:0;font-weight:600}
+
+/* Problem */
+.problem{background:var(--sheet)}
+.problem-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:start}
+.pains{display:grid;gap:28px}
+.pains div{border-left:3px solid var(--amber);padding-left:20px}
+.pains h3{font-size:1.15rem;margin-bottom:6px}
+.pains p{color:var(--muted)}
+
+/* Use-case tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--rule);margin-bottom:36px}
+.tab{font:600 1rem var(--sans);background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px;color:var(--muted);cursor:pointer;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ledger);border-bottom-color:var(--amber)}
+.tab:hover{color:var(--ink)}
+.panel{display:grid;grid-template-columns:1.2fr 1fr;gap:48px}
+.panel[hidden]{display:none}
+.panel h3{font-size:1.7rem;margin-bottom:14px}
+.panel p{color:var(--muted);max-width:56ch}
+.panel .who{margin-top:18px;font-size:.95rem}
+.doclist{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:24px}
+.doclist h4{margin:0 0 12px;font:600 .95rem var(--sans)}
+.doclist ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.doclist li{display:flex;gap:10px;align-items:flex-start}
+.doclist li::before{content:"";width:8px;height:8px;margin-top:9px;border-radius:2px;background:var(--ledger-2);flex:none}
+.outcome{margin-top:20px;padding-top:16px;border-top:1px solid var(--rule);font-weight:600;color:var(--ledger)}
+
+/* How it works */
+.how{background:var(--ledger);color:#fff}
+.how .lede{color:#CFE0D8}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:s}
+.steps li{padding:28px 24px 0 0;border-top:2px solid rgba(255,255,255,.25);position:relative;counter-increment:s}
+.steps li::before{content:counter(s);position:absolute;top:-17px;left:0;width:32px;height:32px;border-radius:50%;background:var(--amber);color:#fff;font:600 .95rem/32px var(--sans);text-align:center}
+.steps h3{font-size:1.2rem;margin:14px 0 8px}
+.steps p{color:#CFE0D8;font-size:.97rem}
+
+/* Security */
+.sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.sec-list{list-style:none;padding:0;margin:28px 0 0;display:grid;gap:18px}
+.sec-list li{display:grid;grid-template-columns:28px 1fr;gap:12px}
+.sec-list svg{color:var(--ledger-2);margin-top:3px}
+.sec-list strong{display:block}
+.sec-list span{color:var(--muted);font-size:.97rem}
+.campus{background:var(--sheet);border:1px solid var(--rule);border-radius:16px;padding:28px}
+.campus-box{border:2px dashed var(--ledger-2);border-radius:12px;padding:22px;position:relative}
+.campus-box>.lbl{position:absolute;top:-13px;left:18px;background:var(--sheet);padding:0 8px;font-weight:600;color:var(--ledger)}
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px;text-align:center;font-size:.85rem}
+.node{background:var(--sage);border-radius:10px;padding:14px 8px;font-weight:600}
+.node small{display:block;font-weight:400;color:var(--muted);margin-top:2px}
+.arrow{color:var(--ledger-2);font-weight:600}
+.cloud{display:flex;align-items:center;gap:10px;margin-top:22px;color:var(--muted);font-size:.92rem}
+.cloud s{font-weight:600}
+
+/* Roles table */
+.roles{background:var(--sheet)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th,.tbl td{text-align:left;padding:18px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+.tbl th{font:600 .9rem var(--sans);color:var(--muted)}
+.tbl td:first-child{font-family:var(--serif);font-weight:600;font-size:1.1rem;width:24%}
+.tbl td{color:#2B3632}
+
+/* ROI */
+.roi{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.calc{background:var(--sheet);border:1px solid var(--rule);border-radius:16px;padding:28px}
+.field{margin-bottom:22px}
+.field label{display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px;font-size:.97rem}
+.field output{color:var(--ledger)}
+input[type=range]{width:100%;accent-color:var(--ledger)}
+.result{background:var(--ledger);color:#fff;border-radius:12px;padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.result div{font-size:.88rem;color:#CFE0D8}
+.result strong{display:block;font:700 2rem/1.1 var(--serif);color:#fff}
+.note{font-size:.82rem;color:var(--muted);margin-top:12px}
+
+/* Proof */
+.proof{background:var(--sage)}
+.quote{max-width:820px}
+.quote blockquote{margin:0;font:500 clamp(1.4rem,2.6vw,1.9rem)/1.4 var(--serif)}
+.quote figcaption{margin-top:18px;color:var(--muted)}
+.placeholder-tag{display:inline-block;font-size:.75rem;font-weight:600;background:#fff;border:1px dashed var(--muted);padding:3px 8px;border-radius:4px;margin-bottom:18px;color:var(--muted)}
+
+/* Pricing */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.plan{background:var(--sheet);border:1px solid var(--rule);border-radius:14px;padding:30px;display:flex;flex-direction:column}
+.plan.featured{border:2px solid var(--ledger);position:relative}
+.plan.featured .flag{position:absolute;top:-13px;left:28px;background:var(--ledger);color:#fff;font-size:.8rem;font-weight:600;padding:3px 10px;border-radius:20px}
+.plan .for{color:var(--muted);font-size:.95rem;margin:6px 0 18px}
+.plan .price{font:600 1.5rem var(--serif);margin-bottom:18px}
+.plan ul{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:9px;font-size:.97rem}
+.plan li{display:flex;gap:9px}
+.plan li::before{content:"✓";color:var(--ledger-2);font-weight:700}
+.plan .btn{margin-top:auto}
+.pilot{margin-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;border:1px dashed var(--ledger-2);border-radius:14px;padding:22px 26px;background:var(--sheet)}
+
+/* Rollout */
+.rollout{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.rollout li{border-top:3px solid var(--ledger);padding-top:16px}
+.rollout .wk{font-weight:600;color:var(--amber-dark);font-size:.9rem}
+.rollout h3{font-size:1.1rem;margin:6px 0}
+.rollout p{color:var(--muted);font-size:.95rem}
+
+/* FAQ */
+.faq{background:var(--sheet)}
+.faq-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:64px}
+details{border-bottom:1px solid var(--rule);padding:18px 0}
+summary{cursor:pointer;font-weight:600;font-size:1.05rem;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:1.4rem;line-height:1;color:var(--ledger)}
+details[open] summary::after{content:"–"}
+details p{margin-top:10px;color:var(--muted);max-width:64ch}
+
+/* Demo form */
+.cta{background:var(--ledger);color:#fff}
+.cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+.cta .lede{color:#CFE0D8}
+.cta ul{margin:24px 0 0;padding-left:20px;color:#CFE0D8;display:grid;gap:6px}
+form{background:var(--sheet);color:var(--ink);border-radius:16px;padding:30px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+form .full{grid-column:1/-1}
+form label{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+form input,form select,form textarea{width:100%;font:400 1rem var(--sans);padding:11px 12px;border:1px solid #9FB0A8;border-radius:8px;background:#fff;color:var(--ink)}
+form textarea{min-height:84px;resize:vertical}
+form .small{font-size:.8rem;color:var(--muted)}
+.form-ok{display:none;grid-column:1/-1;background:var(--sage);padding:12px;border-radius:8px;font-weight:600;color:var(--ledger)}
+
+/* Footer */
+footer{background:#0E2E27;color:#B9CCC3;padding:64px 0 32px;font-size:.95rem}
+.foot{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:32px}
+footer h4{color:#fff;font:600 .95rem var(--sans);margin:0 0 14px}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+footer a{text-decoration:none}
+footer a:hover{color:#fff;text-decoration:underline}
+.foot-brand p{margin-top:14px;max-width:34ch}
+.legal{border-top:1px solid rgba(255,255,255,.15);margin-top:48px;padding-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:.88rem}
+
+/* Responsive */
+@media (max-width:980px){
+  .nav-links,.nav-cta .signin{display:none}
+  .menu-btn{display:block}
+  .nav.open .nav-links{display:flex;position:absolute;top:72px;left:0;right:0;flex-direction:column;gap:0;background:var(--paper);border-bottom:1px solid var(--rule);padding:8px 24px 16px}
+  .nav.open .nav-links a{display:block;padding:12px 0}
+  .hero .wrap,.problem-grid,.panel,.sec-grid,.roi,.faq-grid,.cta-grid{grid-template-columns:1fr;gap:40px}
+  .steps,.rollout{grid-template-columns:1fr 1fr;row-gap:40px}
+  .plans{grid-template-columns:1fr}
+  .foot{grid-template-columns:1fr 1fr}
+  .section{padding:72px 0}
+}
+@media (max-width:600px){
+  .wrap{padding:0 16px}
+  .nav-cta .btn{display:none}
+  .demo-body{grid-template-columns:1fr}
+  .scan{display:none}
+  .steps,.rollout{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr;gap:4px}
+  .arrow{transform:rotate(90deg)}
+  form{grid-template-columns:1fr;padding:22px}
+  .tbl thead{display:none}
+  .tbl tr{display:block;border-bottom:1px solid var(--rule);padding:12px 0}
+  .tbl td{display:block;border:0;padding:4px 0;width:auto!important}
+  .tbl td:not(:first-child)::before{content:attr(data-h);display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+  .foot{grid-template-columns:1fr}
+  .result{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="LibraDigit home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 4v16h14"/><path d="M9 4h10v12H9z"/></svg>
+      </span>
+      LibraDigit
+    </a>
+    <nav aria-label="Primary">
+      <ul class="nav-links" id="navlinks">
+        <li><a href="#use-cases">Use cases</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#security">Security</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </nav>
+    <div class="nav-cta">
+      <a class="signin" href="#">Sign in</a>
+      <a class="btn btn-primary" href="#demo">Book a demo</a>
+      <button class="menu-btn" aria-expanded="false" aria-controls="navlinks" id="menuBtn">Menu</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <h1>Every record your campus has ever kept, searchable in seconds.</h1>
+      <p class="lede">LibraDigit turns theses, exam registers, library collections and accreditation files into a searchable digital archive. It runs on your own computers, so student and institutional records never leave campus.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#demo">Book a demo</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <ul class="assurances">
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Runs fully on campus</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Dublin Core metadata, PDF/A-2b files</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>No per-page cloud fees</li>
+      </ul>
+    </div>
+
+    <div class="demo" aria-label="Interactive preview of archive search">
+      <div class="demo-bar"><strong>Try a search</strong><span>Sample archive, 8 digitized records</span></div>
+      <div class="demo-body">
+        <div class="scan" aria-hidden="true">
+          <b>Convocation Programme, 1987</b>
+          <span>Conferment of degrees upon</span>
+          <span>candidates of the Faculty of</span>
+          <span>Engineering, held at the</span>
+          <span>University Auditorium on</span>
+          <span>the twelfth day of March</span>
+          <span>in the presence of the</span>
+          <span>Chancellor and members of</span>
+          <span>the Senate. Gold medal in</span>
+          <span>Civil Engineering awarded…</span>
+          <em class="scan-tag">Scanned page</em>
+        </div>
+        <div class="finder">
+          <label for="q">Search the archive</label>
+          <div class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#123C33" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+            <input id="q" type="search" value="convocation" autocomplete="off">
+          </div>
+          <div class="chips" aria-label="Example searches">
+            <button type="button" data-q="gold medal">gold medal</button>
+            <button type="button" data-q="1989">1989</button>
+            <button type="button" data-q="NAAC">NAAC</button>
+            <button type="button" data-q="thesis">thesis</button>
+          </div>
+          <p class="count" id="count" aria-live="polite"></p>
+          <ul class="results" id="results"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STANDARDS STRIP -->
+<section class="strip" aria-label="Standards supported">
+  <div class="wrap">
+    <p>Built on the standards your library and repository already use</p>
+    <ul>
+      <li>Dublin Core (oai_dc)</li><li>PDF/A-2b, veraPDF-checked</li><li>BagIt (RFC 8493)</li><li>SHA-256 checksums</li><li>DSpace &amp; Omeka CSV</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="section problem">
+  <div class="wrap problem-grid">
+    <div class="section-head">
+      <h2>Decades of institutional memory, stored in cupboards</h2>
+      <p class="lede">Most campuses hold thousands of pages that nobody can search: old registers, bound theses, minutes and certificates. Finding one record means a staff member, a key and an afternoon.</p>
+    </div>
+    <div class="pains">
+      <div><h3>Verification requests take days</h3><p>Alumni and employers ask for decades-old marks and degree records. Staff search ledgers by hand.</p></div>
+      <div><h3>Accreditation evidence is scattered</h3><p>IQAC teams rebuild the same proof for every cycle because past documents aren't indexed.</p></div>
+      <div><h3>Paper is deteriorating</h3><p>Brittle theses and registers lose legibility each year. Once a page is gone, it can't be recovered.</p></div>
+      <div><h3>Cloud tools raise data questions</h3><p>Uploading student records to an external service creates consent and data-protection concerns.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="section" id="use-cases">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>One archive for every office on campus</h2>
+      <p class="lede">Choose a department to see what it digitizes and what changes for the staff who run it.</p>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Use cases by department">
+      <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true">Library</button>
+      <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1">Examinations</button>
+      <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1">Accreditation</button>
+      <button class="tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1">Administration</button>
+      <button class="tab" role="tab" id="t5" aria-controls="p5" aria-selected="false" tabindex="-1">Schools</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p1" aria-labelledby="t1">
+      <div>
+        <h3>Open up special collections and theses</h3>
+        <p>Digitize rare books, bound dissertations and journal back-issues with catalogue-ready metadata. Researchers find a passage by searching its text, not by guessing a call number.</p>
+        <p class="who"><strong>Used by:</strong> librarians, research cells, digital repository teams</p>
+      </div>
+      <div class="doclist"><h4>Typical documents</h4><ul><li>Ph.D. and M.Phil. theses</li><li>Rare books and manuscripts</li><li>Accession registers</li><li>Journal and magazine back-issues</li></ul><p class="outcome">Catalogue export as Dublin Core CSV or XML for DSpace and Omeka</p></div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden>
+      <div>
+        <h3>Answer verification requests the same day</h3>
+        <p>Digitize mark registers, tabulation sheets and degree records going back decades. Find a student's record by name, register number or year, then issue a certified copy.</p>
+        <p class="who"><strong>Used by:</strong> Controller of Examinations, registrar's office</p>
+      </div>
+      <div class="doclist"><h4>Typical documents</h4><ul><li>Mark and tabulation registers</li><li>Degree and provisional certificate records</li><li>Convocation lists</li><li>Past question papers</li></ul><p class="outcome">Password-protected, on a PC inside the exam cell</p></div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden>
+      <div>
+        <h3>Keep accreditation evidence ready between cycles</h3>
+        <p>Index minutes, circulars, event reports and past self-study reports once. When NAAC, NBA or NIRF data is due, pull evidence for each criterion with a search.</p>
+        <p class="who"><strong>Used by:</strong> IQAC coordinators, department heads, principals</p>
+      </div>
+      <div class="doclist"><h4>Typical documents</h4><ul><li>Previous self-study reports</li><li>Committee and board minutes</li><li>Event, seminar and workshop reports</li><li>Faculty publication records</li></ul><p class="outcome">Tag documents by criterion and academic year</p></div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p4" aria-labelledby="t4" hidden>
+      <div>
+        <h3>Find any circular, contract or resolution</h3>
+        <p>Governing-body resolutions, service records and legal documents become searchable, and form fields and tables are pulled out as structured data.</p>
+        <p class="who"><strong>Used by:</strong> registrar, administration, legal and HR offices</p>
+      </div>
+      <div class="doclist"><h4>Typical documents</h4><ul><li>Senate and syndicate minutes</li><li>Staff service registers</li><li>Land, building and legal files</li><li>Circulars and government orders</li></ul><p class="outcome">Tables, stamps and signatures detected on each page</p></div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p5" aria-labelledby="t5" hidden>
+      <div>
+        <h3>Digitize admission and transfer records for good</h3>
+        <p>Schools keep admission registers and transfer certificate records for decades. Scan them once and find any former student's record in seconds.</p>
+        <p class="who"><strong>Used by:</strong> principals, school office staff, trust administrators</p>
+      </div>
+      <div class="doclist"><h4>Typical documents</h4><ul><li>Admission and withdrawal registers</li><li>Transfer certificate records</li><li>Attendance and result registers</li><li>School magazines and photographs</li></ul><p class="outcome">Runs on one Windows office PC, no server room needed</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>From paper to searchable archive in four steps</h2>
+      <p class="lede">Your staff scan as they do today. LibraDigit handles cleanup, text recognition and cataloguing.</p>
+    </div>
+    <ol class="steps">
+      <li><h3>Scan or import</h3><p>Drop in folders of PDFs, TIFFs or JPEGs from any scanner, one page or thousands at a time.</p></li>
+      <li><h3>Clean up automatically</h3><p>Pages are rotated upright, contrast-enhanced and denoised so faded print and handwriting read clearly.</p></li>
+      <li><h3>Recognise and catalogue</h3><p>Printed and handwritten text is extracted, staff correct it side by side, and title, author, year and subject are suggested.</p></li>
+      <li><h3>Archive and search</h3><p>Each record is saved as a searchable PDF/A-2b in a checksummed BagIt package, and the whole collection becomes full-text searchable.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section class="section" id="security">
+  <div class="wrap sec-grid">
+    <div>
+      <h2>Student records stay on your campus</h2>
+      <p class="lede" style="margin-top:16px">LibraDigit processes and stores everything on hardware you control. Processing and search work fully offline.</p>
+      <ul class="sec-list">
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg><div><strong>Password-protected access</strong><span>A master password set on first launch, stored as a salted bcrypt hash. Files and the search index stay in folders on your machine.</span></div></li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M17 11l2 2 3-4"/></svg><div><strong>Integrity you can verify</strong><span>Every archive package carries SHA-256 and MD5 manifests, so you can prove a file hasn't changed in years.</span></div></li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><div><strong>Designed for data-protection obligations</strong><span>Keeping personal data on-site helps you meet India's DPDP Act requirements and your own policies.</span></div></li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l16 16"/><path d="M7 17a5 5 0 01-.5-9.9A6 6 0 0118 9a4 4 0 012 7.4"/></svg><div><strong>Zero telemetry</strong><span>No usage data or analytics is sent anywhere. The optional translate feature, which uses an online service, can be switched off for fully offline use.</span></div></li>
+      </ul>
+    </div>
+    <div class="campus" aria-label="Diagram: all processing happens inside the campus network">
+      <div class="campus-box">
+        <span class="lbl">Your campus network</span>
+        <div class="flow">
+          <div class="node">Scanner<small>Library or office</small></div>
+          <span class="arrow" aria-hidden="true">›</span>
+          <div class="node">LibraDigit<small>Your Windows PC</small></div>
+          <span class="arrow" aria-hidden="true">›</span>
+          <div class="node">Staff<small>Search &amp; export</small></div>
+        </div>
+      </div>
+      <p class="cloud"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l16 16"/><path d="M7 17a5 5 0 01-.5-9.9A6 6 0 0118 9a4 4 0 012 7.4"/></svg><span>External cloud: <s>not used</s> for OCR, storage or search.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section class="section roles">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What changes for each office</h2>
+    </div>
+    <table class="tbl">
+      <thead><tr><th scope="col">Role</th><th scope="col">Before</th><th scope="col">With LibraDigit</th></tr></thead>
+      <tbody>
+        <tr><td>Librarian</td><td data-h="Before">Rare material handled for every request, catalogue entries typed by hand</td><td data-h="With LibraDigit">Originals stay shelved, metadata suggested automatically</td></tr>
+        <tr><td>Controller of Examinations</td><td data-h="Before">Verification letters wait while ledgers are searched</td><td data-h="With LibraDigit">Records found by name or register number in seconds</td></tr>
+        <tr><td>IQAC coordinator</td><td data-h="Before">Evidence collected from departments before every cycle</td><td data-h="With LibraDigit">Evidence tagged by criterion and year, ready to export</td></tr>
+        <tr><td>IT head</td><td data-h="Before">Asked to approve cloud tools that hold student data</td><td data-h="With LibraDigit">Local install that keeps processing and storage on campus</td></tr>
+        <tr><td>Principal or Vice-Chancellor</td><td data-h="Before">Institutional history at risk of physical loss</td><td data-h="With LibraDigit">A preserved, searchable archive in PDF/A-2b with checksums</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ROI -->
+<section class="section">
+  <div class="wrap roi">
+    <div>
+      <h2>Estimate the staff time you'll get back</h2>
+      <p class="lede" style="margin-top:16px">Move the sliders to match your office. The estimate compares searching paper records by hand with a full-text search that takes about a minute.</p>
+    </div>
+    <div class="calc">
+      <div class="field"><label for="r1">Record requests per month <output id="o1">120</output></label><input type="range" id="r1" min="10" max="1000" step="10" value="120"></div>
+      <div class="field"><label for="r2">Minutes to find one record today <output id="o2">45</output></label><input type="range" id="r2" min="5" max="240" step="5" value="45"></div>
+      <div class="field"><label for="r3">Staff cost per hour (₹) <output id="o3">350</output></label><input type="range" id="r3" min="100" max="1500" step="50" value="350"></div>
+      <div class="result" aria-live="polite">
+        <div>Staff hours saved per year<strong id="hrs">–</strong></div>
+        <div>Estimated yearly saving<strong id="inr">–</strong></div>
+      </div>
+      <p class="note">Indicative only. Your demo includes an estimate based on your own records.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF (placeholder until pilot quotes exist) -->
+<section class="section proof">
+  <div class="wrap">
+    <figure class="quote">
+      <span class="placeholder-tag">Placeholder: replace with a pilot institution's quote before launch</span>
+      <blockquote>"Add a short quote from a pilot partner here, ideally naming a specific result, such as how long verification requests used to take."</blockquote>
+      <figcaption>Name, Designation, Institution</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Annual licences for every size of institution</h2>
+      <p class="lede">One yearly licence with no per-page or per-search charges. Pricing depends on the number of workstations and archive volume.</p>
+    </div>
+    <div class="plans">
+      <article class="plan">
+        <h3>School</h3><p class="for">For schools and single-site colleges</p>
+        <p class="price">Request a quote</p>
+        <ul><li>One Windows workstation</li><li>Unlimited pages and searches</li><li>Searchable PDF/A-2b and BagIt export</li><li>Email support</li></ul>
+        <a class="btn btn-ghost" href="#demo">Get a quote</a>
+      </article>
+      <article class="plan featured">
+        <span class="flag">Most institutions</span>
+        <h3>College</h3><p class="for">For colleges digitizing across several offices</p>
+        <p class="price">Request a quote</p>
+        <ul><li>Up to 5 workstations</li><li>Handwriting and table extraction</li><li>Dublin Core export for DSpace or Omeka</li><li>Analytics on digitization progress</li><li>Onboarding and staff training</li></ul>
+        <a class="btn btn-primary" href="#demo">Get a quote</a>
+      </article>
+      <article class="plan">
+        <h3>University</h3><p class="for">For universities, affiliating bodies and multi-campus groups</p>
+        <p class="price">Request a quote</p>
+        <ul><li>Workstations across departments</li><li>Repository import support</li><li>Dedicated account manager</li><li>Priority support with response targets</li><li>Early access to shared campus server (planned)</li></ul>
+        <a class="btn btn-ghost" href="#demo">Talk to sales</a>
+      </article>
+    </div>
+    <div class="pilot">
+      <div><strong>Start with a campus pilot.</strong> Digitize one collection on your own hardware and review the results with your team before committing.</div>
+      <a class="btn btn-primary" href="#demo">Request a pilot</a>
+    </div>
+  </div>
+</section>
+
+<!-- ROLLOUT -->
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head"><h2>How a rollout runs</h2></div>
+    <ol class="rollout">
+      <li><span class="wk">Week 1</span><h3>Scoping call</h3><p>We review your collections, volumes and IT setup with the librarian and IT head.</p></li>
+      <li><span class="wk">Week 2</span><h3>On-campus install</h3><p>Your IT team installs LibraDigit and Tesseract OCR on each Windows workstation with our engineers.</p></li>
+      <li><span class="wk">Weeks 3–4</span><h3>Staff training</h3><p>Library and office staff learn scanning, review and search on their own documents.</p></li>
+      <li><span class="wk">Ongoing</span><h3>Support and updates</h3><p>Offline update packages and a named contact for questions.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq" id="faq">
+  <div class="wrap faq-grid">
+    <div class="section-head"><h2>Questions from IT and library teams</h2><p class="lede">Something else on your mind? <a href="#demo">Ask us directly.</a></p></div>
+    <div>
+      <details><summary>What hardware do we need?</summary><p>A modern Windows PC is enough. Each office that digitizes runs its own installation. A shared campus server edition is on the roadmap, and we'll recommend a specification during scoping.</p></details>
+      <details><summary>Does it work without an internet connection?</summary><p>Yes. OCR, cleanup, storage and search all run locally. The only feature that goes online is optional translation, and it can be turned off.</p></details>
+      <details><summary>Can it read handwritten registers and regional languages?</summary><p>Printed text is recognised in the languages installed with Tesseract OCR. Handwriting switches to a dedicated recognition mode, with accuracy typically between 75% and 92% depending on legibility, and staff can correct text side by side. We test your own pages during the demo.</p></details>
+      <details><summary>Will it work with our institutional repository?</summary><p>You can export the catalogue as Dublin Core CSV for DSpace or Omeka, or as oai_dc XML. Each record is also saved as a BagIt package with its PDF.</p></details>
+      <details><summary>Do we need to buy new scanners?</summary><p>No. It accepts PDFs, TIFFs and JPEGs from the scanners you already have.</p></details>
+      <details><summary>Who owns the digitized data?</summary><p>You do. Files sit in an ordinary folder structure (Subject, Year, Title) on your machine, and the metadata travels inside each PDF as XMP.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO FORM -->
+<section class="section cta" id="demo">
+  <div class="wrap cta-grid">
+    <div>
+      <h2>See it working on your own documents</h2>
+      <p class="lede" style="margin-top:16px">Book a 30-minute demo. Bring a few sample pages, and we'll show you the search results live.</p>
+      <ul>
+        <li>A walkthrough tailored to your offices</li>
+        <li>A test run on your sample pages</li>
+        <li>A time-saving estimate and a quote</li>
+      </ul>
+    </div>
+    <form id="demoForm" novalidate>
+      <div><label for="f-name">Full name</label><input id="f-name" name="name" required autocomplete="name"></div>
+      <div><label for="f-email">Work email</label><input id="f-email" name="email" type="email" required autocomplete="email"></div>
+      <div class="full"><label for="f-inst">Institution</label><input id="f-inst" name="institution" required autocomplete="organization"></div>
+      <div><label for="f-role">Your role</label>
+        <select id="f-role" name="role"><option>Librarian</option><option>Controller of Examinations</option><option>Registrar</option><option>IQAC coordinator</option><option>IT head</option><option>Principal / Vice-Chancellor</option><option>Other</option></select></div>
+      <div><label for="f-vol">Approximate pages to digitize</label>
+        <select id="f-vol" name="volume"><option>Under 10,000</option><option>10,000–100,000</option><option>100,000–1 million</option><option>Over 1 million</option></select></div>
+      <div class="full"><label for="f-msg">What would you digitize first? <span class="small">(optional)</span></label><textarea id="f-msg" name="message"></textarea></div>
+      <div class="full"><button class="btn btn-primary" type="submit" style="width:100%">Book a demo</button></div>
+      <p class="small full">We'll reply within one working day. Your details are used only to arrange the demo.</p>
+      <p class="form-ok" id="formOk" role="status">Demo request received. We'll email you within one working day.</p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="foot-brand">
+        <a class="brand" href="#top" style="color:#fff"><span class="brand-mark" style="background:#1C5246" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 4v16h14"/><path d="M9 4h10v12H9z"/></svg></span>LibraDigit</a>
+        <p>Local-first archive digitization for schools, colleges and universities.</p>
+      </div>
+      <div><h4>Product</h4><ul><li><a href="#how">How it works</a></li><li><a href="#security">Security</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#">Release notes</a></li></ul></div>
+      <div><h4>Solutions</h4><ul><li><a href="#use-cases">Libraries</a></li><li><a href="#use-cases">Examinations</a></li><li><a href="#use-cases">Accreditation</a></li><li><a href="#use-cases">Schools</a></li></ul></div>
+      <div><h4>Resources</h4><ul><li><a href="#">Documentation</a></li><li><a href="#">Hardware guide</a></li><li><a href="#">Security overview (PDF)</a></li><li><a href="#faq">FAQ</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#demo">Contact sales</a></li><li><a href="mailto:hello@example.com">hello@example.com</a></li><li>Chennai, India</li></ul></div>
+    </div>
+    <div class="legal">
+      <span>© 2026 LibraDigit. All rights reserved.</span>
+      <span><a href="#">Privacy policy</a> &nbsp; <a href="#">Terms of service</a> &nbsp; <a href="#">Accessibility</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Hero search demo
+const records=[
+ {t:"Convocation Programme, 1987",m:"Administration · 14 pages",s:"Conferment of degrees at the twelfth annual convocation, with gold medal in Civil Engineering awarded to the first-ranked candidate."},
+ {t:"Mark Register, B.E. Civil Engineering, 1989",m:"Examinations · 212 pages",s:"Final-year tabulated marks for the 1989 batch, including gold medal and rank holders."},
+ {t:"Ph.D. Thesis: Sediment Transport in Coastal Estuaries, 1994",m:"Library · 286 pages",s:"Doctoral thesis submitted to the Faculty of Engineering, with field data from 1989 to 1992."},
+ {t:"Senate Minutes, March 1992",m:"Administration · 38 pages",s:"Resolution approving the convocation schedule and revised thesis submission rules."},
+ {t:"NAAC Self-Study Report, 2016",m:"Accreditation · 410 pages",s:"Criterion III evidence: research publications, funded projects and thesis supervision records."},
+ {t:"Library Accession Register, 1965–1971",m:"Library · 520 pages",s:"Accession entries for rare books and bound journals received by the central library."},
+ {t:"College Annual Magazine, 1983",m:"Library · 96 pages",s:"Student writing, sports results and photographs from the silver jubilee convocation."},
+ {t:"Admission Register, 1978–79",m:"Administration · 340 pages",s:"Admission entries with register numbers, parent names and courses of study."}
+];
+const q=document.getElementById('q'),res=document.getElementById('results'),cnt=document.getElementById('count');
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function hl(text,term){const e=esc(text);if(!term)return e;const re=new RegExp('('+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');return e.replace(re,'<mark>$1</mark>');}
+function run(){const term=q.value.trim();const hits=records.filter(r=>!term||(r.t+' '+r.s).toLowerCase().includes(term.toLowerCase()));
+ cnt.textContent=term?`${hits.length} result${hits.length===1?'':'s'} for "${term}" across 1,926 pages`:'Showing all records';
+ res.innerHTML=hits.length?hits.map(r=>`<li><div class="t">${hl(r.t,term)}</div><div class="m">${esc(r.m)}</div><div class="s">${hl(r.s,term)}</div></li>`).join(''):'<li class="empty">No matches in the sample. Try "thesis" or "1989".</li>';}
+q.addEventListener('input',run);
+document.querySelectorAll('.chips button').forEach(b=>b.addEventListener('click',()=>{q.value=b.dataset.q;run();q.focus();}));
+run();
+
+// Tabs with arrow-key support
+const tabs=[...document.querySelectorAll('[role=tab]')];
+function select(t){tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).hidden=!on;});t.focus();}
+tabs.forEach((t,i)=>{t.addEventListener('click',()=>select(t));t.addEventListener('keydown',e=>{if(e.key==='ArrowRight')select(tabs[(i+1)%tabs.length]);if(e.key==='ArrowLeft')select(tabs[(i-1+tabs.length)%tabs.length]);});});
+
+// ROI calculator
+const r1=document.getElementById('r1'),r2=document.getElementById('r2'),r3=document.getElementById('r3');
+function roi(){document.getElementById('o1').textContent=r1.value;document.getElementById('o2').textContent=r2.value;document.getElementById('o3').textContent=r3.value;
+ const hrs=Math.round(r1.value*12*Math.max(r2.value-1,0)/60);
+ document.getElementById('hrs').textContent=hrs.toLocaleString('en-IN');
+ document.getElementById('inr').textContent='₹'+(hrs*r3.value).toLocaleString('en-IN');}
+[r1,r2,r3].forEach(r=>r.addEventListener('input',roi));roi();
+
+// Mobile menu
+const nav=document.getElementById('nav'),mb=document.getElementById('menuBtn');
+mb.addEventListener('click',()=>{const o=nav.classList.toggle('open');mb.setAttribute('aria-expanded',o);});
+document.querySelectorAll('#navlinks a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');mb.setAttribute('aria-expanded',false);}));
+
+// Demo form (front-end only: connect to your CRM or email endpoint)
+document.getElementById('demoForm').addEventListener('submit',e=>{e.preventDefault();const f=e.target;if(!f.checkValidity()){f.reportValidity();return;}document.getElementById('formOk').style.display='block';f.reset();});
+</script>
+</body>
+</html>

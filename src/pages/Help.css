@@ -528,6 +528,34 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
+[data-theme="light"] .help-hero-banner h1,
+[data-theme="light"] .help-feature-card h3,
+[data-theme="light"] .pipeline-step-card h3,
+[data-theme="light"] .privacy-detail-card h3,
+[data-theme="light"] .about-creator-card h3,
+[data-theme="light"] .faq-summary {
+    color: #1f2933;
+}
+
+[data-theme="light"] .help-hero-banner p,
+[data-theme="light"] .help-feature-card p,
+[data-theme="light"] .pipeline-step-card p,
+[data-theme="light"] .privacy-detail-card p,
+[data-theme="light"] .about-creator-card p,
+[data-theme="light"] .faq-answer-body {
+    color: #42505c;
+}
+
+[data-theme="light"] .faq-search-wrapper input {
+    background: #ffffff;
+    border-color: var(--color-border);
+    color: #1f2933;
+}
+
+[data-theme="light"] .faq-search-icon {
+    color: #64748b;
+}
+
 [data-theme="light"] .help-tab {
     color: #64748b;
 }

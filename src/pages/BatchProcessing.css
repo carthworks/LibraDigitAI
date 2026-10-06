@@ -690,13 +690,43 @@
 [data-theme="light"] .batch-drop-card,
 [data-theme="light"] .staged-files-panel,
 [data-theme="light"] .batch-active-panel,
+[data-theme="light"] .batch-status-panel,
 [data-theme="light"] .recent-batches-card,
 [data-theme="light"] .history-batch-item,
-[data-theme="light"] .staged-file-item,
-[data-theme="light"] .batch-mini-card {
+[data-theme="light"] .staged-file-item {
     background: #ffffff;
     border: 1px solid var(--color-border);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .batch-hero-banner h1,
+[data-theme="light"] .recent-batches-header h3,
+[data-theme="light"] .status-title-group h3,
+[data-theme="light"] .item-name,
+[data-theme="light"] .history-text-col h4,
+[data-theme="light"] .mini-name {
+    color: #1f2933;
+}
+
+[data-theme="light"] .batch-hero-banner p,
+[data-theme="light"] .recent-batches-header p {
+    color: #42505c;
+}
+
+[data-theme="light"] .item-size,
+[data-theme="light"] .history-meta-sub {
+    color: #64748b;
+}
+
+[data-theme="light"] .metric-pill {
+    background: #f8fafc;
+    border-color: var(--color-border);
+    color: #42505c;
+}
+
+[data-theme="light"] .batch-mini-card {
+    background: #f8fafc;
+    border: 1px solid var(--color-border);
 }
 
 [data-theme="light"] .batch-drop-zone {
@@ -707,4 +737,37 @@
 [data-theme="light"] .batch-drop-zone:hover {
     background: rgba(240, 132, 24, 0.04);
     border-color: #f08418;
+}
+
+[data-theme="light"] .staged-item-row:hover {
+    background: #f8fafc;
+}
+
+[data-theme="light"] .batch-input-field {
+    background: #ffffff;
+    border-color: var(--color-border);
+    color: #1f2933;
+}
+
+[data-theme="light"] .history-batch-item:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .btn-history-action {
+    color: #64748b;
+}
+
+[data-theme="light"] .btn-history-action:hover {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+[data-theme="light"] .btn-remove-item {
+    color: #64748b;
+}
+
+[data-theme="light"] .btn-remove-item:hover {
+    color: #dc2626;
+    background: #fee2e2;
 }

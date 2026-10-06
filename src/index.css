@@ -303,6 +303,21 @@ body.light-theme {
   color: #94a3b8;
 }
 
+[data-theme="light"] .content-area::-webkit-scrollbar-thumb,
+body.light-theme .content-area::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+[data-theme="light"] .content-area::-webkit-scrollbar-thumb:hover,
+body.light-theme .content-area::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+[data-theme="light"] .content-area::-webkit-scrollbar-track,
+body.light-theme .content-area::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
 /* Always ensure buttons with brand backgrounds retain white text in both themes */
 .btn-primary,
 .btn-hero-primary,
@@ -313,6 +328,7 @@ body.light-theme {
 .btn-submit-inquiry {
   color: #ffffff !important;
 }
+
 
 
 /* ============================================

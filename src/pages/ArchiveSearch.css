@@ -498,10 +498,30 @@
 [data-theme="light"] .search-hero-banner,
 [data-theme="light"] .advanced-filter-panel,
 [data-theme="light"] .results-table-card,
-[data-theme="light"] .pdf-modal-container {
+[data-theme="light"] .pdf-modal-container,
+[data-theme="light"] .pdf-modal-content {
     background: #ffffff;
     border: 1px solid var(--color-border);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .search-hero-banner h1 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .search-hero-banner p {
+    color: #42505c;
+}
+
+[data-theme="light"] .filter-group label {
+    color: #475569;
+}
+
+[data-theme="light"] .filter-select,
+[data-theme="light"] .filter-input {
+    background: #f8fafc;
+    border-color: var(--color-border);
+    color: #1f2933;
 }
 
 [data-theme="light"] .search-input {
@@ -531,6 +551,39 @@
 [data-theme="light"] .pdf-captions-panel {
     background: #f8fafc;
     border-color: var(--color-border);
+}
+
+[data-theme="light"] .pdf-header h2 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .pdf-header span {
+    color: #64748b;
+}
+
+[data-theme="light"] .pdf-captions-panel h3 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .pdf-controls button {
+    background: #ffffff;
+    border-color: var(--color-border);
+    color: #475569;
+}
+
+[data-theme="light"] .pdf-controls button:hover {
+    background: #f1f5f9;
+    color: #1f2933;
+}
+
+[data-theme="light"] .pdf-footer button {
+    background: #ffffff;
+    border-color: var(--color-border);
+    color: #1f2933;
+}
+
+[data-theme="light"] .pdf-footer button:hover:not(:disabled) {
+    background: #f1f5f9;
 }
 
 [data-theme="light"] .pdf-viewer-container {

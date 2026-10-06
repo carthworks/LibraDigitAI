@@ -1257,3 +1257,31 @@
     color: #1f2933;
 }
 
+[data-theme="light"] .dossier-card {
+    background: #f8fafc;
+    border: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .dossier-val {
+    color: #1f2933;
+}
+
+[data-theme="light"] .page-indicator-pill {
+    background: #f1f5f9;
+    color: #1f2933;
+    border: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .zoom-level-label {
+    color: #64748b;
+}
+
+[data-theme="light"] .ebooks-empty-state h3 {
+    color: #1f2933;
+}
+
+[data-theme="light"] .ebooks-empty-state p {
+    color: #64748b;
+}
+
+
