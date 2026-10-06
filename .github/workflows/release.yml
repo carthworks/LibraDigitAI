@@ -57,25 +57,28 @@ jobs:
 
       # Signing is used when the WIN_CSC_LINK (base64 .pfx) and WIN_CSC_KEY_PASSWORD
       # secrets exist; otherwise an unsigned installer is built.
-      - name: Configure code signing
+      # The signing secrets are given only to the step that signs. They are not
+      # written to $GITHUB_ENV, which would expose them to every later step
+      # (and to any dependency code those steps run).
+      - name: Check code signing configuration
         shell: bash
         env:
-          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          HAS_CERT: ${{ secrets.WIN_CSC_LINK != '' }}
         run: |
-          if [ -n "$WIN_CSC_LINK" ]; then
-            echo "CSC_LINK=$WIN_CSC_LINK" >> "$GITHUB_ENV"
-            echo "CSC_KEY_PASSWORD=$WIN_CSC_KEY_PASSWORD" >> "$GITHUB_ENV"
+          if [ "$HAS_CERT" = "true" ]; then
             echo "Code signing enabled"
           else
             echo "::warning::WIN_CSC_LINK not set - building an UNSIGNED installer (SmartScreen will warn users)"
-            echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> "$GITHUB_ENV"
           fi
 
-      - name: Build and publish installer
+      - name: Build, sign and publish installer
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ELECTRON_BUILD: 'true'
+          # Empty when the secrets are not configured; electron-builder then skips signing.
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.WIN_CSC_LINK != '' }}
         run: |
           npm run build
           npx electron-builder --win --publish always
