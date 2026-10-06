@@ -37,4 +37,5 @@
 @import '../pages/Analytics.css';
 @import '../pages/Settings.css';
 @import '../pages/ConvertedEbooks.css';
-
+@import '../components/CookieConsent.css';
+@import '../pages/TrustCenter.css';

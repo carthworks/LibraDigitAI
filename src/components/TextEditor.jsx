@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import ReactQuill from 'react-quill'
+import DOMPurify from 'dompurify'
 import { FileText, Type, CheckCircle } from 'lucide-react'
 
 const TextEditor = ({ value, onChange, placeholder = "Text will appear here..." }) => {
@@ -47,10 +48,10 @@ const TextEditor = ({ value, onChange, placeholder = "Text will appear here..." 
     }, [value])
 
     const handleChange = (content, delta, source, editor) => {
-        // Adapt ReactQuill's onChange to match the parent's expected event format
-        // or simply pass the content string if the parent can handle it.
-        // The parent (Cleanup.jsx) expects event object: e.target.value
-        onChange({ target: { value: content } })
+        // Adapt ReactQuill's onChange to match parent expected event format
+        // Sanitize output via DOMPurify to defend against Quill 1.3.7 vulnerabilities (M8)
+        const sanitized = DOMPurify.sanitize(content || '', { USE_PROFILES: { html: true } })
+        onChange({ target: { value: sanitized } })
     }
 
     return (
