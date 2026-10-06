@@ -21,7 +21,13 @@ class ErrorBoundary extends React.Component {
 
     handleGoHome = () => {
         this.setState({ hasError: false, error: null })
-        window.location.href = '/'
+        // file:// (desktop app) has no '/' page; go to the app's hash root instead.
+        if (window.location.protocol === 'file:') {
+            window.location.hash = '#/'
+            window.location.reload()
+        } else {
+            window.location.href = '/'
+        }
     }
 
     render() {

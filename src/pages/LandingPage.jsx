@@ -483,6 +483,7 @@ const LandingPage = ({ onLogin, isLoggedIn }) => {
             {showLoginModal && (
                 <LoginScreen
                     isModal={true}
+                    initialMode={isFirstRun ? 'register' : 'login'}
                     onClose={() => setShowLoginModal(false)}
                     onLogin={() => {
                         if (onLogin) onLogin()

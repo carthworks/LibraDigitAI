@@ -5,7 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import unusedImports from 'eslint-plugin-unused-imports'
 
 export default [
-  { ignores: ['dist/**', 'node_modules/**', 'backend/**', 'release/**'] },
+  { ignores: ['dist/**', 'node_modules/**', 'backend/**', 'release/**', 'test-results/**', 'playwright-report/**'] },
   {
     files: ['src/**/*.{js,jsx}'],
     languageOptions: {
@@ -34,6 +34,11 @@ export default [
   {
     files: ['electron/**/*.js'],
     languageOptions: { ecmaVersion: 2022, sourceType: 'commonjs', globals: { ...globals.node } },
+    rules: { ...js.configs.recommended.rules },
+  },
+  {
+    files: ['e2e/**/*.js'],
+    languageOptions: { ecmaVersion: 2024, sourceType: 'module', globals: { ...globals.node } },
     rules: { ...js.configs.recommended.rules },
   },
   {

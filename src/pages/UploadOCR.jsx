@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import { useToast } from '../context/ToastContext'
@@ -128,6 +128,15 @@ const UploadOCR = () => {
 
     const jobOptions = { onStart: setJob, onProgress: setJob }
 
+    // Auto-advance to Cleanup shortly after OCR finishes, but never after the
+    // user has already moved on (the stale timer used to yank them back).
+    const redirectTimer = useRef(null)
+    useEffect(() => () => clearTimeout(redirectTimer.current), [])
+    const goToCleanupSoon = (id) => {
+        clearTimeout(redirectTimer.current)
+        redirectTimer.current = setTimeout(() => navigate(`/cleanup/${id}`), 1800)
+    }
+
     // Opened from the dashboard (/upload?project=<id>): continue that document,
     // and if OCR is already running for it, show its live progress.
     const resumeProjectId = searchParams.get('project')
@@ -200,9 +209,7 @@ const UploadOCR = () => {
             finishJob()
             addToast('Neural OCR extraction complete!', 'success')
 
-            setTimeout(() => {
-                navigate(`/cleanup/${projectId || currentProject.id}`)
-            }, 1800)
+            goToCleanupSoon(projectId || currentProject.id)
 
         } catch (err) {
             finishJob()
@@ -235,9 +242,7 @@ const UploadOCR = () => {
             finishJob()
             addToast('Handwritten document converted to a searchable PDF!', 'success')
 
-            setTimeout(() => {
-                navigate(`/cleanup/${projectId || currentProject.id}`)
-            }, 1800)
+            goToCleanupSoon(projectId || currentProject.id)
 
         } catch (err) {
             setConvertingPDF(false)

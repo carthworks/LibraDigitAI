@@ -86,3 +86,7 @@ Desktop.ini
 # Desktop packaging outputs
 release/
 vendor/
+
+# Playwright end-to-end output
+test-results/
+playwright-report/
