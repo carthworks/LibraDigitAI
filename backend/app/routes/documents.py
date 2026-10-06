@@ -9,7 +9,7 @@ from deep_translator import GoogleTranslator
 from flask import Blueprint, Response, current_app, jsonify, request
 
 from .. import search_index
-from ..db import get_config_value, transaction
+from ..db import get_config_value, refresh_word_count, transaction
 from ..processors.metadata_extractor import extract_metadata
 from ..security import ValidationError
 from ..services import dublin_core
@@ -45,6 +45,7 @@ def save_cleaned_text(project_id):
 
     with transaction() as conn:
         conn.execute('UPDATE ocr_text SET cleaned_text = ? WHERE project_id = ?', (cleaned_text, project_id))
+        refresh_word_count(conn, project_id)
         set_status(conn, project_id, 'metadata')
         search_index.update(project_id, conn=conn)
     return jsonify({'success': True})

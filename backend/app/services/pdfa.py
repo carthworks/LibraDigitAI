@@ -12,9 +12,9 @@ the preflight passes; the test suite validates those with veraPDF. Imported
 born-digital PDFs keep their metadata but are not labelled PDF/A, because they
 can break rules a preflight cannot see.
 """
+import shutil
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-import shutil
 
 try:
     import pikepdf

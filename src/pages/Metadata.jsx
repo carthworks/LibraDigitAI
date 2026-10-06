@@ -4,7 +4,7 @@ import { useProject } from '../context/ProjectContext'
 import {
     Save, AlertCircle, ArrowRight, X, Sparkles, Check,
     FileText, Folder, Calendar, User, Tag, Eye, EyeOff,
-    ExternalLink, RefreshCw, Copy, CheckCircle2, ChevronRight
+    ExternalLink, Copy, CheckCircle2
 } from 'lucide-react'
 import WorkflowTracker from '../components/WorkflowTracker'
 import Modal from '../components/Modal'
@@ -45,7 +45,6 @@ const Metadata = () => {
     // AI Suggestions State
     const [suggestions, setSuggestions] = useState(null)
     const [extracting, setExtracting] = useState(false)
-    const [extractionError, setExtractionError] = useState(null)
 
     // Document Reference Pane State
     const [showRefPane, setShowRefPane] = useState(true)
@@ -96,7 +95,6 @@ const Metadata = () => {
 
     const handleExtractAI = async () => {
         setExtracting(true)
-        setExtractionError(null)
 
         try {
             const res = await axios.post(`${API_URL}/metadata/extract/${projectId}`)
@@ -114,7 +112,6 @@ const Metadata = () => {
         } catch (err) {
             console.error('Failed to extract metadata:', err)
             const msg = err.response?.data?.error || 'Extraction failed'
-            setExtractionError(msg)
             addToast(msg, 'error')
         } finally {
             setExtracting(false)

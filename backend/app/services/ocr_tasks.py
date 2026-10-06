@@ -14,7 +14,7 @@ from flask import current_app
 from PIL import Image
 
 from .. import search_index
-from ..db import get_config_value, transaction
+from ..db import get_config_value, refresh_word_count, transaction
 from ..processors.advanced_ocr import AdvancedOCRProcessor
 from ..processors.glm_ocr import GlmOcrProcessor
 from ..processors.handwritten_to_pdf import HandwrittenToPDFConverter
@@ -51,6 +51,7 @@ def _save_ocr_result(project_id, text, confidence=None, ocr_pdf_path=None, mean_
                      (text, json.dumps(confidence) if confidence else None, mean_confidence, project_id))
         if ocr_pdf_path:
             conn.execute('UPDATE files SET ocr_path = ? WHERE project_id = ?', (ocr_pdf_path, project_id))
+        refresh_word_count(conn, project_id)
         set_status(conn, project_id, 'cleanup')
         search_index.update(project_id, conn=conn)
 

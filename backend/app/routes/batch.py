@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, current_app, jsonify, request
 
 from .. import search_index
-from ..db import get_config_value, transaction
+from ..db import get_config_value, refresh_word_count, transaction
 from ..processors.batch_processor import BatchProcessor
 from ..security import ValidationError, display_filename, safe_upload_path
 from ..services.ocr import extract_document_text
@@ -83,6 +83,7 @@ def start_batch_processing(batch_id):
             with transaction() as conn:
                 conn.execute('UPDATE ocr_text SET original_text = ?, mean_confidence = ? WHERE project_id = ?',
                              (result['text'], result.get('mean_confidence'), project_id))
+                refresh_word_count(conn, project_id)
                 if result.get('ocr_pdf_path'):
                     conn.execute('UPDATE files SET ocr_path = ? WHERE project_id = ?',
                                  (result['ocr_pdf_path'], project_id))
