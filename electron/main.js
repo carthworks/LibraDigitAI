@@ -16,6 +16,11 @@ const BACKEND_START_TIMEOUT_MS = 60000;
 const isBackendUrl = (url) => /^http:\/\/(localhost|127\.0\.0\.1):5001\//.test(url);
 const isExternalWebUrl = (url) => /^https?:\/\//i.test(url) && !isBackendUrl(url);
 
+// Test/automation hook: isolate all app data in a given folder.
+if (process.env.LIBRADIGIT_USER_DATA_DIR) {
+    app.setPath('userData', process.env.LIBRADIGIT_USER_DATA_DIR);
+}
+
 let mainWindow = null;
 let pythonProcess = null;
 let quitting = false;
@@ -53,7 +58,8 @@ const backendEnv = (backendDir) => {
         LIBRADIGIT_PORT: String(BACKEND_PORT),
         LIBRADIGIT_DATABASE: path.join(dataDir, 'libradigit.db'),
         LIBRADIGIT_UPLOAD_FOLDER: path.join(dataDir, 'uploads'),
-        LIBRADIGIT_ARCHIVE_FOLDER: path.join(app.getPath('documents'), 'LibraDigit Archive'),
+        LIBRADIGIT_ARCHIVE_FOLDER: process.env.LIBRADIGIT_ARCHIVE_FOLDER
+            || path.join(app.getPath('documents'), 'LibraDigit Archive'),
         // Releases before 1.3 stored data beside the backend executable.
         LIBRADIGIT_LEGACY_DATA_DIR: backendDir,
     };

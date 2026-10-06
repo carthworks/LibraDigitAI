@@ -45,6 +45,16 @@ jobs:
           cache: npm
       - run: npm ci
 
+      # Never publish an installer whose app fails the end-to-end flow.
+      - name: Package and end-to-end test the desktop app
+        env:
+          ELECTRON_BUILD: 'true'
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          npm run build
+          npx electron-builder --win --dir --publish never
+          npx playwright test
+
       # Signing is used when the WIN_CSC_LINK (base64 .pfx) and WIN_CSC_KEY_PASSWORD
       # secrets exist; otherwise an unsigned installer is built.
       - name: Configure code signing

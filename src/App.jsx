@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
 import WelcomeScreen from './components/WelcomeScreen'
@@ -7,6 +7,11 @@ import LogoLoader from './components/LogoLoader'
 import { ProjectProvider } from './context/ProjectContext'
 import { ToastProvider } from './context/ToastContext'
 import { ThemeProvider } from './context/ThemeContext'
+
+// The desktop app loads index.html from disk (file://), where path-style URLs
+// such as file:///upload do not exist: reloading the window showed a blank
+// page. Hash URLs (index.html#/upload) work there; the web build keeps clean URLs.
+const Router = window.location.protocol === 'file:' ? HashRouter : BrowserRouter
 
 // Each page is its own chunk, so heavy libraries (charts, PDF rendering, the
 // rich-text editor, bcrypt) only download when the page that needs them opens.

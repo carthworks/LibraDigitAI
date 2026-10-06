@@ -59,7 +59,7 @@ jobs:
       - run: npm run build
 
   package-windows:
-    name: Windows backend package
+    name: Windows desktop app (package + end-to-end)
     runs-on: windows-latest
     needs: backend
     steps:
@@ -79,3 +79,28 @@ jobs:
       - name: Smoke test packaged backend
         shell: pwsh
         run: ./scripts/smoke-test-backend.ps1
+
+      # Package the full desktop app (unpacked, unsigned) and drive it like a
+      # user: first-run setup, upload, OCR, review, metadata, PDF/A archive,
+      # search, and backend shutdown on close (e2e/desktop.spec.js).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Package desktop app
+        env:
+          ELECTRON_BUILD: 'true'
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          npm run build
+          npx electron-builder --win --dir --publish never
+      - name: Desktop end-to-end test
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results
+          path: |
+            test-results/
+            playwright-report/

@@ -205,6 +205,17 @@ pip install -r requirements-dev.txt
 python -m pytest tests -q      # OCR workflow tests are skipped if Tesseract is absent
 ```
 
+**Desktop end-to-end test** (`e2e/desktop.spec.js`): drives the packaged Electron app through
+first-run setup, upload, OCR, review, metadata, PDF/A archive, search and shutdown. CI runs it
+on Windows for every pull request and before every release.
+
+```bash
+cd backend && pyinstaller --noconfirm server.spec && cd ..   # backend executable
+ELECTRON_BUILD=true npm run build
+npx electron-builder --dir --publish never                   # unpacked app in release/
+npx playwright test                                          # Linux without a display: xvfb-run -a npx playwright test
+```
+
 ### Backend Configuration
 
 The backend reads optional environment variables (see `backend/app/config.py`):

@@ -14,7 +14,8 @@
     "pack": "cross-env ELECTRON_BUILD=true npm run build && electron-builder --win --dir",
     "lint": "eslint .",
     "test:backend": "cd backend && python -m pytest tests -q",
-    "build:backend": "cd backend && pyinstaller --noconfirm server.spec"
+    "build:backend": "cd backend && pyinstaller --noconfirm server.spec",
+    "test:e2e": "playwright test"
   },
   "keywords": [
     "ocr",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.56.1",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.6.0",
     "axios": "^1.6.2",

@@ -19,9 +19,9 @@ import {
 } from 'lucide-react'
 import bcrypt from 'bcryptjs'
 
-const LoginScreen = ({ onLogin, isModal = false, onClose = null }) => {
+const LoginScreen = ({ onLogin, isModal = false, onClose = null, initialMode = 'login' }) => {
     // Mode: 'login' | 'register' | 'reset'
-    const [authMode, setAuthMode] = useState('login')
+    const [authMode, setAuthMode] = useState(initialMode)
     
     // Form fields
     const [username, setUsername] = useState('')
