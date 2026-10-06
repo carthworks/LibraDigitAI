@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ShieldCheck, Cookie, Settings, Check, X } from 'lucide-react'
+import { Cookie, Settings, Check } from 'lucide-react'
 import './CookieConsent.css'
 
 const COOKIE_STORAGE_KEY = 'libradigit_cookie_consent'

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
-    ShieldCheck, Lock, FileText, RefreshCw, Info, Mail,
-    CreditCard, Cookie, CheckCircle2, AlertCircle, ArrowLeft,
-    ExternalLink, MapPin, Phone, Clock, Send, Scale, BookOpen
+    ShieldCheck, Lock, RefreshCw, Info, Mail,
+    CreditCard, Cookie, CheckCircle2, ArrowLeft,
+    ExternalLink, MapPin, Clock, Send, Scale
 } from 'lucide-react'
 import LogoLoader from '../components/LogoLoader'
 import './TrustCenter.css'
