@@ -24,6 +24,17 @@ const SUBJECT_PRESETS = [
     'Rare Library Collections'
 ]
 
+// Text edited in Cleanup is stored as the editor's HTML; show and copy it as plain text.
+const projectPlainText = (project) => {
+    const text = project?.cleaned_text || project?.ocr_text || ''
+    if (!/<[a-z][^>]*>/i.test(text)) return text
+    const doc = new DOMParser().parseFromString(text, 'text/html')
+    const blocks = doc.body.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre')
+    return blocks.length
+        ? Array.from(blocks, block => block.textContent).join('\n')
+        : doc.body.textContent || ''
+}
+
 const Metadata = () => {
     const { projectId } = useParams()
     const navigate = useNavigate()
@@ -234,7 +245,7 @@ const Metadata = () => {
     }
 
     const handleCopyOcrText = () => {
-        const text = currentProject?.cleaned_text || currentProject?.ocr_text || ''
+        const text = projectPlainText(currentProject)
         if (text) {
             navigator.clipboard.writeText(text)
             setCopiedText(true)
@@ -255,7 +266,7 @@ const Metadata = () => {
     const filename = currentProject?.filename || 'Document'
     const isPdf = filename.toLowerCase().endsWith('.pdf')
     const originalFileUrl = `${API_URL}/projects/${projectId}/file?type=original`
-    const ocrSnippet = (currentProject?.cleaned_text || currentProject?.ocr_text || '').trim()
+    const ocrSnippet = projectPlainText(currentProject).trim()
 
     // Calculated Archival Paths
     const subjectFolder = sanitizeFilename(formData.subject) || 'General'
