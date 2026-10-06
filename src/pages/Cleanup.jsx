@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
 import {
     Save, AlertCircle, ArrowRight, X, Download, Globe,
-    AlertTriangle, Sparkles, ZoomIn, ZoomOut, Maximize2,
+    AlertTriangle, Sparkles, ZoomIn, ZoomOut,
     ExternalLink, Eye, EyeOff, FileText, CheckCircle2, RotateCcw
 } from 'lucide-react'
 import WorkflowTracker from '../components/WorkflowTracker'
