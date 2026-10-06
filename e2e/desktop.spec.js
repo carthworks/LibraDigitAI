@@ -48,6 +48,11 @@ test.beforeAll(async () => {
         timeout: 60_000,
     })
     win = await app.firstWindow()
+    // The first-run cookie banner can cover buttons; answer it whenever it shows.
+    await win.addLocatorHandler(
+        win.getByRole('region', { name: 'Privacy & Cookie Preferences' }),
+        () => win.getByRole('button', { name: 'Reject Non-Essential' }).click(),
+    )
 })
 
 test.afterAll(async () => {
